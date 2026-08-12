@@ -58,6 +58,7 @@ const eslintConfig = defineConfig([
     // Flat config / tooling files outside the TS project
     "eslint.config.mjs",
     "postcss.config.mjs",
+    "scripts/**/*.mjs",
   ]),
 ]);
 
