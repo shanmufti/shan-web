@@ -11,14 +11,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-type ProjectCardProps = {
+interface ProjectCardProps {
   href: string;
   title: string;
   summary: string;
   tags: string[];
-  repoUrl?: string;
-  demoUrl?: string;
-};
+  repoUrl?: string | undefined;
+  demoUrl?: string | undefined;
+}
 
 export function ProjectCard({
   href,
@@ -47,7 +47,7 @@ export function ProjectCard({
           </div>
         ) : null}
       </CardContent>
-      {repoUrl || demoUrl ? (
+      {(repoUrl ?? demoUrl) ? (
         <CardFooter className="gap-2">
           {repoUrl ? (
             <Button

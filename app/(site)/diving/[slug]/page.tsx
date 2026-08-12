@@ -1,32 +1,8 @@
 import { RichText } from "@payloadcms/richtext-lexical/react";
 import { notFound } from "next/navigation";
-import { getPayload } from "payload";
 
-import config from "@payload-config";
+import { getPublishedBySlug } from "@/lib/content";
 import { formatDate } from "@/lib/format-date";
-
-async function getDive(slug: string) {
-  const payload = await getPayload({ config });
-  const { docs } = await payload.find({
-    collection: "diving",
-    where: {
-      and: [{ slug: { equals: slug } }, { draft: { equals: false } }],
-    },
-    limit: 1,
-    overrideAccess: false,
-  });
-  return docs[0];
-}
-
-export async function generateStaticParams() {
-  const payload = await getPayload({ config });
-  const { docs } = await payload.find({
-    collection: "diving",
-    where: { draft: { equals: false } },
-    limit: 0,
-  });
-  return docs.map((dive) => ({ slug: dive.slug }));
-}
 
 export async function generateMetadata({
   params,
@@ -34,7 +10,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const dive = await getDive(slug);
+  const dive = await getPublishedBySlug("diving", slug);
   return dive ? { title: dive.title, description: dive.summary } : {};
 }
 
@@ -44,7 +20,7 @@ export default async function DivePost({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const dive = await getDive(slug);
+  const dive = await getPublishedBySlug("diving", slug);
   if (!dive) notFound();
 
   return (
@@ -54,7 +30,7 @@ export default async function DivePost({
         {formatDate(dive.date)}
         {dive.siteName ? ` · ${dive.siteName}` : ""}
         {` · ${dive.location.name}`}
-        {dive.depthMeters ? ` · ${dive.depthMeters}m` : ""}
+        {dive.depthMeters != null ? ` · ${String(dive.depthMeters)}m` : ""}
       </p>
       <RichText data={dive.body} />
     </article>

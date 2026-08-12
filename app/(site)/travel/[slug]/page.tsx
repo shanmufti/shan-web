@@ -1,32 +1,8 @@
 import { RichText } from "@payloadcms/richtext-lexical/react";
 import { notFound } from "next/navigation";
-import { getPayload } from "payload";
 
-import config from "@payload-config";
+import { getPublishedBySlug } from "@/lib/content";
 import { formatDate } from "@/lib/format-date";
-
-async function getTrip(slug: string) {
-  const payload = await getPayload({ config });
-  const { docs } = await payload.find({
-    collection: "travel",
-    where: {
-      and: [{ slug: { equals: slug } }, { draft: { equals: false } }],
-    },
-    limit: 1,
-    overrideAccess: false,
-  });
-  return docs[0];
-}
-
-export async function generateStaticParams() {
-  const payload = await getPayload({ config });
-  const { docs } = await payload.find({
-    collection: "travel",
-    where: { draft: { equals: false } },
-    limit: 0,
-  });
-  return docs.map((trip) => ({ slug: trip.slug }));
-}
 
 export async function generateMetadata({
   params,
@@ -34,7 +10,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const trip = await getTrip(slug);
+  const trip = await getPublishedBySlug("travel", slug);
   return trip ? { title: trip.title, description: trip.summary } : {};
 }
 
@@ -44,7 +20,7 @@ export default async function TravelPost({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const trip = await getTrip(slug);
+  const trip = await getPublishedBySlug("travel", slug);
   if (!trip) notFound();
 
   const start = formatDate(trip.startDate);

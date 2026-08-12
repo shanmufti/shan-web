@@ -1,20 +1,13 @@
 import type { Metadata } from "next";
-import { getPayload } from "payload";
 
-import config from "@payload-config";
 import { PostCard } from "@/components/post-card";
+import { listPublished } from "@/lib/content";
 import { formatDate } from "@/lib/format-date";
 
 export const metadata: Metadata = { title: "Diving" };
 
 export default async function DivingIndex() {
-  const payload = await getPayload({ config });
-  const { docs: dives } = await payload.find({
-    collection: "diving",
-    where: { draft: { equals: false } },
-    sort: "-date",
-    limit: 100,
-  });
+  const dives = await listPublished("diving");
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
@@ -24,7 +17,7 @@ export default async function DivingIndex() {
           const meta = [
             dive.siteName,
             dive.location.name,
-            dive.depthMeters ? `${dive.depthMeters}m` : null,
+            dive.depthMeters != null ? `${String(dive.depthMeters)}m` : null,
           ]
             .filter(Boolean)
             .join(" · ");

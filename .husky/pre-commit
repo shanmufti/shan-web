@@ -1,1 +1,5 @@
+# Format/lint only what you're committing, then typecheck the whole project
+# so cross-file breaks don't slip through.
+node ./scripts/check-staged-secrets.mjs
 npx lint-staged
+npm run typecheck

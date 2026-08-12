@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { getPayload } from "payload";
 
-import config from "@payload-config";
 import { PostCard } from "@/components/post-card";
+import { listPublished } from "@/lib/content";
 import { formatDate } from "@/lib/format-date";
 
 export const metadata: Metadata = { title: "Travel" };
@@ -14,13 +13,7 @@ function dateRangeLabel(startDate: string, endDate?: string | null) {
 }
 
 export default async function TravelIndex() {
-  const payload = await getPayload({ config });
-  const { docs: trips } = await payload.find({
-    collection: "travel",
-    where: { draft: { equals: false } },
-    sort: "-startDate",
-    limit: 100,
-  });
+  const trips = await listPublished("travel", { sort: "-startDate" });
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">

@@ -21,13 +21,16 @@ const slugField: Field = {
   hooks: {
     beforeValidate: [
       ({ value, siblingData }) => {
-        const source =
-          typeof value === "string" && value.trim()
-            ? value
-            : typeof siblingData?.title === "string"
-              ? siblingData.title
-              : undefined;
-        return source ? formatSlug(source) : value;
+        if (typeof value === "string" && value.trim() !== "") {
+          return formatSlug(value);
+        }
+
+        const title: unknown = siblingData["title"];
+        if (typeof title === "string" && title.trim() !== "") {
+          return formatSlug(title);
+        }
+
+        return typeof value === "string" ? value : undefined;
       },
     ],
   },

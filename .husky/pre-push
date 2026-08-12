@@ -1,1 +1,2 @@
-npm run typecheck
+# Last local gate before Vercel auto-deploys main (no CI / no PRs).
+npm run verify

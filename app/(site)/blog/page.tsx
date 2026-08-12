@@ -1,20 +1,13 @@
 import type { Metadata } from "next";
-import { getPayload } from "payload";
 
-import config from "@payload-config";
 import { PostCard } from "@/components/post-card";
+import { listPublished } from "@/lib/content";
 import { formatDate } from "@/lib/format-date";
 
 export const metadata: Metadata = { title: "Blog" };
 
 export default async function BlogIndex() {
-  const payload = await getPayload({ config });
-  const { docs: posts } = await payload.find({
-    collection: "blog",
-    where: { draft: { equals: false } },
-    sort: "-date",
-    limit: 100,
-  });
+  const posts = await listPublished("blog");
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">

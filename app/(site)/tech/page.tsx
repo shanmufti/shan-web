@@ -1,19 +1,12 @@
 import type { Metadata } from "next";
-import { getPayload } from "payload";
 
-import config from "@payload-config";
 import { ProjectCard } from "@/components/project-card";
+import { listPublished } from "@/lib/content";
 
 export const metadata: Metadata = { title: "Tech" };
 
 export default async function TechIndex() {
-  const payload = await getPayload({ config });
-  const { docs: projects } = await payload.find({
-    collection: "tech",
-    where: { draft: { equals: false } },
-    sort: "-date",
-    limit: 100,
-  });
+  const projects = await listPublished("tech");
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">

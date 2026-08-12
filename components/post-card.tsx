@@ -9,14 +9,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-type PostCardProps = {
+interface PostCardProps {
   href: string;
   title: string;
   summary: string;
   dateLabel: string;
-  meta?: string;
-  tags?: string[];
-};
+  meta?: string | undefined;
+  tags?: string[] | undefined;
+}
 
 export function PostCard({
   href,

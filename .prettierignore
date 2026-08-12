@@ -1,3 +1,8 @@
+# Generated / build output — do not fight Prettier on these.
 .next
-.velite
-public/static
+out
+build
+node_modules
+payload-types.ts
+app/(payload)/**
+*.tsbuildinfo

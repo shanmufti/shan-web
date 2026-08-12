@@ -15,16 +15,16 @@ Opens at [http://localhost:3000](http://localhost:3000) with Fast Refresh. Visit
 
 Requires a `.env.local` (gitignored) with:
 
-| Variable | Purpose |
-| --- | --- |
-| `DATABASE_URL` | Neon **pooled** connection (runtime on Vercel) |
-| `DATABASE_URL_UNPOOLED` | Neon **direct** connection (migrations during build) |
-| `PAYLOAD_SECRET` | Signs admin auth cookies/JWTs — long random string |
-| `NEXT_PUBLIC_SERVER_URL` | Public site URL (`https://smufti.com`) for CSRF |
-| `R2_BUCKET` | R2 bucket name |
-| `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | R2 **S3 API** token (Object Read & Write) |
-| `R2_ENDPOINT` | S3 API endpoint: `https://<ACCOUNT_ID>.r2.cloudflarestorage.com` (uploads only) |
-| `R2_PUBLIC_URL` | Public file URL base: `https://pub-….r2.dev` or a custom domain (serving only) |
+| Variable                                    | Purpose                                                                         |
+| ------------------------------------------- | ------------------------------------------------------------------------------- |
+| `DATABASE_URL`                              | Neon **pooled** connection (runtime on Vercel)                                  |
+| `DATABASE_URL_UNPOOLED`                     | Neon **direct** connection (migrations during build)                            |
+| `PAYLOAD_SECRET`                            | Signs admin auth cookies/JWTs — long random string                              |
+| `NEXT_PUBLIC_SERVER_URL`                    | Public site URL (`https://smufti.com`) for CSRF                                 |
+| `R2_BUCKET`                                 | R2 bucket name                                                                  |
+| `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | R2 **S3 API** token (Object Read & Write)                                       |
+| `R2_ENDPOINT`                               | S3 API endpoint: `https://<ACCOUNT_ID>.r2.cloudflarestorage.com` (uploads only) |
+| `R2_PUBLIC_URL`                             | Public file URL base: `https://media.smufti.com` (R2 custom domain)             |
 
 Never commit these. Production/Preview copies live only in Vercel → Project → Settings → Environment Variables (secrets marked **Sensitive**).
 
@@ -40,19 +40,29 @@ Neon stores article text + a pointer to each file. The bytes live in R2.
 Two different Cloudflare URLs (easy to mix up):
 
 - **`R2_ENDPOINT`** — private S3 API for upload/delete. Not for `<img src>`.
-- **`R2_PUBLIC_URL`** — public HTTP base for browsers. Enable **R2.dev subdomain** (or attach a custom domain) on the bucket.
+- **`R2_PUBLIC_URL`** — public HTTP base for browsers (`https://media.smufti.com`).
 
 Also set **CORS** on the bucket so browser PUTs from `http://localhost:3000` and `https://smufti.com` are allowed (needed because of client uploads).
 
-### Code quality
+### Code quality / commit safeguards
+
+No CI or PR flow — protection is local Husky hooks (can still be skipped with `--no-verify`; don’t).
 
 ```bash
-npm run lint       # ESLint
-npm run typecheck  # tsc --noEmit
-npm run format      # Prettier, writes in place
+npm run check        # typecheck + eslint + prettier --check
+npm run verify       # check + production `next build` (what pre-push runs)
+npm run typecheck
+npm run lint
+npm run format
+npm run secrets:check
 ```
 
-A pre-commit hook (Husky + lint-staged) runs ESLint and Prettier on staged files automatically. A pre-push hook runs a full `tsc --noEmit` project-wide type check before every push.
+| Hook           | Runs                                    | Purpose                                                                                        |
+| -------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| **pre-commit** | secret scan → lint-staged → `typecheck` | Block secrets, format/lint staged files, catch cross-file type breaks before the commit exists |
+| **pre-push**   | `npm run verify`                        | Full check + production build before code can reach `main` / Vercel                            |
+
+TypeScript is strict (`exactOptionalPropertyTypes`, `verbatimModuleSyntax`, `noUncheckedIndexedAccess`, unused locals/params, etc.). ESLint uses `typescript-eslint` strict + stylistic type-checked rules. Prettier ignores Payload-generated `app/(payload)/**`.
 
 ## Build & deploy
 

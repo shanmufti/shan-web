@@ -8,9 +8,13 @@
     "build": "next build",
     "start": "next start",
     "ci": "DATABASE_URL=\"${DATABASE_URL_UNPOOLED:-$DATABASE_URL}\" payload migrate && next build",
-    "lint": "eslint",
+    "lint": "eslint .",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm run lint && npm run format:check",
+    "verify": "npm run check && npm run build",
+    "secrets:check": "node ./scripts/check-staged-secrets.mjs",
     "payload": "payload",
     "generate:importmap": "payload generate:importmap",
     "generate:types": "payload generate:types",
@@ -57,6 +61,7 @@
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "typescript-eslint": "^8.67.0"
   }
 }
