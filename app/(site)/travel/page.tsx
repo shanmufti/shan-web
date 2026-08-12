@@ -1,21 +1,26 @@
 import type { Metadata } from "next";
+import { getPayload } from "payload";
 
-import { travel } from "#velite";
+import config from "@payload-config";
 import { PostCard } from "@/components/post-card";
 import { formatDate } from "@/lib/format-date";
 
 export const metadata: Metadata = { title: "Travel" };
 
-function dateRangeLabel(startDate: string, endDate?: string) {
+function dateRangeLabel(startDate: string, endDate?: string | null) {
   const start = formatDate(startDate);
   if (!endDate) return start;
   return `${start} – ${formatDate(endDate)}`;
 }
 
-export default function TravelIndex() {
-  const trips = [...travel].sort(
-    (a, b) => +new Date(b.startDate) - +new Date(a.startDate),
-  );
+export default async function TravelIndex() {
+  const payload = await getPayload({ config });
+  const { docs: trips } = await payload.find({
+    collection: "travel",
+    where: { draft: { equals: false } },
+    sort: "-startDate",
+    limit: 100,
+  });
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
@@ -24,7 +29,7 @@ export default function TravelIndex() {
         {trips.map((trip) => (
           <PostCard
             key={trip.slug}
-            href={trip.permalink}
+            href={`/travel/${trip.slug}`}
             title={trip.title}
             summary={trip.summary}
             dateLabel={dateRangeLabel(trip.startDate, trip.endDate)}

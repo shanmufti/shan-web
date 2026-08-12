@@ -1,6 +1,8 @@
 # shan-web
 
-Personal site for Shan Mufti — blog, diving, travel, and tech, built with Next.js, Velite, and Tailwind CSS. Live at [smufti.com](https://smufti.com).
+Personal site for Shan Mufti — blog, diving, travel, and tech, built with Next.js and Tailwind CSS. Live at [smufti.com](https://smufti.com).
+
+Articles are authored through a [Payload CMS](https://payloadcms.com) admin panel at `/admin`, not as files in this repo. Article text/metadata live in a Postgres database (Neon); images live in Cloudflare R2. Nothing content-related is stored in git.
 
 ## Development
 
@@ -9,9 +11,9 @@ npm install
 npm run dev
 ```
 
-Opens at [http://localhost:3000](http://localhost:3000) with Fast Refresh — edits to `app/`, `components/`, etc. hot-reload immediately. Editing or adding an `.mdx` file under `content/` also hot-reloads: Velite watches `content/` in dev and regenerates the typed data on save.
+Opens at [http://localhost:3000](http://localhost:3000) with Fast Refresh. Visit [http://localhost:3000/admin](http://localhost:3000/admin) to log in and create/edit articles for the blog, diving, travel, and tech sections.
 
-Content lives in `content/blog/`, `content/diving/`, `content/travel/`, `content/tech/` (one `.mdx` file per post, frontmatter schema defined in `velite.config.ts`). Every post needs an explicit `slug` field in its frontmatter (it's not derived from the filename) — that's what its URL is built from.
+Requires a `.env.local` (gitignored) with `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `PAYLOAD_SECRET`, and the `R2_*` variables — see `payload.config.ts` for what each is used for. Nobody but the machine that has `.env.local` can reach the database or R2 bucket.
 
 ### Code quality
 

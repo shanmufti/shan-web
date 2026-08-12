@@ -1,11 +1,28 @@
+import { RichText } from "@payloadcms/richtext-lexical/react";
 import { notFound } from "next/navigation";
+import { getPayload } from "payload";
 
-import { blog } from "#velite";
-import { MDXContent } from "@/components/mdx-content";
+import config from "@payload-config";
 import { formatDate } from "@/lib/format-date";
 
-export function generateStaticParams() {
-  return blog.map((post) => ({ slug: post.slug }));
+async function getPost(slug: string) {
+  const payload = await getPayload({ config });
+  const { docs } = await payload.find({
+    collection: "blog",
+    where: { slug: { equals: slug } },
+    limit: 1,
+  });
+  return docs[0];
+}
+
+export async function generateStaticParams() {
+  const payload = await getPayload({ config });
+  const { docs } = await payload.find({
+    collection: "blog",
+    where: { draft: { equals: false } },
+    limit: 0,
+  });
+  return docs.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({
@@ -14,7 +31,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = blog.find((p) => p.slug === slug);
+  const post = await getPost(slug);
   return post ? { title: post.title, description: post.summary } : {};
 }
 
@@ -24,14 +41,14 @@ export default async function BlogPost({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = blog.find((p) => p.slug === slug);
+  const post = await getPost(slug);
   if (!post) notFound();
 
   return (
     <article className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-16">
       <h1>{post.title}</h1>
       <p className="text-muted-foreground text-sm">{formatDate(post.date)}</p>
-      <MDXContent code={post.body} />
+      <RichText data={post.body} />
     </article>
   );
 }

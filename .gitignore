@@ -40,9 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# velite
-.velite
-/public/static
+# payload
+payload-types.ts
 
 # claude code local settings
 .claude/settings.local.json

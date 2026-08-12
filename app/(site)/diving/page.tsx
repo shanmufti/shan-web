@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
+import { getPayload } from "payload";
 
-import { diving } from "#velite";
+import config from "@payload-config";
 import { PostCard } from "@/components/post-card";
 import { formatDate } from "@/lib/format-date";
 
 export const metadata: Metadata = { title: "Diving" };
 
-export default function DivingIndex() {
-  const dives = [...diving].sort(
-    (a, b) => +new Date(b.date) - +new Date(a.date),
-  );
+export default async function DivingIndex() {
+  const payload = await getPayload({ config });
+  const { docs: dives } = await payload.find({
+    collection: "diving",
+    where: { draft: { equals: false } },
+    sort: "-date",
+    limit: 100,
+  });
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
@@ -27,7 +32,7 @@ export default function DivingIndex() {
           return (
             <PostCard
               key={dive.slug}
-              href={dive.permalink}
+              href={`/diving/${dive.slug}`}
               title={dive.title}
               summary={dive.summary}
               dateLabel={formatDate(dive.date)}

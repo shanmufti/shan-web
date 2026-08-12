@@ -20,7 +20,7 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "#velite": ["./.velite"]
+      "@payload-config": ["./payload.config.ts"]
     },
     "noUncheckedIndexedAccess": true
   },

@@ -1,21 +1,23 @@
+import { withPayload } from "@payloadcms/next/withPayload";
 import type { NextConfig } from "next";
-import {
-  PHASE_DEVELOPMENT_SERVER,
-  PHASE_PRODUCTION_BUILD,
-} from "next/constants";
+import path from "path";
+import { fileURLToPath } from "url";
 
-export default async function config(phase: string): Promise<NextConfig> {
-  const isDev = phase === PHASE_DEVELOPMENT_SERVER;
-  const isBuild = phase === PHASE_PRODUCTION_BUILD;
+const __filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(__filename);
 
-  if (!process.env.VELITE_STARTED && (isDev || isBuild)) {
-    process.env.VELITE_STARTED = "1";
-    const { build } = await import("velite");
-    // build() resolves once the initial build completes; in watch mode it
-    // then starts a detached background watcher without blocking this await
-    await build({ watch: isDev, clean: !isDev });
-  }
+const nextConfig: NextConfig = {
+  webpack: (webpackConfig) => {
+    webpackConfig.resolve.extensionAlias = {
+      ".cjs": [".cts", ".cjs"],
+      ".js": [".ts", ".tsx", ".js", ".jsx"],
+      ".mjs": [".mts", ".mjs"],
+    };
+    return webpackConfig;
+  },
+  turbopack: {
+    root: path.resolve(dirname),
+  },
+};
 
-  const nextConfig: NextConfig = {/* config options here */};
-  return nextConfig;
-}
+export default withPayload(nextConfig, { devBundleServerPackages: false });

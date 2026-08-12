@@ -1,11 +1,28 @@
+import { RichText } from "@payloadcms/richtext-lexical/react";
 import { notFound } from "next/navigation";
+import { getPayload } from "payload";
 
-import { travel } from "#velite";
-import { MDXContent } from "@/components/mdx-content";
+import config from "@payload-config";
 import { formatDate } from "@/lib/format-date";
 
-export function generateStaticParams() {
-  return travel.map((trip) => ({ slug: trip.slug }));
+async function getTrip(slug: string) {
+  const payload = await getPayload({ config });
+  const { docs } = await payload.find({
+    collection: "travel",
+    where: { slug: { equals: slug } },
+    limit: 1,
+  });
+  return docs[0];
+}
+
+export async function generateStaticParams() {
+  const payload = await getPayload({ config });
+  const { docs } = await payload.find({
+    collection: "travel",
+    where: { draft: { equals: false } },
+    limit: 0,
+  });
+  return docs.map((trip) => ({ slug: trip.slug }));
 }
 
 export async function generateMetadata({
@@ -14,7 +31,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const trip = travel.find((t) => t.slug === slug);
+  const trip = await getTrip(slug);
   return trip ? { title: trip.title, description: trip.summary } : {};
 }
 
@@ -24,7 +41,7 @@ export default async function TravelPost({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const trip = travel.find((t) => t.slug === slug);
+  const trip = await getTrip(slug);
   if (!trip) notFound();
 
   const start = formatDate(trip.startDate);
@@ -36,7 +53,7 @@ export default async function TravelPost({
       <p className="text-muted-foreground text-sm">
         {end ? `${start} – ${end}` : start} · {trip.location.name}
       </p>
-      <MDXContent code={trip.body} />
+      <RichText data={trip.body} />
     </article>
   );
 }

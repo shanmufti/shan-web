@@ -1,13 +1,20 @@
 import type { Metadata } from "next";
+import { getPayload } from "payload";
 
-import { blog } from "#velite";
+import config from "@payload-config";
 import { PostCard } from "@/components/post-card";
 import { formatDate } from "@/lib/format-date";
 
 export const metadata: Metadata = { title: "Blog" };
 
-export default function BlogIndex() {
-  const posts = [...blog].sort((a, b) => +new Date(b.date) - +new Date(a.date));
+export default async function BlogIndex() {
+  const payload = await getPayload({ config });
+  const { docs: posts } = await payload.find({
+    collection: "blog",
+    where: { draft: { equals: false } },
+    sort: "-date",
+    limit: 100,
+  });
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
@@ -16,11 +23,11 @@ export default function BlogIndex() {
         {posts.map((post) => (
           <PostCard
             key={post.slug}
-            href={post.permalink}
+            href={`/blog/${post.slug}`}
             title={post.title}
             summary={post.summary}
             dateLabel={formatDate(post.date)}
-            tags={post.tags}
+            tags={post.tags ?? undefined}
           />
         ))}
         {posts.length === 0 ? (
