@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "ci": "payload migrate && next build",
+    "ci": "DATABASE_URL=\"${DATABASE_URL_UNPOOLED:-$DATABASE_URL}\" payload migrate && next build",
     "lint": "eslint",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",

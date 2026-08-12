@@ -1,5 +1,6 @@
 import type { CollectionConfig } from "payload";
 
+import { authenticated, publishedOrAuthenticated } from "./access";
 import { baseFields, locationField } from "./fields";
 
 export const Travel: CollectionConfig = {
@@ -9,7 +10,10 @@ export const Travel: CollectionConfig = {
     defaultColumns: ["title", "startDate", "draft"],
   },
   access: {
-    read: () => true,
+    read: publishedOrAuthenticated,
+    create: authenticated,
+    update: authenticated,
+    delete: authenticated,
   },
   fields: [
     ...baseFields,

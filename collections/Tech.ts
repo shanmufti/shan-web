@@ -1,5 +1,6 @@
 import type { CollectionConfig } from "payload";
 
+import { authenticated, publishedOrAuthenticated } from "./access";
 import { baseFields } from "./fields";
 
 export const Tech: CollectionConfig = {
@@ -9,7 +10,10 @@ export const Tech: CollectionConfig = {
     defaultColumns: ["title", "date", "draft"],
   },
   access: {
-    read: () => true,
+    read: publishedOrAuthenticated,
+    create: authenticated,
+    update: authenticated,
+    delete: authenticated,
   },
   fields: [
     ...baseFields,

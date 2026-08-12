@@ -10,8 +10,11 @@ async function getProject(slug: string) {
   const payload = await getPayload({ config });
   const { docs } = await payload.find({
     collection: "tech",
-    where: { slug: { equals: slug } },
+    where: {
+      and: [{ slug: { equals: slug } }, { draft: { equals: false } }],
+    },
     limit: 1,
+    overrideAccess: false,
   });
   return docs[0];
 }

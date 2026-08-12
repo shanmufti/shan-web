@@ -9,8 +9,12 @@ async function getPost(slug: string) {
   const payload = await getPayload({ config });
   const { docs } = await payload.find({
     collection: "blog",
-    where: { slug: { equals: slug } },
+    where: {
+      and: [{ slug: { equals: slug } }, { draft: { equals: false } }],
+    },
     limit: 1,
+    // Local API bypasses collection access by default; enforce published-only.
+    overrideAccess: false,
   });
   return docs[0];
 }

@@ -11,7 +11,7 @@ Personal site for Shan Mufti: adventures/blog, diving (divemaster), travel, and 
 - **DNS**: Managed in Cloudflare. Two CNAME records, both set to **DNS only** (proxy OFF — required because Vercel issues/manages its own SSL; Cloudflare's orange-cloud proxy conflicts with Vercel's cert handling):
   - `@` → `c3d3528a53a5afcf.vercel-dns-017.com.`
   - `www` → `c3d3528a53a5afcf.vercel-dns-017.com.`
-- **Media storage (photos/videos, the "safe archive")**: Cloudflare R2 bucket (S3-compatible, $0 egress fees, ~$0.015/GB/mo storage). Wired into Payload's admin uploads via `@payloadcms/storage-s3` (R2 speaks the S3 API) — images uploaded through `/admin` land directly in R2, not in the repo or the database.
+- **Media storage (photos/videos, the "safe archive")**: Cloudflare R2 bucket (S3-compatible, $0 egress fees, ~$0.015/GB/mo storage). Wired into Payload via `@payloadcms/storage-s3` + `clientUploads` — admin uploads go browser→R2 (signed URL), metadata stays in Neon, public pages load from `R2_PUBLIC_URL`. Plugin is `enabled` only when `R2_BUCKET` + `R2_ENDPOINT` are set. Bucket needs public access (r2.dev or custom domain) and CORS for PUT from localhost + smufti.com.
 - **Video**: Long-form video hosted on YouTube (channel already created), embedded on the site. Raw originals also archived in R2.
 - **Budget**: ~$5-20/mo target. Current actuals: ~$10.44/yr domain + a few dollars/mo R2 storage (scales with archive size) + $0 Vercel hosting + Neon free tier.
 
@@ -27,9 +27,11 @@ Personal site for Shan Mufti: adventures/blog, diving (divemaster), travel, and 
 
 ## Current state
 
-- Repo is live at `github.com/shanmufti/shan-web`, deployed on Vercel, reachable at `https://smufti.com` and `https://www.smufti.com`.
+- Repo is live at `github.com/shanmufti/shan-web` (**public**), deployed on Vercel, reachable at `https://smufti.com` and `https://www.smufti.com`.
 - Full Next.js App Router site is built: homepage plus four section routes (`/blog`, `/diving`, `/travel`, `/tech`), each with a list page and `/section/slug` detail pages, styled with Tailwind + shadcn/ui.
 - Content moved from an initial MDX-in-repo pipeline (Velite) to Payload CMS — see "Decisions made" above. `/admin` is the only way articles get created; nothing content-related lives in git anymore.
+- **Production DB access**: Vercel holds `DATABASE_URL` (pooled), `DATABASE_URL_UNPOOLED`, and `PAYLOAD_SECRET` as **Sensitive** env vars (Production + Preview). `NEXT_PUBLIC_SERVER_URL=https://smufti.com` is public. Build is currently `next build` (schema has been pushed via local `next dev`). Switch the Vercel build command to `npm run ci` once versioned migrations exist under `/migrations` — do not enable that while the Neon DB still has a dev `push` marker, or the migrate step will block on an interactive prompt.
+- **Access control**: public REST/API reads published (`draft: false`) only; create/update/delete require a logged-in admin; no public user signup; GraphQL disabled; auth cookies `Secure` in production.
 - Code quality tooling in place: strict TypeScript, ESLint, Prettier, Husky pre-commit (lint-staged) + pre-push (typecheck) hooks.
 
 ## Not yet done / next steps
