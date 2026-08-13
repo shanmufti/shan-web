@@ -7,7 +7,11 @@ import { fileURLToPath } from "url";
 import sharp from "sharp";
 
 import { Blog } from "./collections/Blog";
+import { DiveGear } from "./collections/DiveGear";
+import { DiveResources } from "./collections/DiveResources";
+import { DiveSkills } from "./collections/DiveSkills";
 import { Diving } from "./collections/Diving";
+import { GearConfigs } from "./collections/GearConfigs";
 import { Media } from "./collections/Media";
 import { Tech } from "./collections/Tech";
 import { Travel } from "./collections/Travel";
@@ -38,8 +42,24 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    components: {
+      // Always visible in the admin header (including /admin/account).
+      actions: ["/components/admin/ViewSiteLink#ViewSiteLink"],
+      beforeNavLinks: ["/components/admin/ViewSiteLink#ViewSiteLink"],
+    },
   },
-  collections: [Users, Media, Blog, Diving, Travel, Tech],
+  collections: [
+    Users,
+    Media,
+    Blog,
+    Diving,
+    DiveGear,
+    GearConfigs,
+    DiveSkills,
+    DiveResources,
+    Travel,
+    Tech,
+  ],
   editor: lexicalEditor(),
   secret: payloadSecret,
   // Site uses the Local API; no need to expose GraphQL publicly.

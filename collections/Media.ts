@@ -1,16 +1,10 @@
 import type { CollectionConfig } from "payload";
 
-import { authenticated } from "./access";
+import { publicReadAccess } from "./access";
 
 export const Media: CollectionConfig = {
   slug: "media",
-  access: {
-    // Public site needs to load images; uploads stay admin-only.
-    read: () => true,
-    create: authenticated,
-    update: authenticated,
-    delete: authenticated,
-  },
+  access: publicReadAccess,
   fields: [
     {
       name: "alt",

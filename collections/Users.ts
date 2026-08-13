@@ -1,6 +1,6 @@
-import type { Access, CollectionConfig } from "payload";
+import type { CollectionConfig } from "payload";
 
-const isLoggedIn: Access = ({ req: { user } }) => Boolean(user);
+import { usersAccess } from "./access";
 
 export const Users: CollectionConfig = {
   slug: "users",
@@ -17,12 +17,6 @@ export const Users: CollectionConfig = {
     // after that only a logged-in user can add another.
     tokenExpiration: 60 * 60 * 24 * 7,
   },
-  access: {
-    admin: ({ req: { user } }) => Boolean(user),
-    create: isLoggedIn,
-    read: isLoggedIn,
-    update: isLoggedIn,
-    delete: isLoggedIn,
-  },
+  access: usersAccess,
   fields: [],
 };

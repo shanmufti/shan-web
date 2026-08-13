@@ -1,6 +1,6 @@
 import type { Field } from "payload";
 
-function formatSlug(value: string): string {
+export function formatSlug(value: string): string {
   return value
     .toLowerCase()
     .trim()
@@ -36,6 +36,8 @@ const slugField: Field = {
   },
 };
 
+export { slugField };
+
 export const baseFields: Field[] = [
   { name: "title", type: "text", required: true, maxLength: 99 },
   slugField,
@@ -53,7 +55,7 @@ export const locationField: Field = {
   type: "group",
   fields: [
     { name: "name", type: "text", required: true },
-    { name: "lat", type: "number", required: true, min: -90, max: 90 },
-    { name: "lng", type: "number", required: true, min: -180, max: 180 },
+    { name: "lat", type: "number", min: -90, max: 90 },
+    { name: "lng", type: "number", min: -180, max: 180 },
   ],
 };

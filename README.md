@@ -11,7 +11,9 @@ npm install
 npm run dev
 ```
 
-Opens at [http://localhost:3000](http://localhost:3000) with Fast Refresh. Visit [http://localhost:3000/admin](http://localhost:3000/admin) to log in and create/edit articles for the blog, diving, travel, and tech sections.
+Opens at [http://localhost:3000](http://localhost:3000) with Fast Refresh. Visit [http://localhost:3000/admin](http://localhost:3000/admin) to log in and create/edit content for blog, diving, travel, and tech.
+
+Diving routes: `/diving` (hub), `/diving/logs`, `/diving/logs/[slug]`, `/diving/skills`, `/diving/gear` (private), `/diving/resources`. When logged in, **Log a dive** links to `/diving/logs/new` (also available publicly).
 
 Requires a `.env.local` (gitignored) with:
 

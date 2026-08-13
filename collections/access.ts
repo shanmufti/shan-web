@@ -1,13 +1,59 @@
-import type { Access } from "payload";
+import type { Access, CollectionConfig } from "payload";
 
-/** Logged-in admin only (create / update / delete). */
+type CollectionAccess = NonNullable<CollectionConfig["access"]>;
+
+/** Anyone, including anonymous (e.g. public media / skill names). */
+export const anyone: Access = () => true;
+
+/** Logged-in admin only. */
 export const authenticated: Access = ({ req: { user } }) => Boolean(user);
 
 /**
  * Public can read published docs only. Logged-in admins can read drafts too.
- * Returning a Where query is how Payload filters the REST/GraphQL APIs.
+ * Returning a Where query is how Payload filters the REST/Local APIs.
  */
 export const publishedOrAuthenticated: Access = ({ req: { user } }) => {
   if (user) return true;
   return { draft: { equals: false } };
 };
+
+/** Blog / diving / travel / tech / resources — drafts hidden from the public. */
+export const publicContentAccess = {
+  read: publishedOrAuthenticated,
+  create: authenticated,
+  update: authenticated,
+  delete: authenticated,
+} satisfies CollectionAccess;
+
+/**
+ * Like publicContentAccess, but anyone can create (public dive-log form).
+ * Update/delete stay authenticated.
+ */
+export const publicCreateContentAccess = {
+  read: publishedOrAuthenticated,
+  create: anyone,
+  update: authenticated,
+  delete: authenticated,
+} satisfies CollectionAccess;
+
+/** Fully public reads; writes require login (media, dive-skills). */
+export const publicReadAccess = {
+  read: anyone,
+  create: authenticated,
+  update: authenticated,
+  delete: authenticated,
+} satisfies CollectionAccess;
+
+/** Authenticated only — inventory, kits, users. */
+export const privateAccess = {
+  read: authenticated,
+  create: authenticated,
+  update: authenticated,
+  delete: authenticated,
+} satisfies CollectionAccess;
+
+/** Auth collection: same as private, plus admin panel gate (boolean-only). */
+export const usersAccess = {
+  admin: ({ req: { user } }: { req: { user: unknown } }) => Boolean(user),
+  ...privateAccess,
+} satisfies CollectionAccess;

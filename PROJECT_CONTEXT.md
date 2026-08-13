@@ -29,16 +29,16 @@ Personal site for Shan Mufti: adventures/blog, diving (divemaster), travel, and 
 ## Current state
 
 - Repo is live at `github.com/shanmufti/shan-web` (**public**), deployed on Vercel, reachable at `https://smufti.com` and `https://www.smufti.com`.
-- Full Next.js App Router site is built: homepage plus four section routes (`/blog`, `/diving`, `/travel`, `/tech`), each with a list page and `/section/slug` detail pages, styled with Tailwind + shadcn/ui.
+- Full Next.js App Router site is built: homepage plus four section routes (`/blog`, `/diving`, `/travel`, `/tech`). Diving is a hub (`/diving`) with Logs (`/diving/logs`, `/diving/logs/[slug]`), Skills, private Gear, and Resources. Old `/diving/[slug]` redirects to `/diving/logs/[slug]`.
 - Content moved from an initial MDX-in-repo pipeline (Velite) to Payload CMS — see "Decisions made" above. `/admin` is the only way articles get created; nothing content-related lives in git anymore.
 - Content routes inherit `dynamic = "force-dynamic"` from `app/(site)/layout.tsx` so edits in `/admin` (shared Neon DB) show on production immediately, instead of freezing HTML at build time.
 - **Production DB access**: Vercel holds `DATABASE_URL` (pooled), `DATABASE_URL_UNPOOLED`, and `PAYLOAD_SECRET` as **Sensitive** env vars (Production + Preview). `NEXT_PUBLIC_SERVER_URL=https://smufti.com` is public. Build is currently `next build` (schema has been pushed via local `next dev`). Switch the Vercel build command to `npm run ci` once versioned migrations exist under `/migrations` — do not enable that while the Neon DB still has a dev `push` marker, or the migrate step will block on an interactive prompt.
-- **Access control**: public REST/API reads published (`draft: false`) only; create/update/delete require a logged-in admin; no public user signup; GraphQL disabled; auth cookies `Secure` in production.
+- **Access control**: centralized in `collections/access.ts` as named presets (`publicContentAccess`, `publicCreateContentAccess`, `publicReadAccess`, `privateAccess`, `usersAccess`). Diving allows public create (site form at `/diving/logs/new`); other content stays auth-write. Public reads published (`draft: false`) only for content collections; no public user signup; GraphQL disabled; auth cookies `Secure` in production.
 - Code quality tooling in place: strict TypeScript, ESLint (`typescript-eslint` strictTypeChecked), Prettier. Commit/push protection is local only (no CI/PRs): Husky **pre-commit** (secret scan + lint-staged + typecheck) and **pre-push** (`npm run verify` = check + `next build`).
 
 ## Not yet done / next steps
 
-- Author real content through `/admin` (diving/travel/tech placeholder posts from the old MDX era were intentionally dropped, not migrated).
+- Author real content through `/admin` (and the public dive log form at `/diving/logs/new`).
 - Diving/travel currently show location as text; an interactive map view (dive sites, trip itinerary) is a planned follow-up — `react-leaflet` was the earlier recommendation over MapLibre/Mapbox GL, given the site's small scale.
 - No syntax highlighting for code blocks in Payload's rich text yet (the old MDX pipeline had this via Shiki/rehype-pretty-code) — only relevant if `/tech` posts need highlighted code.
 - Granular admin permissions/roles: Payload supports this natively via per-collection `access` functions whenever multiple contributors are needed — not set up yet since it's currently single-user.
