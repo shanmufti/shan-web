@@ -64,7 +64,9 @@ npm run secrets:check
 | **pre-commit** | secret scan → lint-staged → `typecheck` | Block secrets, format/lint staged files, catch cross-file type breaks before the commit exists |
 | **pre-push**   | `npm run verify`                        | Full check + production build before code can reach `main` / Vercel                            |
 
-TypeScript is strict (`exactOptionalPropertyTypes`, `verbatimModuleSyntax`, `noUncheckedIndexedAccess`, unused locals/params, etc.). ESLint uses `typescript-eslint` strict + stylistic type-checked rules. Prettier ignores Payload-generated `app/(payload)/**`.
+TypeScript is strict (`exactOptionalPropertyTypes`, `verbatimModuleSyntax`, `noUncheckedIndexedAccess`, unused locals/params, etc.). ESLint uses `typescript-eslint` strict + stylistic type-checked rules, `eslint-plugin-sonarjs` recommended, and `eslint-plugin-jsx-a11y` recommended (covers SonarQube a11y rules like S6827 / `anchor-has-content`). Prettier ignores Payload-generated `app/(payload)/**`.
+
+**IDE ↔ CLI parity:** `eslint.config.mjs` is the only lint rule source. Workspace settings in `.vscode/` pin the ESLint extension + workspace TypeScript SDK so Problems matches `npm run lint` / `npm run typecheck`. Prefer ESLint over standalone SonarLint for this repo (Sonar rules are mirrored via sonarjs + jsx-a11y); see `.vscode/extensions.json`.
 
 ## Build & deploy
 

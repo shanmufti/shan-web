@@ -11,7 +11,9 @@ export const authenticated: Access = ({ req: { user } }) => Boolean(user);
 /**
  * Public can read published docs only. Logged-in admins can read drafts too.
  * Returning a Where query is how Payload filters the REST/Local APIs.
+ * Access callbacks intentionally return `true` or a Where clause (Payload contract).
  */
+// eslint-disable-next-line sonarjs/function-return-type -- Payload Access: boolean | Where
 export const publishedOrAuthenticated: Access = ({ req: { user } }) => {
   if (user) return true;
   return { draft: { equals: false } };

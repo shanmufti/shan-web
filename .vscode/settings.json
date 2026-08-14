@@ -1,0 +1,42 @@
+{
+  // Single source of truth: eslint.config.mjs + tsconfig.json (same as `npm run lint` / `typecheck`).
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "js/ts.tsdk.promptToUseWorkspaceVersion": true,
+
+  "eslint.enable": true,
+  "eslint.useFlatConfig": true,
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[javascriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+
+  // Sonar checks live in ESLint via eslint-plugin-sonarjs. Disable standalone
+  // SonarLint analysis so Problems doesn't show a second, divergent rule set.
+  "sonarlint.analysisExcludesStandalone": "**/*",
+
+  // Cursor may inject npm_config_devdir (legacy node-gyp). npm warns that the
+  // key is unknown — delete it from integrated terminal environments.
+  "terminal.integrated.env.osx": {
+    "npm_config_devdir": null
+  },
+  "terminal.integrated.env.linux": {
+    "npm_config_devdir": null
+  },
+  "terminal.integrated.env.windows": {
+    "npm_config_devdir": null
+  }
+}

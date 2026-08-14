@@ -2,8 +2,9 @@ import { RichText } from "@payloadcms/richtext-lexical/react";
 import { notFound } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { getPublishedBySlug } from "@/lib/content";
+import { cn } from "@/lib/utils";
 
 export async function generateMetadata({
   params,
@@ -17,9 +18,9 @@ export async function generateMetadata({
 
 export default async function TechPost({
   params,
-}: {
+}: Readonly<{
   params: Promise<{ slug: string }>;
-}) {
+}>) {
   const { slug } = await params;
   const project = await getPublishedBySlug("tech", slug);
   if (!project) notFound();
@@ -34,36 +35,24 @@ export default async function TechPost({
           </Badge>
         ))}
         {project.repoUrl ? (
-          <Button
-            variant="outline"
-            size="sm"
-            nativeButton={false}
-            render={
-              <a
-                href={project.repoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              />
-            }
+          <a
+            href={project.repoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
           >
             Repo
-          </Button>
+          </a>
         ) : null}
         {project.demoUrl ? (
-          <Button
-            variant="outline"
-            size="sm"
-            nativeButton={false}
-            render={
-              <a
-                href={project.demoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              />
-            }
+          <a
+            href={project.demoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
           >
             Demo
-          </Button>
+          </a>
         ) : null}
       </div>
       <RichText data={project.body} />

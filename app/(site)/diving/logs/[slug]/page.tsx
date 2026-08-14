@@ -1,11 +1,20 @@
 import { RichText } from "@payloadcms/richtext-lexical/react";
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { DiveNotesSections, DiveVitalsGrid } from "@/components/dive-log";
+import {
+  DiveEnvironmentSection,
+  DiveGearSection,
+  DiveNotesSections,
+  DiveProblemsSection,
+  DiveVitalsGrid,
+} from "@/components/dive-log";
+import { DiveProfileChart } from "@/components/dive-profile-chart";
 import { DivingSubnav } from "@/components/diving-subnav";
-import { getPublishedBySlug } from "@/lib/content";
+import { getCurrentUser, getPublishedBySlug } from "@/lib/content";
+import { parseProfileSamples } from "@/lib/dive-profile";
 import { formatDate } from "@/lib/format-date";
 import type { Media } from "@/payload-types";
 
@@ -25,26 +34,40 @@ export async function generateMetadata({
 
 export default async function DiveLogDetailPage({
   params,
-}: {
+}: Readonly<{
   params: Promise<{ slug: string }>;
-}) {
+}>) {
   const { slug } = await params;
-  const dive = await getPublishedBySlug("diving", slug, { depth: 1 });
+  const [dive, user] = await Promise.all([
+    getPublishedBySlug("diving", slug, { depth: 1 }),
+    getCurrentUser(),
+  ]);
   if (!dive) notFound();
 
   const site = dive.siteName ?? dive.location.name;
   const photos = Array.isArray(dive.photos)
     ? dive.photos.filter(isMedia).filter((photo) => Boolean(photo.url))
     : [];
+  const samples = parseProfileSamples(dive.profileSamples);
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-16">
       <DivingSubnav current="/diving/logs" />
 
       <header className="mt-8">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">
-          {dive.title}
-        </h1>
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <h1 className="font-heading text-3xl font-semibold tracking-tight">
+            {dive.title}
+          </h1>
+          {user ? (
+            <Link
+              href={`/diving/logs/${dive.slug}/edit`}
+              className="text-muted-foreground text-sm underline-offset-4 hover:underline"
+            >
+              Edit
+            </Link>
+          ) : null}
+        </div>
         <p className="text-muted-foreground mt-2 text-sm">
           {formatDate(dive.date)}
           {site ? ` · ${site}` : ""}
@@ -55,6 +78,8 @@ export default async function DiveLogDetailPage({
       </header>
 
       <DiveVitalsGrid dive={dive} />
+
+      {samples.length > 0 ? <DiveProfileChart samples={samples} /> : null}
 
       {photos.length > 0 ? (
         <div className="mt-10 flex gap-3 overflow-x-auto pb-2">
@@ -75,6 +100,9 @@ export default async function DiveLogDetailPage({
         </div>
       ) : null}
 
+      <DiveEnvironmentSection dive={dive} />
+      <DiveProblemsSection dive={dive} />
+      <DiveGearSection dive={dive} />
       <DiveNotesSections dive={dive} />
 
       {dive.body ? (

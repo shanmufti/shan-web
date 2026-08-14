@@ -9,14 +9,15 @@ const links = [
   { href: "/tech", label: "Tech" },
 ];
 
+function emailFromUser(user: unknown): string | null {
+  if (!user || typeof user !== "object" || !("email" in user)) return null;
+  if (typeof user.email !== "string") return null;
+  return user.email;
+}
+
 export async function Nav() {
   const user = await getCurrentUser();
-  const email =
-    user && typeof user === "object" && "email" in user
-      ? typeof user.email === "string"
-        ? user.email
-        : null
-      : null;
+  const email = emailFromUser(user);
 
   return (
     <header className="border-border border-b">

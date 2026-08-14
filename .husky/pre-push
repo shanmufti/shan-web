@@ -1,2 +1,3 @@
 # Last local gate before Vercel auto-deploys main (no CI / no PRs).
+unset npm_config_devdir NPM_CONFIG_DEVDIR
 npm run verify

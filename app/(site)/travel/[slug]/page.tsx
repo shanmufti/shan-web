@@ -16,9 +16,9 @@ export async function generateMetadata({
 
 export default async function TravelPost({
   params,
-}: {
+}: Readonly<{
   params: Promise<{ slug: string }>;
-}) {
+}>) {
   const { slug } = await params;
   const trip = await getPublishedBySlug("travel", slug);
   if (!trip) notFound();

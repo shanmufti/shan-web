@@ -1,12 +1,8 @@
 import type { Field } from "payload";
 
-export function formatSlug(value: string): string {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
+import { formatSlug } from "@/lib/slug";
+
+export { formatSlug };
 
 const slugField: Field = {
   name: "slug",

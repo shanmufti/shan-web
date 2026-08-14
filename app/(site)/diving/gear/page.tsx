@@ -29,9 +29,9 @@ function isOverdue(nextServiceDue: string | null | undefined): boolean {
 
 export default async function DiveGearPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{ status?: string }>;
-}) {
+}>) {
   const { status: statusParam } = await searchParams;
   const status =
     statusParam === "researching" || statusParam === "owned"

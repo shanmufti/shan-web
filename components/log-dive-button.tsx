@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export function LogDiveButton({ className }: { className?: string }) {
+export function LogDiveButton({ className }: Readonly<{ className?: string }>) {
   return (
     <Link
       href="/diving/logs/new"

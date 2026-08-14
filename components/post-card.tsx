@@ -25,7 +25,7 @@ export function PostCard({
   dateLabel,
   meta,
   tags,
-}: PostCardProps) {
+}: Readonly<PostCardProps>) {
   return (
     <Link href={href} className="block">
       <Card className="hover:bg-muted/50 transition-colors">

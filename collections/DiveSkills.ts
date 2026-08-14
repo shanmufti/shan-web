@@ -1,7 +1,5 @@
 import type { CollectionConfig } from "payload";
 
-import { publicReadAccess } from "./access";
-
 export const DiveSkills: CollectionConfig = {
   slug: "dive-skills",
   admin: {
@@ -9,7 +7,12 @@ export const DiveSkills: CollectionConfig = {
     defaultColumns: ["name", "category", "level"],
     group: "Diving",
   },
-  access: publicReadAccess,
+  access: {
+    read: () => true,
+    create: ({ req: { user } }) => Boolean(user),
+    update: ({ req: { user } }) => Boolean(user),
+    delete: ({ req: { user } }) => Boolean(user),
+  },
   fields: [
     { name: "name", type: "text", required: true },
     {
@@ -18,11 +21,9 @@ export const DiveSkills: CollectionConfig = {
       required: true,
       options: [
         { label: "Buoyancy", value: "buoyancy" },
-        { label: "Navigation", value: "navigation" },
         { label: "Rescue", value: "rescue" },
         { label: "Propulsion", value: "propulsion" },
         { label: "Equipment", value: "equipment" },
-        { label: "Cert-required", value: "cert-required" },
         { label: "Other", value: "other" },
       ],
     },

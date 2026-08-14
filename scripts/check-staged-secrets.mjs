@@ -53,8 +53,10 @@ function stagedContent(file) {
 
 const hits = [];
 
+const ALLOWED_ENV_FILES = new Set([".env.example", ".env.sample", ".env.template"]);
+
 for (const file of stagedFiles()) {
-  if (file.startsWith(".env")) {
+  if (file.startsWith(".env") && !ALLOWED_ENV_FILES.has(file)) {
     hits.push({ file, name: "Env file must not be committed" });
     continue;
   }

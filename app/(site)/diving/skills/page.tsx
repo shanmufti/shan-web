@@ -8,11 +8,9 @@ export const metadata: Metadata = { title: "Dive skills" };
 
 const categoryLabels: Record<string, string> = {
   buoyancy: "Buoyancy",
-  navigation: "Navigation",
   rescue: "Rescue",
   propulsion: "Propulsion",
   equipment: "Equipment",
-  "cert-required": "Cert-required",
   other: "Other",
 };
 

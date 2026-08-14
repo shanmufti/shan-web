@@ -1,5 +1,6 @@
 # Format/lint only what you're committing, then typecheck the whole project
 # so cross-file breaks don't slip through.
+unset npm_config_devdir NPM_CONFIG_DEVDIR
 node ./scripts/check-staged-secrets.mjs
 npx lint-staged
 npm run typecheck

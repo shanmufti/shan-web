@@ -20,8 +20,8 @@ export default function LogDivePage() {
         </p>
         <h1 className="font-heading mt-4 text-2xl font-semibold">Log a dive</h1>
         <p className="text-muted-foreground mt-2 text-sm">
-          Record vitals and a few notes. You can fill the rest later in admin if
-          needed.
+          Optional Shearwater CSV fills vitals and the depth profile. Add
+          location, buddy, environment, and gear details here.
         </p>
         <DivingSubnav current="/diving/logs" />
       </header>

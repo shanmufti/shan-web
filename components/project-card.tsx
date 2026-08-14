@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface ProjectCardProps {
   href: string;
@@ -27,7 +28,7 @@ export function ProjectCard({
   tags,
   repoUrl,
   demoUrl,
-}: ProjectCardProps) {
+}: Readonly<ProjectCardProps>) {
   return (
     <Card>
       <CardHeader>
@@ -50,28 +51,24 @@ export function ProjectCard({
       {(repoUrl ?? demoUrl) ? (
         <CardFooter className="gap-2">
           {repoUrl ? (
-            <Button
-              variant="outline"
-              size="sm"
-              nativeButton={false}
-              render={
-                <a href={repoUrl} target="_blank" rel="noopener noreferrer" />
-              }
+            <a
+              href={repoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
             >
               Repo
-            </Button>
+            </a>
           ) : null}
           {demoUrl ? (
-            <Button
-              variant="outline"
-              size="sm"
-              nativeButton={false}
-              render={
-                <a href={demoUrl} target="_blank" rel="noopener noreferrer" />
-              }
+            <a
+              href={demoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
             >
               Demo
-            </Button>
+            </a>
           ) : null}
         </CardFooter>
       ) : null}
