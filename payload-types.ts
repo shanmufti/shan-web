@@ -398,6 +398,22 @@ export interface DiveGear {
   purchaseDate?: string | null;
   lastServiced?: string | null;
   nextServiceDue?: string | null;
+  /**
+   * How often this needs servicing. Used with the most recent service-log entry to compute next-due.
+   */
+  serviceIntervalMonths?: number | null;
+  /**
+   * History of servicing for this item.
+   */
+  serviceLog?:
+    | {
+        date: string;
+        description?: string | null;
+        cost?: number | null;
+        provider?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   notes?: string | null;
   linkUrl?: string | null;
   photo?: (number | null) | Media;
@@ -785,6 +801,16 @@ export interface DiveGearSelect<T extends boolean = true> {
   purchaseDate?: T;
   lastServiced?: T;
   nextServiceDue?: T;
+  serviceIntervalMonths?: T;
+  serviceLog?:
+    | T
+    | {
+        date?: T;
+        description?: T;
+        cost?: T;
+        provider?: T;
+        id?: T;
+      };
   notes?: T;
   linkUrl?: T;
   photo?: T;

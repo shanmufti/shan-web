@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { Badge } from "@/components/ui/badge";
 import { DivingSubnav } from "@/components/diving-subnav";
 import { formatDate } from "@/lib/format-date";
 import { listDiveGearForUser } from "@/lib/content";
+import { serviceStatus, type DiveGearDoc } from "@/lib/dive-gear-service";
 
 export const metadata: Metadata = { title: "Dive gear" };
 
@@ -22,9 +24,17 @@ const gearTypeLabels: Record<string, string> = {
   other: "Other",
 };
 
-function isOverdue(nextServiceDue: string | null | undefined): boolean {
-  if (!nextServiceDue) return false;
-  return new Date(nextServiceDue).getTime() < Date.now();
+function ServiceBadge({ item }: Readonly<{ item: DiveGearDoc }>) {
+  const status = serviceStatus(item);
+  if (!status) return null;
+
+  if (status === "overdue") {
+    return <Badge variant="destructive">Service overdue</Badge>;
+  }
+  if (status === "due-soon") {
+    return <Badge variant="warning">Service due soon</Badge>;
+  }
+  return <Badge variant="success">Service up to date</Badge>;
 }
 
 export default async function DiveGearPage({
@@ -119,17 +129,17 @@ export default async function DiveGearPage({
                   key={item.id}
                   className="border-border border-b pb-3 text-sm"
                 >
-                  <p className="font-medium">
+                  <p className="flex flex-wrap items-center gap-2 font-medium">
                     {item.name}
                     {item.brand || item.model
                       ? ` · ${[item.brand, item.model].filter(Boolean).join(" ")}`
                       : ""}
+                    {status === "owned" ? <ServiceBadge item={item} /> : null}
                   </p>
                   <p className="text-muted-foreground mt-1 text-xs">
                     {item.lastServiced
                       ? `Last serviced ${formatDate(item.lastServiced)}`
                       : "No service date"}
-                    {isOverdue(item.nextServiceDue) ? " · overdue" : ""}
                   </p>
                   {item.linkUrl ? (
                     <a

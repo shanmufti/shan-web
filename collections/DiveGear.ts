@@ -47,6 +47,26 @@ export const DiveGear: CollectionConfig = {
     { name: "purchaseDate", type: "date" },
     { name: "lastServiced", type: "date" },
     { name: "nextServiceDue", type: "date" },
+    {
+      name: "serviceIntervalMonths",
+      type: "number",
+      min: 1,
+      admin: {
+        description:
+          "How often this needs servicing. Used with the most recent service-log entry to compute next-due.",
+      },
+    },
+    {
+      name: "serviceLog",
+      type: "array",
+      admin: { description: "History of servicing for this item." },
+      fields: [
+        { name: "date", type: "date", required: true },
+        { name: "description", type: "text" },
+        { name: "cost", type: "number" },
+        { name: "provider", type: "text" },
+      ],
+    },
     { name: "notes", type: "textarea" },
     { name: "linkUrl", type: "text" },
     { name: "photo", type: "upload", relationTo: "media" },
