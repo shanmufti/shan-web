@@ -16,6 +16,7 @@ import { Media } from "./collections/Media";
 import { Tech } from "./collections/Tech";
 import { Travel } from "./collections/Travel";
 import { Users } from "./collections/Users";
+import { VisitedCountries } from "./collections/VisitedCountries";
 import { env, envOr, requireEnv } from "./lib/env";
 
 const filename = fileURLToPath(import.meta.url);
@@ -59,6 +60,7 @@ export default buildConfig({
     DiveResources,
     Travel,
     Tech,
+    VisitedCountries,
   ],
   editor: lexicalEditor(),
   secret: payloadSecret,

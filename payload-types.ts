@@ -77,6 +77,7 @@ export interface Config {
     'dive-resources': DiveResource;
     travel: Travel;
     tech: Tech;
+    'visited-countries': VisitedCountry;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -94,6 +95,7 @@ export interface Config {
     'dive-resources': DiveResourcesSelect<false> | DiveResourcesSelect<true>;
     travel: TravelSelect<false> | TravelSelect<true>;
     tech: TechSelect<false> | TechSelect<true>;
+    'visited-countries': VisitedCountriesSelect<false> | VisitedCountriesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -531,6 +533,21 @@ export interface Tech {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "visited-countries".
+ */
+export interface VisitedCountry {
+  id: number;
+  /**
+   * ISO 3166-1 alpha-3 code, e.g. CAN, THA, ESP.
+   */
+  country: string;
+  yearsVisited?: number[] | null;
+  note?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -592,6 +609,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tech';
         value: number | Tech;
+      } | null)
+    | ({
+        relationTo: 'visited-countries';
+        value: number | VisitedCountry;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -906,6 +927,17 @@ export interface TechSelect<T extends boolean = true> {
   body?: T;
   repoUrl?: T;
   demoUrl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "visited-countries_select".
+ */
+export interface VisitedCountriesSelect<T extends boolean = true> {
+  country?: T;
+  yearsVisited?: T;
+  note?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -91,6 +91,16 @@ export async function listDiveResources() {
   return docs;
 }
 
+export async function listVisitedCountries() {
+  const payload = await getPayload({ config });
+  const { docs } = await payload.find({
+    collection: "visited-countries",
+    limit: 300,
+    overrideAccess: false,
+  });
+  return docs;
+}
+
 export async function listDiveGearForUser() {
   const user = await getCurrentUser();
   if (!user) return null;
