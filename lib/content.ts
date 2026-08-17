@@ -101,6 +101,39 @@ export async function listVisitedCountries() {
   return docs;
 }
 
+/**
+ * Looks up a packing list by its unguessable shareSlug. overrideAccess:true
+ * is deliberate here — packing-lists is privateAccess, but the random slug
+ * itself is the capability token for the public share link (same trust
+ * model as the spec's original API-route proposal, just expressed as a
+ * Server Action).
+ */
+export async function getPackingListByShareSlug(shareSlug: string) {
+  const payload = await getPayload({ config });
+  const { docs } = await payload.find({
+    collection: "packing-lists",
+    where: { shareSlug: { equals: shareSlug } },
+    limit: 1,
+    overrideAccess: true,
+  });
+  return docs[0] ?? null;
+}
+
+export async function listPackingListTemplatesForUser() {
+  const user = await getCurrentUser();
+  if (!user) return null;
+
+  const payload = await getPayload({ config });
+  const { docs } = await payload.find({
+    collection: "packing-list-templates",
+    sort: "name",
+    limit: 100,
+    user,
+    overrideAccess: false,
+  });
+  return docs;
+}
+
 export async function listDiveGearForUser() {
   const user = await getCurrentUser();
   if (!user) return null;

@@ -78,6 +78,8 @@ export interface Config {
     travel: Travel;
     tech: Tech;
     'visited-countries': VisitedCountry;
+    'packing-list-templates': PackingListTemplate;
+    'packing-lists': PackingList;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -96,6 +98,8 @@ export interface Config {
     travel: TravelSelect<false> | TravelSelect<true>;
     tech: TechSelect<false> | TechSelect<true>;
     'visited-countries': VisitedCountriesSelect<false> | VisitedCountriesSelect<true>;
+    'packing-list-templates': PackingListTemplatesSelect<false> | PackingListTemplatesSelect<true>;
+    'packing-lists': PackingListsSelect<false> | PackingListsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -548,6 +552,51 @@ export interface VisitedCountry {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "packing-list-templates".
+ */
+export interface PackingListTemplate {
+  id: number;
+  name: string;
+  tripType?: ('dive-trip' | 'cold-weather' | 'carry-on' | 'other') | null;
+  items?:
+    | {
+        label: string;
+        category?: string | null;
+        qty?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "packing-lists".
+ */
+export interface PackingList {
+  id: number;
+  name: string;
+  basedOnTemplate?: (number | null) | PackingListTemplate;
+  tripDate?: string | null;
+  relatedTravelPost?: (number | null) | Travel;
+  /**
+   * Unguessable token for the public share link — the link itself is the access control, so keep it random.
+   */
+  shareSlug: string;
+  items?:
+    | {
+        label: string;
+        category?: string | null;
+        qty?: number | null;
+        checked?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -613,6 +662,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'visited-countries';
         value: number | VisitedCountry;
+      } | null)
+    | ({
+        relationTo: 'packing-list-templates';
+        value: number | PackingListTemplate;
+      } | null)
+    | ({
+        relationTo: 'packing-lists';
+        value: number | PackingList;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -938,6 +995,46 @@ export interface VisitedCountriesSelect<T extends boolean = true> {
   country?: T;
   yearsVisited?: T;
   note?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "packing-list-templates_select".
+ */
+export interface PackingListTemplatesSelect<T extends boolean = true> {
+  name?: T;
+  tripType?: T;
+  items?:
+    | T
+    | {
+        label?: T;
+        category?: T;
+        qty?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "packing-lists_select".
+ */
+export interface PackingListsSelect<T extends boolean = true> {
+  name?: T;
+  basedOnTemplate?: T;
+  tripDate?: T;
+  relatedTravelPost?: T;
+  shareSlug?: T;
+  items?:
+    | T
+    | {
+        label?: T;
+        category?: T;
+        qty?: T;
+        checked?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

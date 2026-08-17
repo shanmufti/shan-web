@@ -13,6 +13,8 @@ import { DiveSkills } from "./collections/DiveSkills";
 import { Diving } from "./collections/Diving";
 import { GearConfigs } from "./collections/GearConfigs";
 import { Media } from "./collections/Media";
+import { PackingListTemplates } from "./collections/PackingListTemplates";
+import { PackingLists } from "./collections/PackingLists";
 import { Tech } from "./collections/Tech";
 import { Travel } from "./collections/Travel";
 import { Users } from "./collections/Users";
@@ -61,6 +63,8 @@ export default buildConfig({
     Travel,
     Tech,
     VisitedCountries,
+    PackingListTemplates,
+    PackingLists,
   ],
   editor: lexicalEditor(),
   secret: payloadSecret,

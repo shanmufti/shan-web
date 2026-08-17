@@ -3,6 +3,7 @@ import Link from "next/link";
 const links = [
   { href: "/travel", label: "Trips" },
   { href: "/travel/map", label: "Map" },
+  { href: "/travel/packing", label: "Packing" },
 ];
 
 export function TravelSubnav({ current }: Readonly<{ current?: string }>) {
