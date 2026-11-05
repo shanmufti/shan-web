@@ -80,12 +80,17 @@ export interface Config {
     'visited-countries': VisitedCountry;
     'packing-list-templates': PackingListTemplate;
     'packing-lists': PackingList;
+    'unlock-attempts': UnlockAttempt;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    travel: {
+      stories: 'blog';
+    };
+  };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -100,6 +105,7 @@ export interface Config {
     'visited-countries': VisitedCountriesSelect<false> | VisitedCountriesSelect<true>;
     'packing-list-templates': PackingListTemplatesSelect<false> | PackingListTemplatesSelect<true>;
     'packing-lists': PackingListsSelect<false> | PackingListsSelect<true>;
+    'unlock-attempts': UnlockAttemptsSelect<false> | UnlockAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -109,8 +115,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'site-settings': SiteSetting;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -170,7 +180,12 @@ export interface User {
  */
 export interface Media {
   id: number;
-  alt: string;
+  /**
+   * Describe the photo for screen readers. Defaults to the file name if left blank (handy for bulk uploads).
+   */
+  alt?: string | null;
+  caption?: string | null;
+  takenAt?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -182,6 +197,32 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    thumb?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    large?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -214,6 +255,104 @@ export interface Blog {
       version: number;
     };
     [k: string]: unknown;
+  };
+  /**
+   * Private needs the site passcode (Settings → Site settings). Use only private photos inside private posts.
+   */
+  visibility: 'public' | 'private';
+  /**
+   * Off: visitors see a locked card with title and date. On: the item is invisible until unlocked.
+   */
+  hideWhenLocked?: boolean | null;
+  /**
+   * Optional. Leave empty for a stand-alone story.
+   */
+  journey?: (number | null) | Travel;
+  /**
+   * Optional. Puts a stand-alone story on the homepage globe. Stories in a journey use the journey's stops.
+   */
+  location?: {
+    name?: string | null;
+    lat?: number | null;
+    lng?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "travel".
+ */
+export interface Travel {
+  id: number;
+  title: string;
+  /**
+   * Auto-generated from the title if left blank. Only lowercase letters, numbers, and hyphens are kept.
+   */
+  slug: string;
+  date: string;
+  summary: string;
+  tags?: string[] | null;
+  cover?: (number | null) | Media;
+  draft?: boolean | null;
+  featured?: boolean | null;
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Private needs the site passcode (Settings → Site settings). Use only private photos inside private posts.
+   */
+  visibility: 'public' | 'private';
+  /**
+   * Off: visitors see a locked card with title and date. On: the item is invisible until unlocked.
+   */
+  hideWhenLocked?: boolean | null;
+  /**
+   * Main place for this journey (used where one point is needed). Add the full route under Stops.
+   */
+  location: {
+    name: string;
+    lat?: number | null;
+    lng?: number | null;
+  };
+  startDate: string;
+  endDate?: string | null;
+  /**
+   * Route in travel order. Drives the globe pins and arcs and the journey map.
+   */
+  stops?:
+    | {
+        name: string;
+        /**
+         * ISO 3166-1 alpha-3, e.g. MEX, THA, CAN.
+         */
+        countryCode?: string | null;
+        lat: number;
+        lng: number;
+        arrivedOn?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  relatedDiveLogs?: (number | Diving)[] | null;
+  /**
+   * Stories that belong to this journey.
+   */
+  stories?: {
+    docs?: (number | Blog)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
   };
   updatedAt: string;
   createdAt: string;
@@ -458,48 +597,6 @@ export interface DiveResource {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "travel".
- */
-export interface Travel {
-  id: number;
-  title: string;
-  /**
-   * Auto-generated from the title if left blank. Only lowercase letters, numbers, and hyphens are kept.
-   */
-  slug: string;
-  date: string;
-  summary: string;
-  tags?: string[] | null;
-  cover?: (number | null) | Media;
-  draft?: boolean | null;
-  featured?: boolean | null;
-  body: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  location: {
-    name: string;
-    lat?: number | null;
-    lng?: number | null;
-  };
-  startDate: string;
-  endDate?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tech".
  */
 export interface Tech {
@@ -597,6 +694,18 @@ export interface PackingList {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "unlock-attempts".
+ */
+export interface UnlockAttempt {
+  id: number;
+  key: string;
+  count: number;
+  windowStart: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -670,6 +779,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'packing-lists';
         value: number | PackingList;
+      } | null)
+    | ({
+        relationTo: 'unlock-attempts';
+        value: number | UnlockAttempt;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -741,6 +854,8 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  caption?: T;
+  takenAt?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -752,6 +867,40 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumb?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        large?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -767,6 +916,16 @@ export interface BlogSelect<T extends boolean = true> {
   draft?: T;
   featured?: T;
   body?: T;
+  visibility?: T;
+  hideWhenLocked?: T;
+  journey?: T;
+  location?:
+    | T
+    | {
+        name?: T;
+        lat?: T;
+        lng?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -956,6 +1115,8 @@ export interface TravelSelect<T extends boolean = true> {
   draft?: T;
   featured?: T;
   body?: T;
+  visibility?: T;
+  hideWhenLocked?: T;
   location?:
     | T
     | {
@@ -965,6 +1126,18 @@ export interface TravelSelect<T extends boolean = true> {
       };
   startDate?: T;
   endDate?: T;
+  stops?:
+    | T
+    | {
+        name?: T;
+        countryCode?: T;
+        lat?: T;
+        lng?: T;
+        arrivedOn?: T;
+        id?: T;
+      };
+  relatedDiveLogs?: T;
+  stories?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1040,6 +1213,17 @@ export interface PackingListsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "unlock-attempts_select".
+ */
+export interface UnlockAttemptsSelect<T extends boolean = true> {
+  key?: T;
+  count?: T;
+  windowStart?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -1077,6 +1261,34 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  /**
+   * Type a new passcode and save to change it. Only a hash is stored, and changing it signs everyone out of private journeys and stories. Leave blank to keep the current passcode.
+   */
+  privatePasscode?: string | null;
+  /**
+   * Set automatically. Empty means private content is locked for everyone except you.
+   */
+  privatePasscodeHash?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  privatePasscode?: T;
+  privatePasscodeHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

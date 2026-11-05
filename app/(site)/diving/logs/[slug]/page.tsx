@@ -51,14 +51,12 @@ export default async function DiveLogDetailPage({
   const samples = parseProfileSamples(dive.profileSamples);
 
   return (
-    <article className="mx-auto max-w-3xl px-6 py-16">
+    <article className="mx-auto max-w-4xl px-6 pt-16 pb-8 sm:pt-24 lg:px-10">
       <DivingSubnav current="/diving/logs" />
 
       <header className="mt-8">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <h1 className="font-heading text-3xl font-semibold tracking-tight">
-            {dive.title}
-          </h1>
+          <h1 className="font-heading text-4xl sm:text-5xl">{dive.title}</h1>
           {user ? (
             <Link
               href={`/diving/logs/${dive.slug}/edit`}
@@ -90,7 +88,7 @@ export default async function DiveLogDetailPage({
             >
               <Image
                 src={photo.url ?? ""}
-                alt={photo.alt || dive.title}
+                alt={photo.alt ?? dive.title}
                 fill
                 className="object-cover"
                 sizes="224px"

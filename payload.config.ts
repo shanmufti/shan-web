@@ -15,8 +15,10 @@ import { GearConfigs } from "./collections/GearConfigs";
 import { Media } from "./collections/Media";
 import { PackingListTemplates } from "./collections/PackingListTemplates";
 import { PackingLists } from "./collections/PackingLists";
+import { SiteSettings } from "./collections/SiteSettings";
 import { Tech } from "./collections/Tech";
 import { Travel } from "./collections/Travel";
+import { UnlockAttempts } from "./collections/UnlockAttempts";
 import { Users } from "./collections/Users";
 import { VisitedCountries } from "./collections/VisitedCountries";
 import { env, envOr, requireEnv } from "./lib/env";
@@ -65,7 +67,9 @@ export default buildConfig({
     VisitedCountries,
     PackingListTemplates,
     PackingLists,
+    UnlockAttempts,
   ],
+  globals: [SiteSettings],
   editor: lexicalEditor(),
   secret: payloadSecret,
   // Site uses the Local API; no need to expose GraphQL publicly.

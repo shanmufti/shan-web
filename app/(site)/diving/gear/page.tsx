@@ -52,9 +52,9 @@ export default async function DiveGearPage({
 
   if (!data) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-16">
+      <div className="mx-auto max-w-4xl px-6 pt-16 pb-8 sm:pt-24 lg:px-10">
         <header>
-          <h1 className="font-heading text-2xl font-semibold">Gear</h1>
+          <h1 className="font-heading text-4xl sm:text-5xl">Gear</h1>
           <p className="text-muted-foreground mt-2 text-sm">
             Kit inventory is private.
           </p>
@@ -85,9 +85,9 @@ export default async function DiveGearPage({
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16">
+    <div className="mx-auto max-w-4xl px-6 pt-16 pb-8 sm:pt-24 lg:px-10">
       <header>
-        <h1 className="font-heading text-2xl font-semibold">Gear</h1>
+        <h1 className="font-heading text-4xl sm:text-5xl">Gear</h1>
         <p className="text-muted-foreground mt-2 text-sm">
           Owned kit, research list, and named equipment configs.
         </p>
@@ -120,7 +120,7 @@ export default async function DiveGearPage({
       <div className="mt-8 space-y-8">
         {[...byType.entries()].map(([type, items]) => (
           <section key={type}>
-            <h2 className="font-heading text-base font-semibold">
+            <h2 className="text-base font-semibold tracking-tight">
               {gearTypeLabels[type] ?? type}
             </h2>
             <ul className="mt-3 space-y-3">
@@ -168,7 +168,7 @@ export default async function DiveGearPage({
 
       {configs.length > 0 ? (
         <section className="mt-14">
-          <h2 className="font-heading text-lg font-semibold">Configs</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Configs</h2>
           <ul className="mt-4 space-y-3">
             {configs.map((config) => (
               <li

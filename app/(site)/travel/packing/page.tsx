@@ -12,9 +12,9 @@ export default async function PackingListsPage() {
 
   if (!templates) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-16">
+      <div className="mx-auto max-w-4xl px-6 pt-16 pb-8 sm:pt-24 lg:px-10">
         <header>
-          <h1 className="font-heading text-2xl font-semibold">Packing lists</h1>
+          <h1 className="font-heading text-4xl sm:text-5xl">Packing lists</h1>
           <p className="text-muted-foreground mt-2 text-sm">
             Templates are private.
           </p>
@@ -35,9 +35,9 @@ export default async function PackingListsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16">
+    <div className="mx-auto max-w-4xl px-6 pt-16 pb-8 sm:pt-24 lg:px-10">
       <header>
-        <h1 className="font-heading text-2xl font-semibold">Packing lists</h1>
+        <h1 className="font-heading text-4xl sm:text-5xl">Packing lists</h1>
         <p className="text-muted-foreground mt-2 text-sm">
           Clone a template into a new list, then share the link.
         </p>

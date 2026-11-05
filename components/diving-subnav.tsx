@@ -9,7 +9,7 @@ const links = [
 
 export function DivingSubnav({ current }: Readonly<{ current?: string }>) {
   return (
-    <nav className="mt-4 flex flex-wrap gap-4 text-sm">
+    <nav aria-label="Section" className="mt-8 flex flex-wrap gap-6 text-sm">
       {links.map((link) => {
         const active = current === link.href;
         return (
@@ -18,7 +18,7 @@ export function DivingSubnav({ current }: Readonly<{ current?: string }>) {
             href={link.href}
             className={
               active
-                ? "text-foreground font-medium"
+                ? "text-foreground underline decoration-1 underline-offset-[6px]"
                 : "text-muted-foreground hover:text-foreground"
             }
           >

@@ -29,6 +29,11 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(dirname),
   },
+  experimental: {
+    // Two root layouts ((site) and (payload)), so unmatched URLs need
+    // app/global-not-found.tsx for a styled 404.
+    globalNotFound: true,
+  },
 };
 
 export default withPayload(nextConfig, { devBundleServerPackages: false });

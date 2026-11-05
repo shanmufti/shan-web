@@ -19,6 +19,34 @@ export const publishedOrAuthenticated: Access = ({ req: { user } }) => {
   return { draft: { equals: false } };
 };
 
+/**
+ * Journeys and stories: anonymous REST/Local API readers only get published,
+ * public docs. Passcode holders are served by lib/content.ts, which checks the
+ * cookie itself (Local API calls don't carry request cookies).
+ */
+// eslint-disable-next-line sonarjs/function-return-type -- Payload Access: boolean | Where
+export const publishedPublicOrAuthenticated: Access = ({ req: { user } }) => {
+  if (user) return true;
+  return {
+    and: [
+      { draft: { equals: false } },
+      {
+        or: [
+          { visibility: { equals: "public" } },
+          { visibility: { exists: false } },
+        ],
+      },
+    ],
+  };
+};
+
+export const visibilityReadAccess = {
+  read: publishedPublicOrAuthenticated,
+  create: authenticated,
+  update: authenticated,
+  delete: authenticated,
+} satisfies CollectionAccess;
+
 /** Blog / diving / travel / tech / resources — drafts hidden from the public. */
 export const publicContentAccess = {
   read: publishedOrAuthenticated,

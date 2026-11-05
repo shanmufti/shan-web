@@ -24,11 +24,9 @@ export default async function DivingHub() {
   const latestSite = latest?.siteName ?? latest?.location.name ?? null;
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16">
+    <div className="mx-auto max-w-4xl px-6 pt-16 pb-8 sm:pt-24 lg:px-10">
       <header>
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">
-          Diving
-        </h1>
+        <h1 className="font-heading text-4xl sm:text-5xl">Diving</h1>
         <p className="text-muted-foreground mt-2 text-sm">
           Cold-water logs, skills, kit, and notes from the water.
         </p>
@@ -67,7 +65,7 @@ export default async function DivingHub() {
       </div>
 
       <section className="mt-12">
-        <h2 className="font-heading text-lg font-semibold">Recent dives</h2>
+        <h2 className="text-lg font-semibold tracking-tight">Recent dives</h2>
         <div className="mt-2">
           {recent.map((dive) => (
             <Link
@@ -88,7 +86,7 @@ export default async function DivingHub() {
 
       <section className="mt-14 grid gap-8 sm:grid-cols-3">
         <div>
-          <h2 className="font-heading text-base font-semibold">Skills</h2>
+          <h2 className="text-base font-semibold tracking-tight">Skills</h2>
           <p className="text-muted-foreground mt-2 text-sm">
             Track buoyancy, navigation, and rescue practice over time.
           </p>
@@ -100,7 +98,7 @@ export default async function DivingHub() {
           </Link>
         </div>
         <div>
-          <h2 className="font-heading text-base font-semibold">Gear</h2>
+          <h2 className="text-base font-semibold tracking-tight">Gear</h2>
           <p className="text-muted-foreground mt-2 text-sm">
             Owned kit, research list, and named equipment configs.
           </p>
@@ -112,7 +110,7 @@ export default async function DivingHub() {
           </Link>
         </div>
         <div>
-          <h2 className="font-heading text-base font-semibold">Resources</h2>
+          <h2 className="text-base font-semibold tracking-tight">Resources</h2>
           <p className="text-muted-foreground mt-2 text-sm">
             Curated videos and articles for dive learning.
           </p>

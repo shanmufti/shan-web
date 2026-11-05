@@ -55,3 +55,53 @@ export const locationField: Field = {
     { name: "lng", type: "number", min: -180, max: 180 },
   ],
 };
+
+/** Same shape as locationField, but optional (stand-alone stories). */
+export const optionalLocationField: Field = {
+  name: "location",
+  type: "group",
+  admin: {
+    description:
+      "Optional. Puts a stand-alone story on the homepage globe. Stories in a journey use the journey's stops.",
+  },
+  fields: [
+    { name: "name", type: "text" },
+    { name: "lat", type: "number", min: -90, max: 90 },
+    { name: "lng", type: "number", min: -180, max: 180 },
+  ],
+};
+
+/**
+ * Public vs passcode-protected. Private items show as locked cards in
+ * listings unless `hideWhenLocked` is set. See lib/private-access.ts.
+ */
+export const visibilityFields: Field[] = [
+  {
+    name: "visibility",
+    type: "select",
+    required: true,
+    defaultValue: "public",
+    options: [
+      { label: "Public", value: "public" },
+      { label: "Private (passcode)", value: "private" },
+    ],
+    admin: {
+      position: "sidebar",
+      description:
+        "Private needs the site passcode (Settings → Site settings). Use only private photos inside private posts.",
+    },
+  },
+  {
+    name: "hideWhenLocked",
+    label: "Hide from listings when locked",
+    type: "checkbox",
+    defaultValue: false,
+    admin: {
+      position: "sidebar",
+      condition: (_, siblingData) =>
+        (siblingData as { visibility?: string }).visibility === "private",
+      description:
+        "Off: visitors see a locked card with title and date. On: the item is invisible until unlocked.",
+    },
+  },
+];

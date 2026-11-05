@@ -252,7 +252,9 @@ export function LogDiveForm({
       ) : null}
 
       <section className="space-y-4">
-        <h2 className="font-heading text-base font-semibold">Shearwater CSV</h2>
+        <h2 className="text-base font-semibold tracking-tight">
+          Shearwater CSV
+        </h2>
         <p className="text-muted-foreground text-sm">
           Optional. Export a dive from Shearwater Cloud Desktop as CSV to
           auto-fill vitals and attach the depth profile.
@@ -298,7 +300,7 @@ export function LogDiveForm({
       </section>
 
       <section className="space-y-4">
-        <h2 className="font-heading text-base font-semibold">Summary</h2>
+        <h2 className="text-base font-semibold tracking-tight">Summary</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <label htmlFor="title" className={labelClass}>
@@ -496,7 +498,7 @@ export function LogDiveForm({
       </section>
 
       <section className="space-y-4">
-        <h2 className="font-heading text-base font-semibold">Environment</h2>
+        <h2 className="text-base font-semibold tracking-tight">Environment</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
             <label htmlFor="surfaceTempC" className={labelClass}>
@@ -657,7 +659,7 @@ export function LogDiveForm({
       </section>
 
       <section className="space-y-4">
-        <h2 className="font-heading text-base font-semibold">Problems</h2>
+        <h2 className="text-base font-semibold tracking-tight">Problems</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="thermalComfort" className={labelClass}>
@@ -794,7 +796,7 @@ export function LogDiveForm({
       </section>
 
       <section className="space-y-4">
-        <h2 className="font-heading text-base font-semibold">Gear</h2>
+        <h2 className="text-base font-semibold tracking-tight">Gear</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="dress" className={labelClass}>

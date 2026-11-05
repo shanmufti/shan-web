@@ -1,40 +1,60 @@
 import type { Metadata } from "next";
 
-import { PostCard } from "@/components/post-card";
+import { PageHeader } from "@/components/page-header";
+import { LockedCard, PostCard } from "@/components/post-card";
 import { TravelSubnav } from "@/components/travel-subnav";
-import { listPublished } from "@/lib/content";
-import { formatDate } from "@/lib/format-date";
+import { formatDateRange } from "@/lib/format-date";
+import {
+  journeyCountries,
+  journeyCountryNames,
+  listJourneys,
+  mediaAlt,
+  mediaUrl,
+} from "@/lib/journeys";
 
-export const metadata: Metadata = { title: "Travel" };
+export const metadata: Metadata = {
+  title: "Journeys",
+  description: "Trips, routes, and the places worth going back to.",
+};
 
-function dateRangeLabel(startDate: string, endDate?: string | null) {
-  const start = formatDate(startDate);
-  if (!endDate) return start;
-  return `${start} – ${formatDate(endDate)}`;
-}
-
-export default async function TravelIndex() {
-  const trips = await listPublished("travel", { sort: "-startDate" });
+export default async function JourneysIndex() {
+  const journeys = await listJourneys();
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16">
-      <h1 className="font-heading text-2xl font-semibold">Travel</h1>
-      <TravelSubnav current="/travel" />
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        {trips.map((trip) => (
-          <PostCard
-            key={trip.slug}
-            href={`/travel/${trip.slug}`}
-            title={trip.title}
-            summary={trip.summary}
-            dateLabel={dateRangeLabel(trip.startDate, trip.endDate)}
-            meta={trip.location.name}
-          />
-        ))}
-        {trips.length === 0 ? (
-          <p className="text-muted-foreground text-sm">No trips yet.</p>
-        ) : null}
+    <div className="mx-auto max-w-7xl px-6 lg:px-10">
+      <PageHeader
+        eyebrow={`Journeys · ${String(journeys.length)}`}
+        title="Journeys"
+        lede="Trips, routes, and the places worth going back to."
+      >
+        <TravelSubnav current="/travel" />
+      </PageHeader>
+      <div className="grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+        {journeys.map((item) =>
+          item.locked ? (
+            <LockedCard
+              key={item.id}
+              title={item.title}
+              meta={`Journey · ${formatDateRange(item.date, item.endDate)}`}
+              next={`/travel/${item.slug}`}
+            />
+          ) : (
+            <PostCard
+              key={item.doc.id}
+              href={`/travel/${item.doc.slug}`}
+              title={item.doc.title}
+              summary={item.doc.summary}
+              meta={`${formatDateRange(item.doc.startDate, item.doc.endDate)} · ${journeyCountryNames(item.doc).join(", ")}`}
+              image={mediaUrl(item.doc.cover)}
+              imageAlt={mediaAlt(item.doc.cover)}
+              placeholder={journeyCountries(item.doc).join(" ") || undefined}
+            />
+          ),
+        )}
       </div>
+      {journeys.length === 0 ? (
+        <p className="text-muted-foreground">Journeys will appear here soon.</p>
+      ) : null}
     </div>
   );
 }

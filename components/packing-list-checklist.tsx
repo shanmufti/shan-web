@@ -43,7 +43,7 @@ export function PackingListChecklist({
     <div className="mt-8 space-y-8" aria-busy={isPending}>
       {[...byCategory.entries()].map(([category, indexes]) => (
         <section key={category}>
-          <h2 className="font-heading text-base font-semibold">{category}</h2>
+          <h2 className="text-base font-semibold tracking-tight">{category}</h2>
           <ul className="mt-3 space-y-2">
             {indexes.map((index) => {
               const item = items[index];

@@ -110,7 +110,7 @@ function SectionGrid({
   if (rows.length === 0) return null;
   return (
     <section className="mt-10">
-      <h2 className="font-heading text-base font-semibold">{title}</h2>
+      <h2 className="text-base font-semibold tracking-tight">{title}</h2>
       <dl className="mt-4 grid gap-4 sm:grid-cols-2">
         {rows.map((row) => (
           <div key={row.label} className="border-border border-b pb-2">
@@ -239,7 +239,7 @@ export function DiveNotesSections({ dive }: Readonly<{ dive: DiveDoc }>) {
     <div className="mt-10 space-y-6">
       {filled.map((section) => (
         <section key={section.label}>
-          <h2 className="font-heading text-base font-semibold">
+          <h2 className="text-base font-semibold tracking-tight">
             {section.label}
           </h2>
           <p className="text-muted-foreground mt-2 text-sm whitespace-pre-wrap">

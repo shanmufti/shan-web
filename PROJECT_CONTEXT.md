@@ -29,16 +29,30 @@ Personal site for Shan Mufti: adventures/blog, diving (divemaster), travel, and 
 ## Current state
 
 - Repo is live at `github.com/shanmufti/shan-web` (**public**), deployed on Vercel, reachable at `https://smufti.com` and `https://www.smufti.com`.
-- Full Next.js App Router site is built: homepage plus four section routes (`/blog`, `/diving`, `/travel`, `/tech`). Diving is a hub (`/diving`) with Logs (`/diving/logs`, `/diving/logs/[slug]`), Skills, private Gear, and Resources. Old `/diving/[slug]` redirects to `/diving/logs/[slug]`.
+- Full Next.js App Router site is built: globe + timeline homepage plus four section routes (`/travel` Journeys, `/blog` Stories, `/diving`, `/tech`). Diving is a hub (`/diving`) with Logs (`/diving/logs`, `/diving/logs/[slug]`), Skills, private Gear, and Resources. Old `/diving/[slug]` redirects to `/diving/logs/[slug]`.
 - Content moved from an initial MDX-in-repo pipeline (Velite) to Payload CMS — see "Decisions made" above. `/admin` is the only way articles get created; nothing content-related lives in git anymore.
 - Content routes inherit `dynamic = "force-dynamic"` from `app/(site)/layout.tsx` so edits in `/admin` (shared Neon DB) show on production immediately, instead of freezing HTML at build time.
 - **Production DB access**: Vercel holds `DATABASE_URL` (pooled), `DATABASE_URL_UNPOOLED`, and `PAYLOAD_SECRET` as **Sensitive** env vars (Production + Preview). `NEXT_PUBLIC_SERVER_URL=https://smufti.com` is public. Build is currently `next build` (schema has been pushed via local `next dev`). Switch the Vercel build command to `npm run ci` once versioned migrations exist under `/migrations` — do not enable that while the Neon DB still has a dev `push` marker, or the migrate step will block on an interactive prompt.
 - **Access control**: centralized in `collections/access.ts` as named presets (`publicContentAccess`, `publicCreateContentAccess`, `publicReadAccess`, `privateAccess`, `usersAccess`). Diving allows public create (site form at `/diving/logs/new`); other content stays auth-write. Public reads published (`draft: false`) only for content collections; no public user signup; GraphQL disabled; auth cookies `Secure` in production.
 - Code quality tooling in place: strict TypeScript, ESLint (`typescript-eslint` strictTypeChecked), Prettier. Commit/push protection is local only (no CI/PRs): Husky **pre-commit** (secret scan + lint-staged + typecheck) and **pre-push** (`npm run verify` = check + `next build`).
 
+## Redesign (2026-11-05)
+
+See `docs/site-redesign-plan.md` for the full plan and decisions.
+
+- **Design:** "Field notes" — Geist + Geist Mono, cool neutrals, open-water blue accent, flat image cards, light/dark toggle.
+- **Content model:** `travel` is labelled **Journeys** (adds `stops` route, `visibility`, `relatedDiveLogs`, `stories` join). `blog` is labelled **Stories** (adds optional `journey`, `visibility`, optional `location`). Slugs and URLs unchanged.
+- **Private content:** one shared passcode, set in `/admin` → Settings → Site settings (only a scrypt hash is stored). `/unlock` sets an HttpOnly cookie (30 days); changing the passcode signs everyone out. Failed attempts are rate-limited per hashed IP (`unlock-attempts`, hidden). Private items show as locked cards unless "Hide from listings when locked" is on. Journeys/stories are read in `lib/journeys.ts` with `overrideAccess: true` and filtered there, because Local API calls don't carry the visitor's cookie; the collection `read` access still hides private/draft docs from the REST API.
+- **Homepage:** globe (`react-globe.gl`) + ledger timeline (`lib/home.ts`).
+- **SEO:** `app/sitemap.ts`, `app/robots.ts`, `app/opengraph-image.tsx`, `/blog/rss.xml`, `app/global-not-found.tsx` (needs `experimental.globalNotFound`, because there are two root layouts).
+- **Photos:** on hold. Uncommitted work-in-progress lives in `collections/Media.ts`, `collections/PrivateMedia.ts`, `collections/image-upload.ts` (the dev server has already pushed the extra Media columns to Neon).
+
 ## Not yet done / next steps
 
 - Author real content through `/admin` (and the public dive log form at `/diving/logs/new`).
-- Diving/travel currently show location as text; an interactive map view (dive sites, trip itinerary) is a planned follow-up — `react-leaflet` was the earlier recommendation over MapLibre/Mapbox GL, given the site's small scale.
+- Set the private content passcode in `/admin` → Settings → Site settings before marking anything private.
+- Add `stops` (with ISO alpha-3 country codes and coordinates) to journeys so the globe and route maps fill in.
+- Photos (albums, galleries, private bucket, import script) — see plan §4.
+- Lighthouse/performance pass once real content and images exist.
 - No syntax highlighting for code blocks in Payload's rich text yet (the old MDX pipeline had this via Shiki/rehype-pretty-code) — only relevant if `/tech` posts need highlighted code.
 - Granular admin permissions/roles: Payload supports this natively via per-collection `access` functions whenever multiple contributors are needed — not set up yet since it's currently single-user.

@@ -32,7 +32,7 @@ export function DiveProfileChart({
 
   return (
     <section className="mt-10">
-      <h2 className="font-heading text-base font-semibold">Dive profile</h2>
+      <h2 className="text-base font-semibold tracking-tight">Dive profile</h2>
       <div className="mt-4 h-56 w-full sm:h-72">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart

@@ -23,9 +23,9 @@ export default async function DiveResourcesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16">
+    <div className="mx-auto max-w-4xl px-6 pt-16 pb-8 sm:pt-24 lg:px-10">
       <header>
-        <h1 className="font-heading text-2xl font-semibold">Resources</h1>
+        <h1 className="font-heading text-4xl sm:text-5xl">Resources</h1>
         <p className="text-muted-foreground mt-2 text-sm">
           Curated links for dive learning — videos, articles, and more.
         </p>
@@ -35,7 +35,7 @@ export default async function DiveResourcesPage() {
       <div className="mt-10 space-y-10">
         {[...byType.entries()].map(([type, items]) => (
           <section key={type}>
-            <h2 className="font-heading text-lg font-semibold">
+            <h2 className="text-lg font-semibold tracking-tight">
               {typeLabels[type] ?? type}
             </h2>
             <ul className="mt-4 space-y-4">

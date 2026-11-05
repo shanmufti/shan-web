@@ -35,7 +35,7 @@ export default async function EditDiveLogPage({
   if (!dive) notFound();
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16">
+    <div className="mx-auto max-w-4xl px-6 pt-16 pb-8 sm:pt-24 lg:px-10">
       <header>
         <p className="text-muted-foreground text-sm">
           <Link
@@ -45,7 +45,7 @@ export default async function EditDiveLogPage({
             ← {dive.title}
           </Link>
         </p>
-        <h1 className="font-heading mt-4 text-2xl font-semibold">Edit dive</h1>
+        <h1 className="font-heading mt-4 text-4xl sm:text-5xl">Edit dive</h1>
         <p className="text-muted-foreground mt-2 text-sm">
           Update details or attach a Shearwater CSV to backfill vitals and the
           depth profile.

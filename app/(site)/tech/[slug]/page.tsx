@@ -26,7 +26,7 @@ export default async function TechPost({
   if (!project) notFound();
 
   return (
-    <article className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-16">
+    <article className="prose prose-neutral dark:prose-invert mx-auto max-w-[680px] px-6 pt-16 pb-8 sm:pt-24">
       <h1>{project.title}</h1>
       <div className="not-prose flex flex-wrap items-center gap-2">
         {(project.tags ?? []).map((tag) => (
