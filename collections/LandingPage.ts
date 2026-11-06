@@ -19,7 +19,6 @@ export const LandingPage: GlobalConfig = {
     {
       name: "eyebrow",
       type: "text",
-      defaultValue: "Divemaster · traveler · engineer",
     },
     {
       name: "headline",
@@ -30,8 +29,6 @@ export const LandingPage: GlobalConfig = {
     {
       name: "intro",
       type: "textarea",
-      defaultValue:
-        "Field notes from the road and under the sea. Most of this site is still being written; more opens up soon.",
     },
     {
       name: "links",

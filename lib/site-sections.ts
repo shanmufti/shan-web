@@ -27,6 +27,8 @@ export interface SiteSection {
   defaultMode: AccessMode;
   /** Show in the header and footer nav when visible. */
   inNav: boolean;
+  /** List on the landing page when visible. */
+  onLanding: boolean;
 }
 
 export const SITE_SECTIONS = [
@@ -39,6 +41,7 @@ export const SITE_SECTIONS = [
     collections: [],
     defaultMode: "owner",
     inNav: true,
+    onLanding: true,
   },
   {
     key: "journeys",
@@ -49,6 +52,7 @@ export const SITE_SECTIONS = [
     collections: ["travel", "visited-countries"],
     defaultMode: "owner",
     inNav: true,
+    onLanding: true,
   },
   {
     key: "packing",
@@ -59,6 +63,7 @@ export const SITE_SECTIONS = [
     collections: ["packing-list-templates", "packing-lists"],
     defaultMode: "owner",
     inNav: false,
+    onLanding: false,
   },
   {
     key: "stories",
@@ -69,6 +74,7 @@ export const SITE_SECTIONS = [
     collections: ["blog"],
     defaultMode: "owner",
     inNav: true,
+    onLanding: true,
   },
   {
     key: "diving",
@@ -85,6 +91,7 @@ export const SITE_SECTIONS = [
     ],
     defaultMode: "owner",
     inNav: true,
+    onLanding: true,
   },
   {
     key: "tech",
@@ -95,6 +102,7 @@ export const SITE_SECTIONS = [
     collections: ["tech"],
     defaultMode: "owner",
     inNav: true,
+    onLanding: true,
   },
   {
     key: "foodTour",
@@ -105,6 +113,7 @@ export const SITE_SECTIONS = [
     collections: [],
     defaultMode: "public",
     inNav: false,
+    onLanding: true,
   },
 ] as const satisfies readonly SiteSection[];
 
