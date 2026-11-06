@@ -138,7 +138,7 @@ export async function getRevealedResults(
       count: ratings.length,
       averageTotal: average(ratings.map((r) => r.total)),
       averages,
-      ratings: ratings.sort((a, b) => a.name.localeCompare(b.name)),
+      ratings: [...ratings].sort((a, b) => a.name.localeCompare(b.name)),
     };
   });
 

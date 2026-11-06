@@ -89,6 +89,9 @@ export function FoodRatingForm({
 
   const [restaurantId, setRestaurantId] = useState("");
   const [scores, setScores] = useState<Partial<Record<string, number>>>({});
+  const setScore = (key: string, points: number) => {
+    setScores((prev) => ({ ...prev, [key]: points }));
+  };
 
   // After a successful submit, clear the rubric for the next restaurant.
   // (Adjusting state during render, per React docs, rather than in an effect.)
@@ -237,10 +240,7 @@ export function FoodRatingForm({
                         required
                         checked={checked}
                         onChange={() => {
-                          setScores((prev) => ({
-                            ...prev,
-                            [category.key]: level.points,
-                          }));
+                          setScore(category.key, level.points);
                         }}
                         className="sr-only"
                       />

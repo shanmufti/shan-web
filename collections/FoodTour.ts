@@ -22,13 +22,12 @@ export const FoodTour: GlobalConfig = {
       async ({ data, originalDoc, req }) => {
         const next = data as { revealAt?: string | null };
         const prev = (originalDoc ?? {}) as { revealAt?: string | null };
-        if (!prev.revealAt) return data;
+        if (!prev.revealAt) return next;
 
         const movedEarlier =
           !next.revealAt ||
-          new Date(next.revealAt).getTime() <
-            new Date(prev.revealAt).getTime();
-        if (!movedEarlier) return data;
+          new Date(next.revealAt).getTime() < new Date(prev.revealAt).getTime();
+        if (!movedEarlier) return next;
 
         const { totalDocs } = await req.payload.count({
           collection: "food-ratings",
@@ -42,7 +41,7 @@ export const FoodTour: GlobalConfig = {
             true,
           );
         }
-        return data;
+        return next;
       },
     ],
   },

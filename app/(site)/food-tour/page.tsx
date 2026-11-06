@@ -135,7 +135,9 @@ export default async function FoodTourPage() {
         </>
       ) : (
         <p className="text-muted-foreground">
-          {restaurants.length === 0 || participants.length === 0 || !tour.revealAt
+          {restaurants.length === 0 ||
+          participants.length === 0 ||
+          !tour.revealAt
             ? "The tour isn't set up yet. Check back soon."
             : "Rubrics are paused right now."}
         </p>
