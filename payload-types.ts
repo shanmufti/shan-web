@@ -81,6 +81,7 @@ export interface Config {
     'packing-list-templates': PackingListTemplate;
     'packing-lists': PackingList;
     'unlock-attempts': UnlockAttempt;
+    'food-ratings': FoodRating;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -106,6 +107,7 @@ export interface Config {
     'packing-list-templates': PackingListTemplatesSelect<false> | PackingListTemplatesSelect<true>;
     'packing-lists': PackingListsSelect<false> | PackingListsSelect<true>;
     'unlock-attempts': UnlockAttemptsSelect<false> | UnlockAttemptsSelect<true>;
+    'food-ratings': FoodRatingsSelect<false> | FoodRatingsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -117,9 +119,11 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'site-settings': SiteSetting;
+    'food-tour': FoodTour;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'food-tour': FoodTourSelect<false> | FoodTourSelect<true>;
   };
   locale: null;
   widgets: {
@@ -783,6 +787,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'unlock-attempts';
         value: number | UnlockAttempt;
+      } | null)
+    | ({
+        relationTo: 'food-ratings';
+        value: number | FoodRating;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1299,6 +1307,97 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "food-ratings".
+ */
+export interface FoodRating {
+  id: number;
+  key: string;
+  name: string;
+  restaurantId: string;
+  restaurantName: string;
+  food: number;
+  ambiance: number;
+  price: number;
+  again: number;
+  total: number;
+  comment?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "food-ratings_select".
+ */
+export interface FoodRatingsSelect<T extends boolean = true> {
+  key?: T;
+  name?: T;
+  restaurantId?: T;
+  restaurantName?: T;
+  food?: T;
+  ambiance?: T;
+  price?: T;
+  again?: T;
+  total?: T;
+  comment?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "food-tour".
+ */
+export interface FoodTour {
+  id: number;
+  title: string;
+  /**
+   * Optional note shown above the form.
+   */
+  intro?: string | null;
+  /**
+   * Results unlock for everyone (you included) at this moment. Submissions close then too. Once a rubric is in, this can only move later.
+   */
+  revealAt: string;
+  /**
+   * Untick to pause submissions before the reveal date.
+   */
+  acceptingRatings?: boolean | null;
+  /**
+   * Add each stop. Don't delete one that has rubrics — rename it instead.
+   */
+  restaurants?:
+    | {
+        name: string;
+        neighbourhood?: string | null;
+        visitedOn?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "food-tour_select".
+ */
+export interface FoodTourSelect<T extends boolean = true> {
+  title?: T;
+  intro?: T;
+  revealAt?: T;
+  acceptingRatings?: T;
+  restaurants?:
+    | T
+    | {
+        name?: T;
+        neighbourhood?: T;
+        visitedOn?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

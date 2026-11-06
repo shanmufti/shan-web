@@ -10,6 +10,8 @@ import { Blog } from "./collections/Blog";
 import { DiveGear } from "./collections/DiveGear";
 import { DiveResources } from "./collections/DiveResources";
 import { DiveSkills } from "./collections/DiveSkills";
+import { FoodRatings } from "./collections/FoodRatings";
+import { FoodTour } from "./collections/FoodTour";
 import { Diving } from "./collections/Diving";
 import { GearConfigs } from "./collections/GearConfigs";
 import { Media } from "./collections/Media";
@@ -68,8 +70,9 @@ export default buildConfig({
     PackingListTemplates,
     PackingLists,
     UnlockAttempts,
+    FoodRatings,
   ],
-  globals: [SiteSettings],
+  globals: [SiteSettings, FoodTour],
   editor: lexicalEditor(),
   secret: payloadSecret,
   // Site uses the Local API; no need to expose GraphQL publicly.

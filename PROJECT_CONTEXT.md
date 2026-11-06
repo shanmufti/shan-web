@@ -47,6 +47,14 @@ See `docs/site-redesign-plan.md` for the full plan and decisions.
 - **SEO:** `app/sitemap.ts`, `app/robots.ts`, `app/opengraph-image.tsx`, `/blog/rss.xml`, `app/global-not-found.tsx` (needs `experimental.globalNotFound`, because there are two root layouts).
 - **Photos:** on hold. Uncommitted work-in-progress lives in `collections/Media.ts`, `collections/PrivateMedia.ts`, `collections/image-upload.ts` (the dev server has already pushed the extra Media columns to Neon).
 
+## Food tour rubrics (2026-11-05)
+
+- `/food-tour` (unlisted, `noindex`): anyone with the link scores a restaurant on the 4-category rubric (Food quality, Ambiance & vibe, Price value, Would you go again?; 5/4/3/1 pts, total out of 20). One rubric per name per restaurant; resubmitting replaces it.
+- Setup lives in `/admin` → Settings → **Food tour** (global `food-tour`): title, intro, reveal date/time, restaurant list, pause toggle.
+- Rubrics are in `food-ratings`, which has `read/create/update/delete: false` for everyone, admin included, and is hidden from the admin nav. The only reader is `getRevealedResults()` in `lib/food-tour.ts`, which throws before the reveal date. Writes go through `lib/actions/submit-food-rating.ts` with `overrideAccess`.
+- Once any rubric exists, the reveal date can only move later (hook in `collections/FoodTour.ts`).
+- This is an app-level seal: someone with direct Neon access could still read the `food_ratings` table.
+
 ## Not yet done / next steps
 
 - Author real content through `/admin` (and the public dive log form at `/diving/logs/new`).

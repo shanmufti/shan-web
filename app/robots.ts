@@ -13,6 +13,7 @@ export default function robots(): MetadataRoute.Robots {
         "/unlock",
         "/travel/packing",
         "/diving/gear",
+        "/food-tour",
       ],
     },
     sitemap: `${siteUrl()}/sitemap.xml`,
