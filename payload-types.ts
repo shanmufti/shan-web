@@ -355,6 +355,15 @@ export interface Travel {
         id?: string | null;
       }[]
     | null;
+  track?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   relatedDiveLogs?: (number | Diving)[] | null;
   /**
    * Stories that belong to this journey.
@@ -1211,6 +1220,7 @@ export interface TravelSelect<T extends boolean = true> {
         arrivedOn?: T;
         id?: T;
       };
+  track?: T;
   relatedDiveLogs?: T;
   stories?: T;
   updatedAt?: T;

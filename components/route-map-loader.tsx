@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-import type { RouteStop } from "./route-map";
+import type { RouteStop, RouteTrack } from "./route-map";
 
 const RouteMap = dynamic(
   () => import("./route-map").then((mod) => mod.RouteMap),
@@ -12,6 +12,9 @@ const RouteMap = dynamic(
   },
 );
 
-export function RouteMapLoader({ stops }: Readonly<{ stops: RouteStop[] }>) {
-  return <RouteMap stops={stops} />;
+export function RouteMapLoader({
+  stops,
+  track,
+}: Readonly<{ stops: RouteStop[]; track?: RouteTrack }>) {
+  return <RouteMap stops={stops} {...(track ? { track } : {})} />;
 }

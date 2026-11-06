@@ -10,6 +10,8 @@ import { baseFields, visibilityFields } from "./fields";
 export const Travel: CollectionConfig = {
   slug: "travel",
   labels: { singular: "Journey", plural: "Journeys" },
+  // Newest trip first in /admin, matching the public journeys list.
+  defaultSort: "-startDate",
   admin: {
     useAsTitle: "title",
     defaultColumns: ["title", "startDate", "visibility", "draft"],
@@ -68,6 +70,14 @@ export const Travel: CollectionConfig = {
         },
         { name: "arrivedOn", type: "date" },
       ],
+    },
+    {
+      // GPS route as line segments: [[[lat, lng], ...], ...]. Written by
+      // scripts/import-tracks.mjs from a Polarsteps export, already
+      // simplified and rounded. Hidden in the admin because it is large.
+      name: "track",
+      type: "json",
+      admin: { hidden: true },
     },
     {
       name: "relatedDiveLogs",

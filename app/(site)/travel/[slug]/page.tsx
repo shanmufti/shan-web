@@ -18,6 +18,7 @@ import {
   journeyCountryNames,
   journeyDays,
   journeyStops,
+  journeyTrack,
   mediaAlt,
   mediaUrl,
   readingMinutes,
@@ -166,6 +167,7 @@ export default async function JourneyPage({ params }: Props) {
   const cover = mediaUrl(journey.cover);
   const countries = journeyCountryNames(journey);
   const stops = journeyStops(journey);
+  const track = journeyTrack(journey);
   const stories = storyList(journey.stories);
   const dives = (journey.relatedDiveLogs ?? []).filter(
     (d) => typeof d === "object",
@@ -220,7 +222,7 @@ export default async function JourneyPage({ params }: Props) {
             className="lg:sticky lg:top-20 lg:self-start"
           >
             <div className="border-border aspect-[4/3] overflow-hidden rounded-md border">
-              <RouteMapLoader stops={stops} />
+              <RouteMapLoader stops={stops} track={track} />
             </div>
             {stops.length > 1 ? (
               <ol className="mt-4 space-y-1.5">

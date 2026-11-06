@@ -257,3 +257,23 @@ export function journeyStops(
   }
   return stops;
 }
+
+export type TrackSegment = [number, number][];
+
+const isCoord = (p: unknown): p is [number, number] =>
+  Array.isArray(p) &&
+  p.length === 2 &&
+  typeof p[0] === "number" &&
+  typeof p[1] === "number" &&
+  Math.abs(p[0]) <= 90 &&
+  Math.abs(p[1]) <= 180;
+
+/** GPS route segments from the `track` JSON field; [] when missing or malformed. */
+export function journeyTrack(journey: JourneyDoc): TrackSegment[] {
+  const raw = journey.track;
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((seg): seg is unknown[] => Array.isArray(seg))
+    .map((seg) => seg.filter(isCoord))
+    .filter((seg) => seg.length > 1);
+}
