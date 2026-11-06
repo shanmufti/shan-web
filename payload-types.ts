@@ -662,6 +662,10 @@ export interface VisitedCountry {
    */
   country: string;
   yearsVisited?: number[] | null;
+  /**
+   * Optional. ISO 3166-2 codes of the states or provinces you visited, e.g. US-CA, CA-BC. When set, the travel map shades only these instead of the whole country (US states and Canadian provinces for now).
+   */
+  regions?: string[] | null;
   note?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1252,6 +1256,7 @@ export interface TechSelect<T extends boolean = true> {
 export interface VisitedCountriesSelect<T extends boolean = true> {
   country?: T;
   yearsVisited?: T;
+  regions?: T;
   note?: T;
   updatedAt?: T;
   createdAt?: T;

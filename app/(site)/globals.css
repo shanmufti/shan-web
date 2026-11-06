@@ -206,3 +206,50 @@
   --animate-wiggle: wiggle 2.6s ease-in-out infinite;
   --animate-drift: drift 60s linear infinite;
 }
+
+/* Travel map (components/countries-map.tsx): quiet tooltip and zoom buttons. */
+.travel-map .map-tooltip {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.08);
+  padding: 0.375rem 0.625rem;
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+.travel-map .map-tooltip::before {
+  display: none;
+}
+.travel-map .map-tooltip-meta {
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+.travel-map .leaflet-control-zoom {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: none;
+}
+.travel-map .leaflet-control-zoom a {
+  background: var(--background);
+  color: var(--foreground);
+  border-color: var(--border);
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+}
+.travel-map .leaflet-control-zoom a:hover {
+  background: var(--muted);
+}
+.travel-map path.leaflet-interactive {
+  transition:
+    fill-opacity 150ms ease,
+    fill 150ms ease;
+}
+.travel-map .leaflet-control-zoom a.leaflet-disabled {
+  background: var(--background);
+  color: var(--muted-foreground);
+  opacity: 0.5;
+}

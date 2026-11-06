@@ -24,6 +24,7 @@ export default async function TravelMapPage() {
           visitedCountries={countries.map((c) => ({
             country: c.country,
             yearsVisited: c.yearsVisited ?? null,
+            regions: c.regions ?? null,
             note: c.note ?? null,
           }))}
         />
