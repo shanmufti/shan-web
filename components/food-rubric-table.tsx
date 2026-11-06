@@ -4,7 +4,7 @@ import { RUBRIC_BANDS, RUBRIC_CATEGORIES } from "@/lib/food-rubric";
 export function FoodRubricTable() {
   return (
     <details className="group mb-10">
-      <summary className="meta-label text-muted-foreground hover:text-foreground cursor-pointer list-none">
+      <summary className="meta-label text-muted-foreground hover:text-foreground -my-2 cursor-pointer list-none py-3">
         <span className="inline-block transition-transform group-open:rotate-90">
           ▸
         </span>{" "}

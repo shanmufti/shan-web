@@ -110,15 +110,21 @@ function ScoreField({
           );
         })}
       </div>
+      {active ? null : (
+        <p className="text-muted-foreground text-sm sm:hidden">
+          Tap a score to see what it means.
+        </p>
+      )}
       <ul className="grid gap-x-4 gap-y-1 text-sm sm:grid-cols-2">
         {RUBRIC_BANDS.map((band) => (
           <li
             key={band.key}
             className={cn(
-              "flex gap-2 leading-snug",
+              "gap-2 leading-snug sm:flex",
+              // Phones: only the picked score's wording, to keep it short.
               active?.key === band.key
-                ? "text-foreground"
-                : "text-muted-foreground",
+                ? "text-foreground flex"
+                : "text-muted-foreground hidden",
             )}
           >
             <span className="w-10 shrink-0 font-mono text-xs leading-5">

@@ -309,7 +309,7 @@ function SubmissionGrid({
             <tr>
               <th
                 scope="col"
-                className="bg-background sticky left-0 py-2 pr-4 font-normal"
+                className="bg-background sticky left-0 py-2 pr-3 font-normal sm:pr-4"
               >
                 Person
               </th>
@@ -317,7 +317,7 @@ function SubmissionGrid({
                 <th
                   key={r.id}
                   scope="col"
-                  className="min-w-[7rem] px-2 py-2 font-normal"
+                  className="px-2 py-2 font-normal sm:min-w-[7rem]"
                 >
                   {r.name}
                 </th>
@@ -336,7 +336,7 @@ function SubmissionGrid({
                 <tr key={p.id} className="border-border border-t">
                   <th
                     scope="row"
-                    className="bg-background sticky left-0 py-2 pr-4 font-medium whitespace-nowrap"
+                    className="bg-background sticky left-0 py-2 pr-3 font-medium whitespace-nowrap sm:pr-4"
                   >
                     {p.name}
                   </th>
@@ -347,7 +347,7 @@ function SubmissionGrid({
                         {sub ? (
                           <span className="text-primary">
                             <span aria-hidden="true">✓ </span>
-                            <span className="text-muted-foreground text-xs">
+                            <span className="text-muted-foreground hidden text-xs sm:inline">
                               {formatSubmitted(sub.submittedAt)}
                             </span>
                             <span className="sr-only">submitted</span>
