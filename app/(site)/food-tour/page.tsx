@@ -16,8 +16,13 @@ import {
   type TourRestaurant,
 } from "@/lib/food-tour";
 
+const description = "Score each stop on the food tour rubric.";
+
 export const metadata: Metadata = {
   title: "Food tour",
+  description,
+  openGraph: { title: "Food tour", description, images: ["/opengraph-image"] },
+  twitter: { title: "Food tour", description },
   robots: { index: false, follow: false },
 };
 

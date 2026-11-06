@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Shan Mufti — field notes from the road and under the sea";
+export const alt = "Shan Mufti";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -37,11 +37,9 @@ export default function OpengraphImage() {
           maxWidth: 900,
         }}
       >
-        Field notes from the road and under the sea.
+        Shan Mufti
       </div>
-      <div style={{ fontSize: 26, color: "rgba(255,255,255,0.7)" }}>
-        Shan Mufti · Divemaster, traveler, engineer
-      </div>
+      <div />
     </div>,
     size,
   );

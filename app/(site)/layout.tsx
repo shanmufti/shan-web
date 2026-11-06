@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const description =
-  "Journeys, stories, and dive logs. Field notes from the road and under the sea.";
+// Kept neutral while most sections are hidden; link previews show this.
+const description = "Shan Mufti";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
