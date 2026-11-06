@@ -183,3 +183,26 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Food tour silliness: a sticker that won't sit still, wallpaper that drifts. */
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(6deg);
+  }
+  50% {
+    transform: rotate(-4deg) scale(1.03);
+  }
+}
+@keyframes drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 360px 480px;
+  }
+}
+@theme {
+  --animate-wiggle: wiggle 2.6s ease-in-out infinite;
+  --animate-drift: drift 60s linear infinite;
+}

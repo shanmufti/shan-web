@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 
+import { FoodPhotosSection } from "@/components/food-photos-section";
 import { FoodRatingForm } from "@/components/food-rating-form";
+import { FoodRubricTable } from "@/components/food-rubric-table";
+import { FoodTourBackdrop, RubricSticker } from "@/components/food-tour-fun";
 import { PageHeader } from "@/components/page-header";
 import { RUBRIC_CATEGORIES, RUBRIC_MAX_TOTAL } from "@/lib/food-rubric";
 import {
   getFoodTour,
   getRevealedResults,
   isRevealed,
+  listFoodPhotos,
   listSubmissions,
   tourParticipants,
   tourRestaurants,
@@ -50,17 +54,30 @@ export default async function FoodTourPage() {
 
   const participants = tourParticipants(tour);
   const restaurants = tourRestaurants(tour);
-  const submissions = await listSubmissions();
+  const [submissions, photos] = await Promise.all([
+    listSubmissions(),
+    listFoodPhotos(),
+  ]);
+  const photoSection = (
+    <FoodPhotosSection
+      photos={photos}
+      participants={participants}
+      restaurants={restaurants}
+    />
+  );
 
   if (revealed) {
     const results = await getRevealedResults(tour);
     return (
       <div className="mx-auto max-w-5xl px-6 pb-16 lg:px-10">
+        <FoodTourBackdrop />
+        <RubricSticker />
         <PageHeader
           eyebrow="Results"
           title={title}
           lede={`Revealed ${tour.revealAt ? formatReveal(tour.revealAt) : ""}. Ranked by average total out of ${String(RUBRIC_MAX_TOTAL)}.`}
         />
+        <FoodRubricTable />
         {results.length === 0 ? (
           <p className="text-muted-foreground">No rubrics were submitted.</p>
         ) : (
@@ -74,6 +91,7 @@ export default async function FoodTourPage() {
             ))}
           </ol>
         )}
+        {photoSection}
         <SubmissionGrid
           participants={participants}
           restaurants={restaurants}
@@ -91,6 +109,8 @@ export default async function FoodTourPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-6 pb-16 lg:px-10">
+      <FoodTourBackdrop />
+      <RubricSticker />
       <PageHeader
         eyebrow="Food tour"
         title={title}
@@ -119,6 +139,8 @@ export default async function FoodTourPage() {
         </dl>
       </PageHeader>
 
+      <FoodRubricTable />
+
       {open ? (
         <>
           <FoodRatingForm
@@ -134,6 +156,7 @@ export default async function FoodTourPage() {
               (x) => `${x.participantId}:${x.restaurantId}`,
             )}
           />
+          {photoSection}
           <SubmissionGrid
             participants={participants}
             restaurants={restaurants}
@@ -149,6 +172,7 @@ export default async function FoodTourPage() {
             : "Rubrics are paused right now."}
         </p>
       )}
+      {open ? null : photoSection}
     </div>
   );
 }

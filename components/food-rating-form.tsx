@@ -19,9 +19,12 @@ import {
   RUBRIC_MAX_TOTAL,
   RUBRIC_POINTS,
 } from "@/lib/food-rubric";
+import {
+  readStoredPerson,
+  storePerson,
+  subscribeToStorage,
+} from "@/lib/food-tour-person";
 import { cn } from "@/lib/utils";
-
-const PERSON_STORAGE_KEY = "food-tour-person";
 
 const inputClass =
   "border-border bg-background mt-1 w-full rounded-md border px-3 py-2 text-base outline-none focus-visible:ring-2 focus-visible:ring-ring/40";
@@ -38,31 +41,6 @@ interface RestaurantOption extends Option {
   neighbourhood?: string | null | undefined;
   cuisine?: string | null | undefined;
   chosenBy?: string | null | undefined;
-}
-
-// The remembered "who are you" choice lives in localStorage. Reading it via
-// useSyncExternalStore keeps server and first client render in agreement.
-function subscribeToStorage(onChange: () => void) {
-  window.addEventListener("storage", onChange);
-  return () => {
-    window.removeEventListener("storage", onChange);
-  };
-}
-
-function readStoredPerson(): string {
-  try {
-    return window.localStorage.getItem(PERSON_STORAGE_KEY) ?? "";
-  } catch {
-    return "";
-  }
-}
-
-function storePerson(id: string) {
-  try {
-    window.localStorage.setItem(PERSON_STORAGE_KEY, id);
-  } catch {
-    // Storage can be unavailable (private mode); picking again is fine.
-  }
 }
 
 type Category = (typeof RUBRIC_CATEGORIES)[number];

@@ -152,3 +152,43 @@ export async function getRevealedResults(
     (a, b) => b.averageTotal - a.averageTotal || b.count - a.count,
   );
 }
+
+export interface FoodPhoto {
+  id: number | string;
+  restaurantId: string;
+  thumb: string;
+  full: string;
+  width?: number | null | undefined;
+  height?: number | null | undefined;
+  name?: string | null | undefined;
+  caption?: string | null | undefined;
+}
+
+/** Every food tour photo, oldest first, ready for the photo wall. */
+export async function listFoodPhotos(): Promise<FoodPhoto[]> {
+  const payload = await getPayload({ config });
+  const { docs } = await payload.find({
+    collection: "food-tour-photos",
+    sort: "createdAt",
+    limit: 0,
+    pagination: false,
+    depth: 0,
+    overrideAccess: true,
+  });
+  return docs.flatMap((doc) => {
+    const full = doc.url;
+    if (!full) return [];
+    return [
+      {
+        id: doc.id,
+        restaurantId: doc.restaurantId,
+        thumb: doc.sizes?.thumb?.url ?? full,
+        full,
+        width: doc.sizes?.thumb?.width ?? doc.width,
+        height: doc.sizes?.thumb?.height ?? doc.height,
+        name: doc.name,
+        caption: doc.caption,
+      },
+    ];
+  });
+}

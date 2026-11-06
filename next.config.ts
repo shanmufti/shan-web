@@ -33,6 +33,11 @@ const nextConfig: NextConfig = {
     // Two root layouts ((site) and (payload)), so unmatched URLs need
     // app/global-not-found.tsx for a styled 404.
     globalNotFound: true,
+    serverActions: {
+      // Food tour photo uploads. The browser shrinks photos to ~0.5MB
+      // first; Vercel caps request bodies at 4.5MB.
+      bodySizeLimit: "4mb",
+    },
   },
 };
 

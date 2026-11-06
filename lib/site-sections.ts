@@ -110,7 +110,7 @@ export const SITE_SECTIONS = [
     href: "/food-tour",
     blurb: "Score each stop on the food tour rubric.",
     paths: ["/food-tour"],
-    collections: [],
+    collections: ["food-tour-photos"],
     defaultMode: "public",
     inNav: false,
     onLanding: true,

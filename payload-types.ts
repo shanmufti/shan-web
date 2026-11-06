@@ -82,6 +82,7 @@ export interface Config {
     'packing-lists': PackingList;
     'unlock-attempts': UnlockAttempt;
     'food-ratings': FoodRating;
+    'food-tour-photos': FoodTourPhoto;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -108,6 +109,7 @@ export interface Config {
     'packing-lists': PackingListsSelect<false> | PackingListsSelect<true>;
     'unlock-attempts': UnlockAttemptsSelect<false> | UnlockAttemptsSelect<true>;
     'food-ratings': FoodRatingsSelect<false> | FoodRatingsSelect<true>;
+    'food-tour-photos': FoodTourPhotosSelect<false> | FoodTourPhotosSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -734,6 +736,43 @@ export interface FoodRating {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "food-tour-photos".
+ */
+export interface FoodTourPhoto {
+  id: number;
+  /**
+   * Row id of the restaurant in Food tour settings.
+   */
+  restaurantId: string;
+  restaurantName: string;
+  participantId?: string | null;
+  name?: string | null;
+  caption?: string | null;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumb?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -815,6 +854,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'food-ratings';
         value: number | FoodRating;
+      } | null)
+    | ({
+        relationTo: 'food-tour-photos';
+        value: number | FoodTourPhoto;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1272,6 +1315,43 @@ export interface FoodRatingsSelect<T extends boolean = true> {
   comment?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "food-tour-photos_select".
+ */
+export interface FoodTourPhotosSelect<T extends boolean = true> {
+  restaurantId?: T;
+  restaurantName?: T;
+  participantId?: T;
+  name?: T;
+  caption?: T;
+  prefix?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumb?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -12,6 +12,7 @@ import { DiveResources } from "./collections/DiveResources";
 import { DiveSkills } from "./collections/DiveSkills";
 import { FoodRatings } from "./collections/FoodRatings";
 import { FoodTour } from "./collections/FoodTour";
+import { FoodTourPhotos } from "./collections/FoodTourPhotos";
 import { Diving } from "./collections/Diving";
 import { GearConfigs } from "./collections/GearConfigs";
 import { LandingPage } from "./collections/LandingPage";
@@ -73,6 +74,7 @@ export default buildConfig({
     PackingLists,
     UnlockAttempts,
     FoodRatings,
+    FoodTourPhotos,
   ],
   globals: [SiteAccess, LandingPage, SiteSettings, FoodTour],
   editor: lexicalEditor(),
@@ -97,6 +99,14 @@ export default buildConfig({
     s3Storage({
       enabled: Boolean(r2Bucket && r2Endpoint),
       collections: {
+        "food-tour-photos": {
+          prefix: "food-tour",
+          disablePayloadAccessControl: true,
+          generateFileURL: ({ filename, prefix }) => {
+            const key = prefix ? `${prefix}/${filename}` : filename;
+            return `${r2PublicUrl ?? ""}/${key}`;
+          },
+        },
         media: {
           // Browser loads images straight from R2 (not proxied through Vercel).
           disablePayloadAccessControl: true,
