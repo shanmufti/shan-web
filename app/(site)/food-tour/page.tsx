@@ -59,11 +59,7 @@ export default async function FoodTourPage() {
     listFoodPhotos(),
   ]);
   const photoSection = (
-    <FoodPhotosSection
-      photos={photos}
-      participants={participants}
-      restaurants={restaurants}
-    />
+    <FoodPhotosSection photos={photos} restaurants={restaurants} />
   );
 
   if (revealed) {

@@ -1,18 +1,12 @@
 import { FoodPhotoUpload } from "@/components/food-photo-upload";
 import { FoodPhotoWall } from "@/components/food-photo-wall";
-import type {
-  FoodPhoto,
-  TourParticipant,
-  TourRestaurant,
-} from "@/lib/food-tour";
+import type { FoodPhoto, TourRestaurant } from "@/lib/food-tour";
 
 export function FoodPhotosSection({
   photos,
-  participants,
   restaurants,
 }: Readonly<{
   photos: FoodPhoto[];
-  participants: TourParticipant[];
   restaurants: TourRestaurant[];
 }>) {
   if (restaurants.length === 0) return null;
@@ -27,14 +21,11 @@ export function FoodPhotosSection({
       <div className="mt-6">
         <FoodPhotoWall photos={photos} restaurants={restaurants} />
       </div>
-      {participants.length > 0 ? (
-        <div className="relative mt-10">
-          <FoodPhotoUpload
-            participants={participants}
-            restaurants={restaurants.map((r) => ({ id: r.id, name: r.name }))}
-          />
-        </div>
-      ) : null}
+      <div className="relative mt-8">
+        <FoodPhotoUpload
+          restaurants={restaurants.map((r) => ({ id: r.id, name: r.name }))}
+        />
+      </div>
     </section>
   );
 }

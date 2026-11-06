@@ -4,11 +4,7 @@ import config from "@payload-config";
 import { revalidatePath } from "next/cache";
 import { getPayload } from "payload";
 
-import {
-  getFoodTour,
-  tourParticipants,
-  tourRestaurants,
-} from "@/lib/food-tour";
+import { getFoodTour, tourRestaurants } from "@/lib/food-tour";
 
 export interface FoodPhotoState {
   error?: string;
@@ -17,8 +13,8 @@ export interface FoodPhotoState {
 
 /** The browser shrinks photos first; this is a backstop. */
 const MAX_BYTES = 4 * 1024 * 1024;
-/** Per person, per restaurant. Keeps a runaway phone from flooding the page. */
-const MAX_PER_PERSON = 30;
+/** Per restaurant. Keeps a runaway phone from flooding the page. */
+const MAX_PER_RESTAURANT = 100;
 
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
@@ -43,10 +39,6 @@ export async function uploadFoodPhoto(
   }
 
   const tour = await getFoodTour();
-  const participant = tourParticipants(tour).find(
-    (p) => p.id === text(formData, "participantId"),
-  );
-  if (!participant) return { error: "Pick your name first." };
   const restaurant = tourRestaurants(tour).find(
     (r) => r.id === text(formData, "restaurantId"),
   );
@@ -56,29 +48,18 @@ export async function uploadFoodPhoto(
     const payload = await getPayload({ config });
     const { totalDocs } = await payload.count({
       collection: "food-tour-photos",
-      where: {
-        and: [
-          { restaurantId: { equals: restaurant.id } },
-          { participantId: { equals: participant.id } },
-        ],
-      },
+      where: { restaurantId: { equals: restaurant.id } },
       overrideAccess: true,
     });
-    if (totalDocs >= MAX_PER_PERSON) {
-      return {
-        error: `That's ${String(MAX_PER_PERSON)} photos for this stop. Plenty!`,
-      };
+    if (totalDocs >= MAX_PER_RESTAURANT) {
+      return { error: "This stop has plenty of photos already." };
     }
 
-    const caption = text(formData, "caption").slice(0, 140);
     await payload.create({
       collection: "food-tour-photos",
       data: {
         restaurantId: restaurant.id,
         restaurantName: restaurant.name,
-        participantId: participant.id,
-        name: participant.name,
-        caption: caption === "" ? null : caption,
       },
       file: {
         data: Buffer.from(await file.arrayBuffer()),

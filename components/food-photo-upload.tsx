@@ -2,14 +2,9 @@
 
 import { Camera } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useRef, useState } from "react";
 
 import { uploadFoodPhoto } from "@/lib/actions/upload-food-photo";
-import {
-  readStoredPerson,
-  storePerson,
-  subscribeToStorage,
-} from "@/lib/food-tour-person";
 
 interface Option {
   id: string;
@@ -54,19 +49,11 @@ async function shrink(file: File): Promise<File> {
 }
 
 export function FoodPhotoUpload({
-  participants,
   restaurants,
-}: Readonly<{ participants: Option[]; restaurants: Option[] }>) {
+}: Readonly<{ restaurants: Option[] }>) {
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
-  const stored = useSyncExternalStore(
-    subscribeToStorage,
-    readStoredPerson,
-    () => "",
-  );
-  const participantId = participants.some((p) => p.id === stored) ? stored : "";
   const [restaurantId, setRestaurantId] = useState("");
-  const [caption, setCaption] = useState("");
   const [status, setStatus] = useState<{
     kind: "idle" | "busy" | "done" | "error";
     text?: string;
@@ -86,9 +73,7 @@ export function FoodPhotoUpload({
         text: `Adding ${String(index + 1)} of ${String(files.length)}…`,
       });
       const data = new FormData();
-      data.set("participantId", participantId);
       data.set("restaurantId", restaurantId);
-      data.set("caption", caption);
       data.set("company", typeof honeypot === "string" ? honeypot : "");
       data.set("photo", await shrink(original));
       const result = await uploadFoodPhoto(data);
@@ -100,7 +85,6 @@ export function FoodPhotoUpload({
       added += 1;
     }
     form.reset();
-    setCaption("");
     setStatus({
       kind: "done",
       text: added === 1 ? "Photo added!" : `${String(added)} photos added!`,
@@ -134,29 +118,6 @@ export function FoodPhotoUpload({
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="photo-person" className={labelClass}>
-            You
-          </label>
-          <select
-            id="photo-person"
-            required
-            value={participantId}
-            onChange={(e) => {
-              storePerson(e.target.value);
-            }}
-            className={selectClass}
-          >
-            <option value="" disabled>
-              Pick your name…
-            </option>
-            {participants.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
           <label htmlFor="photo-restaurant" className={labelClass}>
             Restaurant
           </label>
@@ -179,35 +140,20 @@ export function FoodPhotoUpload({
             ))}
           </select>
         </div>
-      </div>
-      <div>
-        <label htmlFor="photo-files" className={labelClass}>
-          Photos (up to {MAX_FILES})
-        </label>
-        <input
-          id="photo-files"
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          multiple
-          required
-          className="file:bg-muted mt-1 block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:px-3 file:py-2 file:text-sm"
-        />
-      </div>
-      <div>
-        <label htmlFor="photo-caption" className={labelClass}>
-          Caption (optional)
-        </label>
-        <input
-          id="photo-caption"
-          type="text"
-          maxLength={140}
-          value={caption}
-          onChange={(e) => {
-            setCaption(e.target.value);
-          }}
-          className={selectClass}
-        />
+        <div>
+          <label htmlFor="photo-files" className={labelClass}>
+            Photos (up to {MAX_FILES})
+          </label>
+          <input
+            id="photo-files"
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            multiple
+            required
+            className="file:bg-muted mt-1 block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:px-3 file:py-2.5 file:text-sm"
+          />
+        </div>
       </div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p

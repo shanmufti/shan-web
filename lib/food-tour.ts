@@ -158,10 +158,6 @@ export interface FoodPhoto {
   restaurantId: string;
   thumb: string;
   full: string;
-  width?: number | null | undefined;
-  height?: number | null | undefined;
-  name?: string | null | undefined;
-  caption?: string | null | undefined;
 }
 
 /** Every food tour photo, oldest first, ready for the photo wall. */
@@ -184,10 +180,6 @@ export async function listFoodPhotos(): Promise<FoodPhoto[]> {
         restaurantId: doc.restaurantId,
         thumb: doc.sizes?.thumb?.url ?? full,
         full,
-        width: doc.sizes?.thumb?.width ?? doc.width,
-        height: doc.sizes?.thumb?.height ?? doc.height,
-        name: doc.name,
-        caption: doc.caption,
       },
     ];
   });
