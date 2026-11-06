@@ -4,12 +4,16 @@ import { FoodRatingForm } from "@/components/food-rating-form";
 import { PageHeader } from "@/components/page-header";
 import { RUBRIC_CATEGORIES, RUBRIC_MAX_TOTAL } from "@/lib/food-rubric";
 import {
-  countRatings,
   getFoodTour,
   getRevealedResults,
   isRevealed,
+  listSubmissions,
+  tourParticipants,
   tourRestaurants,
   type RestaurantResult,
+  type Submission,
+  type TourParticipant,
+  type TourRestaurant,
 } from "@/lib/food-tour";
 
 export const metadata: Metadata = {
@@ -39,6 +43,10 @@ export default async function FoodTourPage() {
   const revealed = isRevealed(tour);
   const title = tour.title ?? "Food tour";
 
+  const participants = tourParticipants(tour);
+  const restaurants = tourRestaurants(tour);
+  const submissions = await listSubmissions();
+
   if (revealed) {
     const results = await getRevealedResults(tour);
     return (
@@ -61,16 +69,20 @@ export default async function FoodTourPage() {
             ))}
           </ol>
         )}
+        <SubmissionGrid
+          participants={participants}
+          restaurants={restaurants}
+          submissions={submissions}
+        />
       </div>
     );
   }
 
-  const restaurants = tourRestaurants(tour);
-  const count = await countRatings();
   const open =
     Boolean(tour.revealAt) &&
     tour.acceptingRatings !== false &&
-    restaurants.length > 0;
+    restaurants.length > 0 &&
+    participants.length > 0;
 
   return (
     <div className="mx-auto max-w-4xl px-6 pb-16 lg:px-10">
@@ -92,28 +104,38 @@ export default async function FoodTourPage() {
           </div>
           <div>
             <dt className="meta-label text-muted-foreground">Rubrics in</dt>
-            <dd className="mt-1 font-mono font-medium">{count}</dd>
+            <dd className="mt-1 font-mono font-medium">
+              {submissions.length}
+              {participants.length > 0 && restaurants.length > 0
+                ? ` / ${String(participants.length * restaurants.length)}`
+                : ""}
+            </dd>
           </div>
         </dl>
       </PageHeader>
 
       {open ? (
         <>
-          <p className="text-muted-foreground mb-8 text-sm">
-            One rubric per person per restaurant. Submitting again with the
-            same name and restaurant replaces your earlier one.
-          </p>
           <FoodRatingForm
+            participants={participants}
             restaurants={restaurants.map((r) => ({
               id: r.id,
               name: r.name,
               neighbourhood: r.neighbourhood,
             }))}
+            submitted={submissions.map(
+              (x) => `${x.participantId}:${x.restaurantId}`,
+            )}
+          />
+          <SubmissionGrid
+            participants={participants}
+            restaurants={restaurants}
+            submissions={submissions}
           />
         </>
       ) : (
         <p className="text-muted-foreground">
-          {restaurants.length === 0 || !tour.revealAt
+          {restaurants.length === 0 || participants.length === 0 || !tour.revealAt
             ? "The tour isn't set up yet. Check back soon."
             : "Rubrics are paused right now."}
         </p>
@@ -204,5 +226,111 @@ function ResultCard({
         </table>
       </div>
     </li>
+  );
+}
+
+function formatSubmitted(iso: string): string {
+  return new Date(iso).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "America/Vancouver",
+  });
+}
+
+/** Who has submitted for which stop. Shows timing only, never scores. */
+function SubmissionGrid({
+  participants,
+  restaurants,
+  submissions,
+}: Readonly<{
+  participants: TourParticipant[];
+  restaurants: TourRestaurant[];
+  submissions: Submission[];
+}>) {
+  if (participants.length === 0 || restaurants.length === 0) return null;
+
+  const byKey = new Map(
+    submissions.map((x) => [`${x.participantId}:${x.restaurantId}`, x]),
+  );
+
+  return (
+    <section className="mt-16" aria-labelledby="who-submitted">
+      <h2 id="who-submitted" className="font-heading text-2xl">
+        Who&apos;s submitted
+      </h2>
+      <p className="text-muted-foreground mt-1 text-sm">
+        Scores stay sealed until the reveal. This only shows who has sent a
+        rubric for each stop, and when.
+      </p>
+      <div className="mt-5 overflow-x-auto">
+        <table className="w-full text-left text-sm">
+          <thead className="text-muted-foreground text-xs">
+            <tr>
+              <th
+                scope="col"
+                className="bg-background sticky left-0 py-2 pr-4 font-normal"
+              >
+                Person
+              </th>
+              {restaurants.map((r) => (
+                <th
+                  key={r.id}
+                  scope="col"
+                  className="min-w-[7rem] px-2 py-2 font-normal"
+                >
+                  {r.name}
+                </th>
+              ))}
+              <th scope="col" className="py-2 pl-2 text-right font-normal">
+                Done
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {participants.map((p) => {
+              const doneCount = restaurants.filter((r) =>
+                byKey.has(`${p.id}:${r.id}`),
+              ).length;
+              return (
+                <tr key={p.id} className="border-border border-t">
+                  <th
+                    scope="row"
+                    className="bg-background sticky left-0 py-2 pr-4 font-medium whitespace-nowrap"
+                  >
+                    {p.name}
+                  </th>
+                  {restaurants.map((r) => {
+                    const sub = byKey.get(`${p.id}:${r.id}`);
+                    return (
+                      <td key={r.id} className="px-2 py-2">
+                        {sub ? (
+                          <span className="text-primary">
+                            <span aria-hidden="true">✓ </span>
+                            <span className="text-muted-foreground text-xs">
+                              {formatSubmitted(sub.submittedAt)}
+                            </span>
+                            <span className="sr-only">submitted</span>
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">
+                            <span aria-hidden="true">–</span>
+                            <span className="sr-only">not yet</span>
+                          </span>
+                        )}
+                      </td>
+                    );
+                  })}
+                  <td className="py-2 pl-2 text-right font-mono">
+                    {doneCount}/{restaurants.length}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
   );
 }

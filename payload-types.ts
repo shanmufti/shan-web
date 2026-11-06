@@ -1315,6 +1315,7 @@ export interface CollectionsWidget {
 export interface FoodRating {
   id: number;
   key: string;
+  participantId: string;
   name: string;
   restaurantId: string;
   restaurantName: string;
@@ -1333,6 +1334,7 @@ export interface FoodRating {
  */
 export interface FoodRatingsSelect<T extends boolean = true> {
   key?: T;
+  participantId?: T;
   name?: T;
   restaurantId?: T;
   restaurantName?: T;
@@ -1365,6 +1367,15 @@ export interface FoodTour {
    */
   acceptingRatings?: boolean | null;
   /**
+   * Everyone on the tour. They pick their name from this list. Don't delete someone who has submitted — rename instead.
+   */
+  participants?:
+    | {
+        name: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Add each stop. Don't delete one that has rubrics — rename it instead.
    */
   restaurants?:
@@ -1387,6 +1398,12 @@ export interface FoodTourSelect<T extends boolean = true> {
   intro?: T;
   revealAt?: T;
   acceptingRatings?: T;
+  participants?:
+    | T
+    | {
+        name?: T;
+        id?: T;
+      };
   restaurants?:
     | T
     | {

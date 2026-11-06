@@ -27,9 +27,11 @@ export const FoodRatings: CollectionConfig = {
     delete: nobody,
   },
   fields: [
-    // `${restaurantId}:${normalized name}` — one rubric per person per place.
+    // `${restaurantId}:${participantId}` — one rubric per person per place.
     { name: "key", type: "text", required: true, unique: true, index: true },
-    { name: "name", type: "text", required: true, maxLength: 40 },
+    { name: "participantId", type: "text", required: true, index: true },
+    // Snapshot of the person's name when they submitted.
+    { name: "name", type: "text", required: true },
     { name: "restaurantId", type: "text", required: true, index: true },
     { name: "restaurantName", type: "text", required: true },
     score("food"),

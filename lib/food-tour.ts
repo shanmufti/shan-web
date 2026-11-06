@@ -31,20 +31,48 @@ export function tourRestaurants(tour: Tour): TourRestaurant[] {
   );
 }
 
+export interface TourParticipant {
+  id: string;
+  name: string;
+}
+
+export function tourParticipants(tour: Tour): TourParticipant[] {
+  return (tour.participants ?? []).flatMap((p) =>
+    p.id ? [{ id: p.id, name: p.name }] : [],
+  );
+}
+
 /** False when there's no reveal date yet, so an unset tour stays sealed. */
 export function isRevealed(tour: Tour, now = new Date()): boolean {
   if (!tour.revealAt) return false;
   return now.getTime() >= new Date(tour.revealAt).getTime();
 }
 
-/** How many rubrics are in. Reveals nothing about the scores. */
-export async function countRatings(): Promise<number> {
+export interface Submission {
+  participantId: string;
+  restaurantId: string;
+  submittedAt: string;
+}
+
+/**
+ * Who has submitted for which restaurant, and when. Safe to show before the
+ * reveal: the query selects only these fields, never the scores or comments.
+ */
+export async function listSubmissions(): Promise<Submission[]> {
   const payload = await getPayload({ config });
-  const { totalDocs } = await payload.count({
+  const { docs } = await payload.find({
     collection: "food-ratings",
+    limit: 0,
+    pagination: false,
+    depth: 0,
+    select: { participantId: true, restaurantId: true, updatedAt: true },
     overrideAccess: true,
   });
-  return totalDocs;
+  return docs.map((d) => ({
+    participantId: d.participantId,
+    restaurantId: d.restaurantId,
+    submittedAt: d.updatedAt,
+  }));
 }
 
 export interface RestaurantResult {
@@ -77,7 +105,6 @@ export async function getRevealedResults(
     collection: "food-ratings",
     limit: 0,
     pagination: false,
-    sort: "name",
     overrideAccess: true,
   });
 
@@ -85,9 +112,13 @@ export async function getRevealedResults(
   const currentNames = new Map(
     tourRestaurants(tour).map((r) => [r.id, r.name]),
   );
+  const currentPeople = new Map(
+    tourParticipants(tour).map((p) => [p.id, p.name]),
+  );
 
   const groups = new Map<string, FoodRating[]>();
   for (const doc of docs) {
+    doc.name = currentPeople.get(doc.participantId) ?? doc.name;
     const list = groups.get(doc.restaurantId) ?? [];
     list.push(doc);
     groups.set(doc.restaurantId, list);
@@ -107,7 +138,7 @@ export async function getRevealedResults(
       count: ratings.length,
       averageTotal: average(ratings.map((r) => r.total)),
       averages,
-      ratings,
+      ratings: ratings.sort((a, b) => a.name.localeCompare(b.name)),
     };
   });
 

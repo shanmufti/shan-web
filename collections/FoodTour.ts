@@ -79,6 +79,16 @@ export const FoodTour: GlobalConfig = {
       },
     },
     {
+      name: "participants",
+      label: "People",
+      type: "array",
+      admin: {
+        description:
+          "Everyone on the tour. They pick their name from this list. Don't delete someone who has submitted — rename instead.",
+      },
+      fields: [{ name: "name", type: "text", required: true }],
+    },
+    {
       name: "restaurants",
       type: "array",
       admin: {

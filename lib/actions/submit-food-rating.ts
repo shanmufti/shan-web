@@ -10,7 +10,12 @@ import {
   type RubricCategoryKey,
   type RubricPoints,
 } from "@/lib/food-rubric";
-import { getFoodTour, isRevealed, tourRestaurants } from "@/lib/food-tour";
+import {
+  getFoodTour,
+  isRevealed,
+  tourParticipants,
+  tourRestaurants,
+} from "@/lib/food-tour";
 
 export interface FoodRatingState {
   error?: string;
@@ -22,10 +27,6 @@ export interface FoodRatingState {
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value.trim() : "";
-}
-
-function normalizeName(name: string): string {
-  return name.toLowerCase().replace(/\s+/g, " ");
 }
 
 export async function submitFoodRating(
@@ -51,9 +52,12 @@ export async function submitFoodRating(
     return { error: "Rubrics are paused right now." };
   }
 
-  const name = text(formData, "name").replace(/\s+/g, " ");
-  if (name === "" || name.length > 40) {
-    return { error: "Enter your name (up to 40 characters)." };
+  const participantId = text(formData, "participantId");
+  const participant = tourParticipants(tour).find(
+    (p) => p.id === participantId,
+  );
+  if (!participant) {
+    return { error: "Pick your name." };
   }
 
   const restaurantId = text(formData, "restaurantId");
@@ -73,10 +77,11 @@ export async function submitFoodRating(
 
   const comment = text(formData, "comment").slice(0, 500);
   const total = Object.values(scores).reduce((sum, v) => sum + v, 0);
-  const key = `${restaurant.id}:${normalizeName(name)}`;
+  const key = `${restaurant.id}:${participant.id}`;
   const data = {
     key,
-    name,
+    participantId: participant.id,
+    name: participant.name,
     restaurantId: restaurant.id,
     restaurantName: restaurant.name,
     ...scores,
@@ -113,8 +118,8 @@ export async function submitFoodRating(
     revalidatePath("/food-tour");
     return {
       success: prior
-        ? `Updated your rubric for ${restaurant.name}. It stays sealed until the reveal.`
-        : `Your rubric for ${restaurant.name} is in and sealed until the reveal.`,
+        ? `Thanks ${participant.name}, your rubric for ${restaurant.name} is updated. It stays sealed until the reveal.`
+        : `Thanks ${participant.name}, your rubric for ${restaurant.name} is in and sealed until the reveal.`,
       submittedAt: Date.now(),
     };
   } catch {

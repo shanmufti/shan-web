@@ -49,8 +49,10 @@ See `docs/site-redesign-plan.md` for the full plan and decisions.
 
 ## Food tour rubrics (2026-11-05)
 
-- `/food-tour` (unlisted, `noindex`): anyone with the link scores a restaurant on the 4-category rubric (Food quality, Ambiance & vibe, Price value, Would you go again?; 5/4/3/1 pts, total out of 20). One rubric per name per restaurant; resubmitting replaces it.
-- Setup lives in `/admin` → Settings → **Food tour** (global `food-tour`): title, intro, reveal date/time, restaurant list, pause toggle.
+- `/food-tour` (unlisted, `noindex`): visitors pick who they are from the People list, pick a restaurant, and score it on the 4-category rubric (Food quality, Ambiance & vibe, Price value, Would you go again?; 5/4/3/1 pts, total out of 20). One rubric per person per restaurant; resubmitting replaces it. The device remembers who you picked.
+- A public "Who's submitted" grid (person × restaurant, with time) is shown before and after the reveal. It's built from `listSubmissions()`, which selects only `participantId`, `restaurantId`, `updatedAt` — never scores.
+- Setup lives in `/admin` → Settings → **Food tour** (global `food-tour`): title, intro, reveal date/time, People, restaurant list, pause toggle. Ratings reference people and restaurants by array row id, so rename rather than delete.
+- No per-person PIN: anyone with the link can pick any name.
 - Rubrics are in `food-ratings`, which has `read/create/update/delete: false` for everyone, admin included, and is hidden from the admin nav. The only reader is `getRevealedResults()` in `lib/food-tour.ts`, which throws before the reveal date. Writes go through `lib/actions/submit-food-rating.ts` with `overrideAccess`.
 - Once any rubric exists, the reveal date can only move later (hook in `collections/FoodTour.ts`).
 - This is an app-level seal: someone with direct Neon access could still read the `food_ratings` table.
