@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { CountriesMapLoader } from "@/components/countries-map-loader";
-import { TravelSubnav } from "@/components/travel-subnav";
+import { TravelSubnav } from "@/components/section-subnav";
 import { listVisitedCountries } from "@/lib/content";
 
 export const metadata: Metadata = { title: "Travel map" };

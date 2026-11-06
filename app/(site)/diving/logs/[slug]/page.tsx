@@ -12,7 +12,7 @@ import {
   DiveVitalsGrid,
 } from "@/components/dive-log";
 import { DiveProfileChart } from "@/components/dive-profile-chart";
-import { DivingSubnav } from "@/components/diving-subnav";
+import { DivingSubnav } from "@/components/section-subnav";
 import { getCurrentUser, getPublishedBySlug } from "@/lib/content";
 import { parseProfileSamples } from "@/lib/dive-profile";
 import { formatDate } from "@/lib/format-date";

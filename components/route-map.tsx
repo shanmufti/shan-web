@@ -10,6 +10,8 @@ import {
   Tooltip,
 } from "react-leaflet";
 
+import { MAP_TILE_ATTRIBUTION, MAP_TILE_URL } from "@/lib/map-tiles";
+
 export interface RouteStop {
   name: string;
   lat: number;
@@ -51,10 +53,7 @@ export function RouteMap({
       className="z-0 h-full w-full"
       attributionControl
     >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-      />
+      <TileLayer attribution={MAP_TILE_ATTRIBUTION} url={MAP_TILE_URL} />
       {track.length > 0 ? (
         <Polyline
           positions={track}

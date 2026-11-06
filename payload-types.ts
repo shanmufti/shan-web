@@ -1417,7 +1417,6 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface SiteAccess {
   id: number;
   sections: {
-    journal: 'public' | 'passcode' | 'owner';
     journeys: 'public' | 'passcode' | 'owner';
     packing: 'public' | 'passcode' | 'owner';
     stories: 'public' | 'passcode' | 'owner';
@@ -1528,7 +1527,6 @@ export interface SiteAccessSelect<T extends boolean = true> {
   sections?:
     | T
     | {
-        journal?: T;
         journeys?: T;
         packing?: T;
         stories?: T;

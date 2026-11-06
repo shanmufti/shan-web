@@ -119,9 +119,3 @@ export async function unlockPrivateContent(
 
   redirect(next);
 }
-
-export async function lockPrivateContent(): Promise<void> {
-  const jar = await cookies();
-  jar.delete(PRIVATE_ACCESS_COOKIE);
-  redirect("/");
-}

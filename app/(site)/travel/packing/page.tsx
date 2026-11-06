@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ClonePackingListForm } from "@/components/clone-packing-list-form";
-import { TravelSubnav } from "@/components/travel-subnav";
+import { TravelSubnav } from "@/components/section-subnav";
 import { listPackingListTemplatesForUser } from "@/lib/content";
 
 export const metadata: Metadata = { title: "Packing lists" };

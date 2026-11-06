@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { DivingSubnav } from "@/components/diving-subnav";
+import { DivingSubnav } from "@/components/section-subnav";
 import { LogDiveForm } from "@/components/log-dive-form";
 
 export const metadata: Metadata = { title: "Log a dive" };

@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
 
+import { JourneysTimeline } from "@/components/journeys-timeline";
 import { PageHeader } from "@/components/page-header";
-import { LockedCard, PostCard } from "@/components/post-card";
-import { TravelSubnav } from "@/components/travel-subnav";
-import { formatDateRange } from "@/lib/format-date";
-import {
-  journeyCountries,
-  journeyCountryNames,
-  listJourneys,
-  mediaAlt,
-  mediaUrl,
-} from "@/lib/journeys";
+import { TravelSubnav } from "@/components/section-subnav";
+import { toRows, totalDays } from "@/lib/journey-timeline";
+import { listJourneys } from "@/lib/journeys";
 
 export const metadata: Metadata = {
   title: "Journeys",
@@ -18,43 +12,30 @@ export const metadata: Metadata = {
 };
 
 export default async function JourneysIndex() {
-  const journeys = await listJourneys();
+  const rows = toRows(await listJourneys());
+  const countries = new Set(rows.flatMap((r) => r.countries)).size;
+  const days = totalDays(rows.filter((r) => !r.locked));
+
+  const stats = [
+    `${String(rows.length)} journeys`,
+    countries > 0 ? `${String(countries)} countries` : null,
+    days > 0 ? `${days.toLocaleString("en-US")} days on the road` : null,
+  ].filter(Boolean);
 
   return (
-    <div className="mx-auto max-w-7xl px-6 lg:px-10">
+    <div className="mx-auto max-w-4xl px-6 pb-16 lg:px-10">
       <PageHeader
-        eyebrow={`Journeys · ${String(journeys.length)}`}
+        eyebrow={stats.join(" · ")}
         title="Journeys"
         lede="Trips, routes, and the places worth going back to."
       >
         <TravelSubnav current="/travel" />
       </PageHeader>
-      <div className="grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
-        {journeys.map((item) =>
-          item.locked ? (
-            <LockedCard
-              key={item.id}
-              title={item.title}
-              meta={`Journey · ${formatDateRange(item.date, item.endDate)}`}
-              next={`/travel/${item.slug}`}
-            />
-          ) : (
-            <PostCard
-              key={item.doc.id}
-              href={`/travel/${item.doc.slug}`}
-              title={item.doc.title}
-              summary={item.doc.summary}
-              meta={`${formatDateRange(item.doc.startDate, item.doc.endDate)} · ${journeyCountryNames(item.doc).join(", ")}`}
-              image={mediaUrl(item.doc.cover)}
-              imageAlt={mediaAlt(item.doc.cover)}
-              placeholder={journeyCountries(item.doc).join(" ") || undefined}
-            />
-          ),
-        )}
-      </div>
-      {journeys.length === 0 ? (
+      {rows.length === 0 ? (
         <p className="text-muted-foreground">Journeys will appear here soon.</p>
-      ) : null}
+      ) : (
+        <JourneysTimeline rows={rows} />
+      )}
     </div>
   );
 }

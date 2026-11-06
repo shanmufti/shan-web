@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getPayload } from "payload";
 
-import { DivingSubnav } from "@/components/diving-subnav";
+import { DivingSubnav } from "@/components/section-subnav";
 import { LogDiveForm } from "@/components/log-dive-form";
 import { getCurrentUser } from "@/lib/content";
 import { diveToFormValues } from "@/lib/dive-form-initial";

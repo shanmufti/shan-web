@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { DivingSubnav } from "@/components/diving-subnav";
+import { DivingSubnav } from "@/components/section-subnav";
 import { listDiveResources } from "@/lib/content";
 
 export const metadata: Metadata = { title: "Dive resources" };

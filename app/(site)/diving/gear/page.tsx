@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
-import { DivingSubnav } from "@/components/diving-subnav";
+import { DivingSubnav } from "@/components/section-subnav";
 import { formatDate } from "@/lib/format-date";
 import { listDiveGearForUser } from "@/lib/content";
 import { serviceStatus, type DiveGearDoc } from "@/lib/dive-gear-service";

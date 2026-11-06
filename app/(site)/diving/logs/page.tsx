@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { DiveLogRow } from "@/components/dive-log";
-import { DivingSubnav } from "@/components/diving-subnav";
+import { DivingSubnav } from "@/components/section-subnav";
 import { LogDiveButton } from "@/components/log-dive-button";
 import { listPublished } from "@/lib/content";
 

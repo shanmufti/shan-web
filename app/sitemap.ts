@@ -18,7 +18,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Only sections open to everyone in /admin → Access & permissions.
   return [
     url(""),
-    ...(open.has("journal") ? [url("/journal")] : []),
     ...(open.has("journeys")
       ? [
           url("/travel"),

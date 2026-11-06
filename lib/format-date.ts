@@ -38,7 +38,3 @@ export function formatDateRange(start: string, end?: string | null) {
   if (sameYear) return `${md(a)} – ${md(b)}, ${String(b.getUTCFullYear())}`;
   return `${formatMonthYear(start)} – ${formatMonthYear(end)}`;
 }
-
-export function yearOf(isodate: string) {
-  return utc(isodate).getUTCFullYear();
-}

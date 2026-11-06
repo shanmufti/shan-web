@@ -33,17 +33,6 @@ export interface SiteSection {
 
 export const SITE_SECTIONS = [
   {
-    key: "journal",
-    label: "Journal",
-    href: "/journal",
-    blurb: "Globe and timeline of every journey and story.",
-    paths: ["/journal"],
-    collections: [],
-    defaultMode: "owner",
-    inNav: true,
-    onLanding: true,
-  },
-  {
     key: "journeys",
     label: "Journeys",
     href: "/travel",
