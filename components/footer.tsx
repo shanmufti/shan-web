@@ -1,8 +1,10 @@
 import Link from "next/link";
 
-import { siteLinks } from "@/lib/site-links";
+import { navLinks } from "@/lib/site-access";
 
-export function Footer() {
+export async function Footer() {
+  const links = await navLinks();
+  const showMap = links.some((link) => link.href === "/travel");
   return (
     <footer className="border-border mt-32 border-t">
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:px-10">
@@ -14,9 +16,11 @@ export function Footer() {
           </p>
         </div>
         <nav aria-label="Footer">
-          <p className="meta-label text-muted-foreground">Explore</p>
+          {links.length > 0 ? (
+            <p className="meta-label text-muted-foreground">Explore</p>
+          ) : null}
           <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-            {siteLinks.map((link) => (
+            {links.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
@@ -26,14 +30,16 @@ export function Footer() {
                 </Link>
               </li>
             ))}
-            <li>
-              <Link
-                href="/travel/map"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Map
-              </Link>
-            </li>
+            {showMap ? (
+              <li>
+                <Link
+                  href="/travel/map"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Map
+                </Link>
+              </li>
+            ) : null}
           </ul>
         </nav>
       </div>

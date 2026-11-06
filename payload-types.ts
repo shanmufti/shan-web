@@ -118,10 +118,14 @@ export interface Config {
   };
   fallbackLocale: null;
   globals: {
+    'site-access': SiteAccess;
+    'landing-page': LandingPage;
     'site-settings': SiteSetting;
     'food-tour': FoodTour;
   };
   globalsSelect: {
+    'site-access': SiteAccessSelect<false> | SiteAccessSelect<true>;
+    'landing-page': LandingPageSelect<false> | LandingPageSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'food-tour': FoodTourSelect<false> | FoodTourSelect<true>;
   };
@@ -710,6 +714,26 @@ export interface UnlockAttempt {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "food-ratings".
+ */
+export interface FoodRating {
+  id: number;
+  key: string;
+  participantId: string;
+  name: string;
+  restaurantId: string;
+  restaurantName: string;
+  food: number;
+  ambiance: number;
+  price: number;
+  again: number;
+  total: number;
+  comment?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -1232,6 +1256,25 @@ export interface UnlockAttemptsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "food-ratings_select".
+ */
+export interface FoodRatingsSelect<T extends boolean = true> {
+  key?: T;
+  participantId?: T;
+  name?: T;
+  restaurantId?: T;
+  restaurantName?: T;
+  food?: T;
+  ambiance?: T;
+  price?: T;
+  again?: T;
+  total?: T;
+  comment?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -1271,6 +1314,54 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
+ * Choose who can see each section. Public: anyone. Passcode: visitors who enter the private passcode set in Site settings. Hidden: only you while logged in; everyone else gets a 404. The landing page is always public.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-access".
+ */
+export interface SiteAccess {
+  id: number;
+  sections: {
+    journal: 'public' | 'passcode' | 'owner';
+    journeys: 'public' | 'passcode' | 'owner';
+    packing: 'public' | 'passcode' | 'owner';
+    stories: 'public' | 'passcode' | 'owner';
+    diving: 'public' | 'passcode' | 'owner';
+    tech: 'public' | 'passcode' | 'owner';
+    foodTour: 'public' | 'passcode' | 'owner';
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * The public home page. Sections you open to visitors in Access & permissions are listed on it automatically.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "landing-page".
+ */
+export interface LandingPage {
+  id: number;
+  eyebrow?: string | null;
+  headline: string;
+  intro?: string | null;
+  /**
+   * Optional links shown under the open sections, e.g. Instagram or email.
+   */
+  links?:
+    | {
+        label: string;
+        /**
+         * https://…, mailto:…, or a path like /food-tour
+         */
+        href: string;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings".
  */
@@ -1286,66 +1377,6 @@ export interface SiteSetting {
   privatePasscodeHash?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-settings_select".
- */
-export interface SiteSettingsSelect<T extends boolean = true> {
-  privatePasscode?: T;
-  privatePasscodeHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "collections_widget".
- */
-export interface CollectionsWidget {
-  data?: {
-    [k: string]: unknown;
-  };
-  width: 'full';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "food-ratings".
- */
-export interface FoodRating {
-  id: number;
-  key: string;
-  participantId: string;
-  name: string;
-  restaurantId: string;
-  restaurantName: string;
-  food: number;
-  ambiance: number;
-  price: number;
-  again: number;
-  total: number;
-  comment?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "food-ratings_select".
- */
-export interface FoodRatingsSelect<T extends boolean = true> {
-  key?: T;
-  participantId?: T;
-  name?: T;
-  restaurantId?: T;
-  restaurantName?: T;
-  food?: T;
-  ambiance?: T;
-  price?: T;
-  again?: T;
-  total?: T;
-  comment?: T;
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1391,6 +1422,57 @@ export interface FoodTour {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-access_select".
+ */
+export interface SiteAccessSelect<T extends boolean = true> {
+  sections?:
+    | T
+    | {
+        journal?: T;
+        journeys?: T;
+        packing?: T;
+        stories?: T;
+        diving?: T;
+        tech?: T;
+        foodTour?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "landing-page_select".
+ */
+export interface LandingPageSelect<T extends boolean = true> {
+  eyebrow?: T;
+  headline?: T;
+  intro?: T;
+  links?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        description?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  privatePasscode?: T;
+  privatePasscodeHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "food-tour_select".
  */
 export interface FoodTourSelect<T extends boolean = true> {
@@ -1415,6 +1497,16 @@ export interface FoodTourSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collections_widget".
+ */
+export interface CollectionsWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'full';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

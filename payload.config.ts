@@ -14,9 +14,11 @@ import { FoodRatings } from "./collections/FoodRatings";
 import { FoodTour } from "./collections/FoodTour";
 import { Diving } from "./collections/Diving";
 import { GearConfigs } from "./collections/GearConfigs";
+import { LandingPage } from "./collections/LandingPage";
 import { Media } from "./collections/Media";
 import { PackingListTemplates } from "./collections/PackingListTemplates";
 import { PackingLists } from "./collections/PackingLists";
+import { SiteAccess } from "./collections/SiteAccess";
 import { SiteSettings } from "./collections/SiteSettings";
 import { Tech } from "./collections/Tech";
 import { Travel } from "./collections/Travel";
@@ -72,7 +74,7 @@ export default buildConfig({
     UnlockAttempts,
     FoodRatings,
   ],
-  globals: [SiteSettings, FoodTour],
+  globals: [SiteAccess, LandingPage, SiteSettings, FoodTour],
   editor: lexicalEditor(),
   secret: payloadSecret,
   // Site uses the Local API; no need to expose GraphQL publicly.

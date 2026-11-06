@@ -5,10 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
-import { siteLinks } from "@/lib/site-links";
 import { cn } from "@/lib/utils";
 
 import { ThemeToggle } from "./theme-toggle";
+
+export interface NavLink {
+  href: string;
+  label: string;
+}
 
 interface Account {
   href: string;
@@ -20,7 +24,10 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function SiteNav({ account }: Readonly<{ account: Account | null }>) {
+export function SiteNav({
+  account,
+  links,
+}: Readonly<{ account: Account | null; links: NavLink[] }>) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -40,7 +47,7 @@ export function SiteNav({ account }: Readonly<{ account: Account | null }>) {
 
         <div className="flex items-center gap-3 md:gap-6">
           <ul className="hidden items-center gap-6 md:flex">
-            {siteLinks.map((link) => {
+            {links.map((link) => {
               const active = isActive(pathname, link.href);
               return (
                 <li key={link.href}>
@@ -105,7 +112,7 @@ export function SiteNav({ account }: Readonly<{ account: Account | null }>) {
           className="border-border border-t px-6 pt-2 pb-6 md:hidden"
         >
           <ul className="flex flex-col">
-            {siteLinks.map((link) => {
+            {links.map((link) => {
               const active = isActive(pathname, link.href);
               return (
                 <li key={link.href}>

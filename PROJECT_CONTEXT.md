@@ -66,3 +66,10 @@ See `docs/site-redesign-plan.md` for the full plan and decisions.
 - Lighthouse/performance pass once real content and images exist.
 - No syntax highlighting for code blocks in Payload's rich text yet (the old MDX pipeline had this via Shiki/rehype-pretty-code) — only relevant if `/tech` posts need highlighted code.
 - Granular admin permissions/roles: Payload supports this natively via per-collection `access` functions whenever multiple contributors are needed — not set up yet since it's currently single-user.
+
+## Access & landing page
+
+- `/` is a public landing page (content in /admin → Settings → **Landing page**). The old globe + timeline home moved to `/journal`.
+- /admin → Settings → **Access & permissions** sets each section (Journal, Journeys, Packing lists, Stories, Diving, Tech, Food tour) to Public, Passcode, or Hidden. No deploy needed; changes apply within about 10 seconds.
+- Enforced in `proxy.ts` for pages, server actions and the matching Payload REST collections. Sections are defined in `lib/site-sections.ts`; add new top-level routes there and to the proxy `matcher`.
+- Until the global is saved, every section is Hidden except Food tour (Public). Logged-in admins always see everything.
