@@ -1412,6 +1412,11 @@ export interface FoodTour {
   restaurants?:
     | {
         name: string;
+        cuisine?: string | null;
+        /**
+         * Name from People above.
+         */
+        chosenBy?: string | null;
         neighbourhood?: string | null;
         visitedOn?: string | null;
         id?: string | null;
@@ -1490,6 +1495,8 @@ export interface FoodTourSelect<T extends boolean = true> {
     | T
     | {
         name?: T;
+        cuisine?: T;
+        chosenBy?: T;
         neighbourhood?: T;
         visitedOn?: T;
         id?: T;

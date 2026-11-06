@@ -96,6 +96,36 @@ export const FoodTour: GlobalConfig = {
       },
       fields: [
         { name: "name", type: "text", required: true },
+        {
+          type: "row",
+          fields: [
+            {
+              name: "cuisine",
+              type: "text",
+              admin: { placeholder: "e.g. Szechuan, Neapolitan pizza" },
+            },
+            {
+              name: "chosenBy",
+              label: "Chosen by",
+              type: "text",
+              admin: { description: "Name from People above." },
+              validate: (
+                value: string | null | undefined,
+                { data }: { data: unknown },
+              ) => {
+                if (!value?.trim()) return true;
+                const people =
+                  (data as { participants?: { name?: string | null }[] | null })
+                    .participants ?? [];
+                const match = people.some(
+                  (p) =>
+                    p.name?.trim().toLowerCase() === value.trim().toLowerCase(),
+                );
+                return match || "Use a name from People.";
+              },
+            },
+          ],
+        },
         { name: "neighbourhood", type: "text" },
         { name: "visitedOn", type: "date" },
       ],

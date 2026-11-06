@@ -16,6 +16,8 @@ export type Tour = Omit<FoodTour, "title" | "revealAt"> & {
 export interface TourRestaurant {
   id: string;
   name: string;
+  cuisine?: string | null;
+  chosenBy?: string | null;
   neighbourhood?: string | null;
   visitedOn?: string | null;
 }
@@ -78,6 +80,8 @@ export async function listSubmissions(): Promise<Submission[]> {
 export interface RestaurantResult {
   restaurantId: string;
   restaurantName: string;
+  cuisine?: string | null | undefined;
+  chosenBy?: string | null | undefined;
   count: number;
   averageTotal: number;
   averages: Record<RubricCategoryKey, number>;
@@ -109,8 +113,8 @@ export async function getRevealedResults(
   });
 
   // Prefer the current restaurant name from the tour (it may have been renamed).
-  const currentNames = new Map(
-    tourRestaurants(tour).map((r) => [r.id, r.name]),
+  const currentRestaurants = new Map(
+    tourRestaurants(tour).map((r) => [r.id, r]),
   );
   const currentPeople = new Map(
     tourParticipants(tour).map((p) => [p.id, p.name]),
@@ -131,10 +135,12 @@ export async function getRevealedResults(
         average(ratings.map((r) => r[c.key])),
       ]),
     ) as Record<RubricCategoryKey, number>;
+    const current = currentRestaurants.get(restaurantId);
     return {
       restaurantId,
-      restaurantName:
-        currentNames.get(restaurantId) ?? ratings[0]?.restaurantName ?? "",
+      restaurantName: current?.name ?? ratings[0]?.restaurantName ?? "",
+      cuisine: current?.cuisine,
+      chosenBy: current?.chosenBy,
       count: ratings.length,
       averageTotal: average(ratings.map((r) => r.total)),
       averages,

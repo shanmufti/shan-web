@@ -122,6 +122,8 @@ export default async function FoodTourPage() {
               id: r.id,
               name: r.name,
               neighbourhood: r.neighbourhood,
+              cuisine: r.cuisine,
+              chosenBy: r.chosenBy,
             }))}
             submitted={submissions.map(
               (x) => `${x.participantId}:${x.restaurantId}`,
@@ -168,7 +170,13 @@ function ResultCard({
         </p>
       </div>
       <p className="text-muted-foreground mt-1 text-sm">
-        {result.count} {result.count === 1 ? "rubric" : "rubrics"}
+        {[
+          result.cuisine,
+          result.chosenBy ? `Chosen by ${result.chosenBy}` : null,
+          `${String(result.count)} ${result.count === 1 ? "rubric" : "rubrics"}`,
+        ]
+          .filter(Boolean)
+          .join(" · ")}
       </p>
 
       <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">

@@ -8,7 +8,6 @@ import {
   isRubricPoints,
   RUBRIC_CATEGORIES,
   type RubricCategoryKey,
-  type RubricPoints,
 } from "@/lib/food-rubric";
 import {
   getFoodTour,
@@ -66,7 +65,7 @@ export async function submitFoodRating(
     return { error: "Pick a restaurant." };
   }
 
-  const scores = {} as Record<RubricCategoryKey, RubricPoints>;
+  const scores = {} as Record<RubricCategoryKey, number>;
   for (const category of RUBRIC_CATEGORIES) {
     const value = Number(text(formData, category.key));
     if (!isRubricPoints(value)) {

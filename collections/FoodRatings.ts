@@ -14,7 +14,7 @@ const score = (name: string) => ({
   type: "number" as const,
   required: true,
   min: 1,
-  max: 5,
+  max: 10,
 });
 
 export const FoodRatings: CollectionConfig = {

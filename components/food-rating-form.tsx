@@ -12,9 +12,12 @@ import {
   type FoodRatingState,
 } from "@/lib/actions/submit-food-rating";
 import {
+  bandFor,
+  RUBRIC_BANDS,
   RUBRIC_CATEGORIES,
-  RUBRIC_LEVELS,
+  RUBRIC_MAX_POINTS,
   RUBRIC_MAX_TOTAL,
+  RUBRIC_POINTS,
 } from "@/lib/food-rubric";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +36,8 @@ interface Option {
 
 interface RestaurantOption extends Option {
   neighbourhood?: string | null | undefined;
+  cuisine?: string | null | undefined;
+  chosenBy?: string | null | undefined;
 }
 
 // The remembered "who are you" choice lives in localStorage. Reading it via
@@ -58,6 +63,98 @@ function storePerson(id: string) {
   } catch {
     // Storage can be unavailable (private mode); picking again is fine.
   }
+}
+
+type Category = (typeof RUBRIC_CATEGORIES)[number];
+
+function RestaurantMeta({
+  restaurant,
+}: Readonly<{ restaurant: RestaurantOption }>) {
+  const parts = [
+    restaurant.cuisine,
+    restaurant.chosenBy ? `Chosen by ${restaurant.chosenBy}` : null,
+  ].filter(Boolean);
+  if (parts.length === 0) return null;
+  return (
+    <p className="text-muted-foreground mt-1 text-sm">{parts.join(" · ")}</p>
+  );
+}
+
+/** One category: a 1–10 picker, with the rubric wording for each range. */
+function ScoreField({
+  category,
+  value,
+  onChange,
+}: Readonly<{
+  category: Category;
+  value: number | undefined;
+  onChange: (points: number) => void;
+}>) {
+  const active = value === undefined ? undefined : bandFor(value);
+  return (
+    <fieldset className="space-y-3">
+      <legend className="flex w-full items-baseline justify-between gap-3">
+        <span className="text-base font-semibold tracking-tight">
+          {category.label}
+        </span>
+        <span className="text-muted-foreground font-mono text-sm">
+          {value ?? "–"} / {RUBRIC_MAX_POINTS}
+        </span>
+      </legend>
+      <div className="grid grid-cols-5 gap-1.5 sm:grid-cols-10">
+        {RUBRIC_POINTS.map((points) => {
+          const id = `${category.key}-${String(points)}`;
+          const checked = value === points;
+          return (
+            <label
+              key={points}
+              htmlFor={id}
+              className={cn(
+                "border-border hover:bg-muted/60 has-focus-visible:ring-ring/40 flex h-10 cursor-pointer items-center justify-center rounded-md border font-mono text-sm transition-colors has-focus-visible:ring-2",
+                checked &&
+                  "border-primary bg-primary text-primary-foreground hover:bg-primary",
+              )}
+            >
+              <input
+                id={id}
+                type="radio"
+                name={category.key}
+                value={points}
+                required
+                checked={checked}
+                onChange={() => {
+                  onChange(points);
+                }}
+                className="sr-only"
+              />
+              {points}
+            </label>
+          );
+        })}
+      </div>
+      <ul className="grid gap-x-4 gap-y-1 text-sm sm:grid-cols-2">
+        {RUBRIC_BANDS.map((band) => (
+          <li
+            key={band.key}
+            className={cn(
+              "flex gap-2 leading-snug",
+              active?.key === band.key
+                ? "text-foreground"
+                : "text-muted-foreground",
+            )}
+          >
+            <span className="w-10 shrink-0 font-mono text-xs leading-5">
+              {band.min}–{band.max}
+            </span>
+            <span>
+              <span className="font-medium">{band.label}.</span>{" "}
+              {category.descriptions[band.key]}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </fieldset>
+  );
 }
 
 export function FoodRatingForm({
@@ -198,7 +295,9 @@ export function FoodRatingForm({
             {restaurants.map((r) => (
               <option key={r.id} value={r.id}>
                 {hasSubmitted(r.id) ? "✓ " : ""}
-                {r.neighbourhood ? `${r.name} · ${r.neighbourhood}` : r.name}
+                {[r.name, r.cuisine, r.neighbourhood]
+                  .filter(Boolean)
+                  .join(" · ")}
               </option>
             ))}
           </select>
@@ -212,54 +311,19 @@ export function FoodRatingForm({
 
       {person && restaurant ? (
         <>
-          <p className={labelClass}>3 · Score {restaurant.name}</p>
+          <div>
+            <p className={labelClass}>3 · Score {restaurant.name}</p>
+            <RestaurantMeta restaurant={restaurant} />
+          </div>
           {RUBRIC_CATEGORIES.map((category) => (
-            <fieldset key={category.key} className="space-y-3">
-              <legend className="text-base font-semibold tracking-tight">
-                {category.label}
-              </legend>
-              <div className="grid gap-2 sm:grid-cols-4">
-                {RUBRIC_LEVELS.map((level) => {
-                  const id = `${category.key}-${String(level.points)}`;
-                  const checked = scores[category.key] === level.points;
-                  return (
-                    <label
-                      key={level.points}
-                      htmlFor={id}
-                      className={cn(
-                        "border-border hover:bg-muted/60 has-focus-visible:ring-ring/40 flex cursor-pointer flex-col gap-1 rounded-lg border p-3 transition-colors has-focus-visible:ring-2",
-                        checked &&
-                          "border-primary bg-primary/5 hover:bg-primary/5",
-                      )}
-                    >
-                      <input
-                        id={id}
-                        type="radio"
-                        name={category.key}
-                        value={level.points}
-                        required
-                        checked={checked}
-                        onChange={() => {
-                          setScore(category.key, level.points);
-                        }}
-                        className="sr-only"
-                      />
-                      <span className="flex items-baseline justify-between gap-2">
-                        <span className="text-sm font-medium">
-                          {level.label}
-                        </span>
-                        <span className="text-muted-foreground font-mono text-xs">
-                          {level.points} {level.points === 1 ? "pt" : "pts"}
-                        </span>
-                      </span>
-                      <span className="text-muted-foreground text-sm leading-snug">
-                        {category.descriptions[level.points]}
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
-            </fieldset>
+            <ScoreField
+              key={category.key}
+              category={category}
+              value={scores[category.key]}
+              onChange={(points) => {
+                setScore(category.key, points);
+              }}
+            />
           ))}
 
           <div>
