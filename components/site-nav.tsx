@@ -2,7 +2,7 @@
 
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -29,10 +29,27 @@ export function SiteNav({
   links,
 }: Readonly<{ account: Account | null; links: NavLink[] }>) {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   function closeMenu() {
     setOpen(false);
+  }
+
+  // Clear the Payload session cookie, then re-render as a public visitor.
+  async function logOut() {
+    setLoggingOut(true);
+    try {
+      await fetch("/api/users/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } finally {
+      setLoggingOut(false);
+      closeMenu();
+      router.refresh();
+    }
   }
 
   return (
@@ -71,13 +88,23 @@ export function SiteNav({
           <ThemeToggle />
 
           {account ? (
-            <Link
-              href={account.href}
-              title={account.title}
-              className="text-foreground hidden text-sm font-medium md:inline-block"
-            >
-              {account.label}
-            </Link>
+            <>
+              <Link
+                href={account.href}
+                title={account.title}
+                className="text-foreground hidden text-sm font-medium md:inline-block"
+              >
+                {account.label}
+              </Link>
+              <button
+                type="button"
+                onClick={() => void logOut()}
+                disabled={loggingOut}
+                className="text-muted-foreground hover:text-foreground hidden text-sm disabled:opacity-50 md:inline-block"
+              >
+                Log out
+              </button>
+            </>
           ) : (
             <Link
               href="/admin/login"
@@ -138,6 +165,16 @@ export function SiteNav({
           >
             {account ? account.label : "Log in"}
           </Link>
+          {account ? (
+            <button
+              type="button"
+              onClick={() => void logOut()}
+              disabled={loggingOut}
+              className="text-muted-foreground mt-4 ml-6 inline-block text-sm disabled:opacity-50"
+            >
+              Log out
+            </button>
+          ) : null}
         </div>
       ) : null}
     </header>
