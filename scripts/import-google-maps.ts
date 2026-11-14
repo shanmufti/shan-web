@@ -1,6 +1,7 @@
 /**
  * Import Google Maps saved lists (Google Takeout) into `destinations` and
- * `places`. See README → "Places from Google Maps".
+ * `places`. Places show on the journeys their destination links to. See
+ * README → "Places from Google Maps".
  *
  *   NODE_ENV=production npx payload run scripts/import-google-maps.ts <takeout-folder> [options]
  *
@@ -393,7 +394,7 @@ async function sync(
   log(`${label("Places")}: ${line(placeCounts)}`);
   if (!opts.dryRun && destCounts.created > 0) {
     log(
-      "New destinations are drafts: review them in /admin → Destinations, then untick Draft.",
+      "New destinations: link each to its journeys in /admin → Destinations; their places then show on those journey pages.",
     );
   }
 }

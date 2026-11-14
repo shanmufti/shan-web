@@ -38,6 +38,26 @@ const sectionFields: Field[] = SITE_SECTIONS.map(
 );
 
 /**
+ * The retired Places section (/travel/places; saved places now show on
+ * journey pages). Its column stays, hidden and unused, so removing the
+ * section needed no database change. Drop it with a migration when one is
+ * next written. Kept in its old position so generated types don't move.
+ */
+const retiredPlacesField: Field = {
+  name: "places",
+  type: "select",
+  required: true,
+  defaultValue: "owner",
+  options: modeOptions,
+  admin: { hidden: true },
+};
+
+const packingIndex = sectionFields.findIndex(
+  (f) => "name" in f && f.name === "packing",
+);
+sectionFields.splice(packingIndex + 1, 0, retiredPlacesField);
+
+/**
  * Who can see each section of the site. Changes apply within seconds, no
  * deploy needed. The landing page (/) and /unlock are always public; logged-in
  * admins can always see everything.

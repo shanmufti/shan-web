@@ -650,7 +650,7 @@ export interface DiveResource {
   createdAt: string;
 }
 /**
- * One page per place, at /travel/places/<slug>. Usually created by the Google Maps importer (see README). The whole section is gated by Settings → Access → Places.
+ * Groups saved Google Maps places, usually created by the importer (see README). Link a destination to its journeys and its places show under "Places I saved" on those journey pages.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "destinations".
@@ -663,7 +663,7 @@ export interface Destination {
    */
   slug: string;
   /**
-   * Drafts are visible only to you while logged in. The importer creates new destinations as drafts.
+   * The importer creates new destinations as drafts. It doesn't hide anything on the site: places show on linked journeys either way.
    */
   draft?: boolean | null;
   /**
@@ -679,7 +679,7 @@ export interface Destination {
    */
   country?: string | null;
   /**
-   * Centre of the map. The importer fills this with the middle of the saved places when empty.
+   * The importer fills this with the middle of the saved places when empty.
    */
   coordinates?: {
     lat?: number | null;
@@ -698,7 +698,7 @@ export interface Destination {
     | null;
   cover?: (number | null) | Media;
   /**
-   * Main text of the page. While empty, the page shows a placeholder (to you only, as long as the destination is a draft).
+   * Not shown on the site for now (there is no page per destination).
    */
   writeUp?: {
     root: {
@@ -716,7 +716,7 @@ export interface Destination {
     [k: string]: unknown;
   } | null;
   /**
-   * Journeys that passed through this place.
+   * Journeys that passed through this place. Its saved places show on each of these journey pages.
    */
   journeys?: (number | Travel)[] | null;
   /**
@@ -724,11 +724,11 @@ export interface Destination {
    */
   sourceLists?: string[] | null;
   /**
-   * Raw Google Maps list description from the import. Never shown on the site: copy what you want into Write-up after editing out anything personal.
+   * Raw Google Maps list description from the import. Never shown on the site.
    */
   importedNotes?: string | null;
   /**
-   * Saved places on this destination's page.
+   * Saved places, shown on the linked journeys' pages.
    */
   places?: {
     docs?: (number | Place)[];
@@ -751,11 +751,11 @@ export interface Place {
    */
   category: 'restaurant' | 'cafe' | 'bar' | 'viewpoint' | 'hotel' | 'dive-shop' | 'activity' | 'shop' | 'other';
   /**
-   * Your recommendation, shown on the page. Re-imports only fill this when it's empty.
+   * Your recommendation, shown under the place on journey pages. Re-imports only fill this when it's empty.
    */
   note?: string | null;
   /**
-   * Places without coordinates show in the list only.
+   * Optional. Not shown on the site.
    */
   coordinates?: {
     lat?: number | null;
@@ -764,7 +764,7 @@ export interface Place {
   address?: string | null;
   googleMapsUrl?: string | null;
   /**
-   * Who sees this place on the destination page. Use Only me for anything personal, like a friend's home.
+   * Who sees this place on the journey pages it appears on. A private destination makes all its places at least private. Use Only me for anything personal, like a friend's home.
    */
   visibility: 'public' | 'private' | 'owner';
   /**

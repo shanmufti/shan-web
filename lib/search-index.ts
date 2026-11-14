@@ -1,8 +1,6 @@
 import { listPublished } from "@/lib/content";
-import { countryName } from "@/lib/country-names";
 import { listHobbies } from "@/lib/hobbies";
 import { isPrivate, journeyDocs, storyDocs } from "@/lib/journeys";
-import { listDestinations } from "@/lib/places";
 import {
   currentViewer,
   visibleSections,
@@ -16,7 +14,6 @@ export type SearchGroup =
   | "Pages"
   | "Journeys"
   | "Stories"
-  | "Places"
   | "Dives"
   | "Tech notes"
   | "Hobbies"
@@ -103,14 +100,13 @@ export async function buildSearchIndex(): Promise<SearchItem[]> {
   const showDoc = (doc: { visibility?: string | null }) =>
     unlocked || !isPrivate(doc);
 
-  const [journeys, stories, dives, tech, hobbies, places] = await Promise.all([
+  const [journeys, stories, dives, tech, hobbies] = await Promise.all([
     open.has("journeys") ? journeyDocs() : [],
     open.has("stories") ? storyDocs() : [],
     open.has("diving") ? listPublished("diving", { limit: 500 }) : [],
     open.has("tech") ? listPublished("tech", { limit: 200 }) : [],
-    // Both apply this visitor's own rules (private hobbies, drafts, places).
+    // Applies this visitor's own rules (private hobbies, drafts).
     open.has("hobbies") ? listHobbies().then((r) => r.hobbies) : [],
-    open.has("places") ? listDestinations().then((r) => r.destinations) : [],
   ]);
 
   const pages = pageItems(sections, viewer);
@@ -133,12 +129,6 @@ export async function buildSearchIndex(): Promise<SearchItem[]> {
       .map((doc) =>
         contentItem("Stories", doc.title, `/blog/${doc.slug}`, doc.date),
       ),
-    ...places.map((doc) => ({
-      group: "Places" as const,
-      title: doc.title,
-      href: `/travel/places/${doc.slug}`,
-      ...(doc.country ? { hint: countryName(doc.country) } : {}),
-    })),
     ...dives.map((doc) =>
       contentItem("Dives", doc.title, `/diving/logs/${doc.slug}`, doc.date),
     ),

@@ -1,9 +1,5 @@
-import config from "@payload-config";
-import { cacheLife, cacheTag } from "next/cache";
 import { ImageResponse } from "next/og";
-import { getPayload } from "payload";
 
-import { collectionTag, CONTENT_CACHE_LIFE } from "@/lib/cache-tags";
 import { getSectionModes } from "@/lib/site-access";
 import type { SectionKey } from "@/lib/site-sections";
 
@@ -140,27 +136,4 @@ export async function sectionIsPublic(key: SectionKey): Promise<boolean> {
   } catch {
     return false;
   }
-}
-
-/** A destination's title and country, only when it is public and live. */
-export async function publicDestination(
-  slug: string,
-): Promise<{ title: string; country: string | null } | null> {
-  "use cache";
-  cacheLife(CONTENT_CACHE_LIFE);
-  cacheTag(collectionTag("destinations"));
-  const payload = await getPayload({ config });
-  const { docs } = await payload.find({
-    collection: "destinations",
-    where: { slug: { equals: slug } },
-    limit: 1,
-    depth: 0,
-    select: { title: true, country: true, draft: true, visibility: true },
-    overrideAccess: true,
-  });
-  const doc = docs[0];
-  if (!doc || doc.draft || doc.visibility !== "public") {
-    return null;
-  }
-  return { title: doc.title, country: doc.country ?? null };
 }

@@ -55,9 +55,11 @@ Records (renewals, expiries, costs), private files, file drops, snippets and a c
 - **File drops:** `/drop/<token>` is a public download page for one file until the drop expires or runs out of downloads; then it's a 404. Create them on `/vault/drops` or in admin.
 - **Calendar feed:** `/vault/calendar.ics?token=…` (link on `/vault`). The proxy lets this one path through because phone calendars can't log in; the route 404s on a wrong token. Regenerate the token in admin → Vault → Vault settings.
 
-### Places from Google Maps (`/travel/places`)
+### Places from Google Maps (on journey pages)
 
-One page per destination at `/travel/places/<slug>`: write-up, then your saved places on a map and as a list grouped by category. Journeys (`/travel/<slug>`) stay the trips; a destination can link to the journeys that passed through it. Data lives in the `destinations` and `places` collections. The section is **Hidden** until you set **Places** to Public or Passcode in admin → Settings → Access & permissions. Importer-created destinations are drafts (only you see them) until you untick Draft.
+Your saved Google Maps places show on journey pages (`/travel/<slug>`) under **Places I saved**, grouped by category with a link to Google Maps. The importer files places under destinations (a city, an island); in admin → Destinations, set a destination's **Journeys** and its places appear on each of those journey pages. There is no separate page per destination. Data lives in the `destinations` and `places` collections, which only you can read through the REST API.
+
+Who sees a place: anyone who can open the journey sees its **Public** places; **Private** places need the passcode; **Only me** places show only to you, logged in. A private destination makes all its places at least private. A destination's Draft tick (importer-created ones start as drafts) doesn't hide anything: the journey's own access decides.
 
 1. **Export.** On takeout.google.com (signed in to your Google account), click _Deselect all_, tick **Saved** (your lists, one CSV each) and **Maps (your places)** (starred places, `Saved Places.json`), then export once and download the zip. Unzip it **outside this repo**: it's personal data.
 2. **Dry run** (writes nothing to the database, only a review file next to the export):
@@ -71,7 +73,7 @@ One page per destination at `/travel/places/<slug>`: write-up, then your saved p
 3. **Optional mapping.** Each destination-style list becomes a destination named after the list. To rename, merge or skip lists, write a JSON file outside the repo and pass `map=`. Example: `{ "Tokyo trip 2019": { "slug": "tokyo", "title": "Tokyo", "country": "JPN" }, "Work lunches": "skip", "Road trip": "review" }`.
 4. **Import:** run the same command with `apply` at the end. Re-running is safe: places match on their Google place id (or name + coordinates), so nothing is duplicated; your edits to category, notes and visibility are kept, and nothing is deleted.
 5. **Catch-all places:** open `google-maps-review.csv`, fill the `destination` column with a slug (or `skip`), then run again with `assign=<that file> apply`.
-6. **Write-ups:** a list's description is saved in the destination's _Imported notes_ (never shown on the site). Copy what you want into _Write-up_; until then the page shows `[Write-up: Shan to write]`.
+6. **Link to journeys:** in admin → Destinations, pick the journeys each destination belongs to. A list's description is saved in the destination's _Imported notes_ (never shown on the site).
 
 **Trip dates (optional):** export the travel calendar as `.ics` (Calendar.app → File → Export, keep it outside the repo) and run `NODE_ENV=production npx payload run scripts/ics-trip-dates.ts ~/Downloads/Travel.ics`. It suggests stays per destination by matching event titles and locations to destination names (flights, buses and hotel bookings are ignored) and lists events that match nothing. Add `apply` to save them as _Dates visited_.
 

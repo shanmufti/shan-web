@@ -9,6 +9,7 @@ import {
   JourneyRouteView,
   JourneyStopList,
 } from "@/components/journey-route-view";
+import { JourneyPlaces } from "@/components/journey-places";
 import { LockedPage } from "@/components/locked-page";
 import { PageTransition, SharedCover } from "@/components/page-transition";
 import { Picture } from "@/components/picture";
@@ -36,7 +37,13 @@ import {
   readingMinutes,
   type JourneyDoc,
 } from "@/lib/journeys";
-import { hasPrivateAccess } from "@/lib/site-access";
+import {
+  hasRestrictedPlaces,
+  journeyPlaceDocs,
+  placesFor,
+  type DestinationPlaces,
+} from "@/lib/places";
+import { currentViewer, hasPrivateAccess } from "@/lib/site-access";
 
 type Props = Readonly<{ params: Promise<{ slug: string }> }>;
 
@@ -149,6 +156,19 @@ async function ViewerStories({ journey }: Readonly<{ journey: JourneyDoc }>) {
   return <JourneyStories journey={journey} unlocked={unlocked} />;
 }
 
+/**
+ * Saved places for this visitor. Only private / "Only me" places make it
+ * differ per visitor, so the cookie check runs only when there are some.
+ */
+async function ViewerPlaces({
+  destinations,
+}: Readonly<{ destinations: DestinationPlaces[] }>) {
+  const viewer = hasRestrictedPlaces(destinations)
+    ? await currentViewer()
+    : "anonymous";
+  return <JourneyPlaces destinations={placesFor(destinations, viewer)} />;
+}
+
 /** Earlier/later links among the journeys a visitor can see. */
 function JourneyPager({
   journey,
@@ -179,10 +199,13 @@ async function ViewerPager({
   return <JourneyPager journey={journey} docs={docs} unlocked={unlocked} />;
 }
 
-function JourneyArticle({
-  journey,
-  docs,
-}: Readonly<{ journey: JourneyDoc; docs: JourneyDoc[] }>) {
+type ArticleProps = Readonly<{
+  journey: JourneyDoc;
+  docs: JourneyDoc[];
+  places: DestinationPlaces[];
+}>;
+
+function JourneyArticle({ journey, docs, places }: ArticleProps) {
   const cover = mediaImage(journey.cover);
   const countries = journeyCountryNames(journey);
   const stops = routeStops(journey);
@@ -284,6 +307,15 @@ function JourneyArticle({
           </section>
         ) : null}
 
+        {/* Private places differ per visitor: the shell has the public ones. */}
+        <Suspense
+          fallback={
+            <JourneyPlaces destinations={placesFor(places, "anonymous")} />
+          }
+        >
+          <ViewerPlaces destinations={places} />
+        </Suspense>
+
         <Suspense
           fallback={
             <JourneyPager journey={journey} docs={docs} unlocked={false} />
@@ -297,10 +329,7 @@ function JourneyArticle({
 }
 
 /** Private journey: checked per request, never part of the static shell. */
-async function PrivateJourney({
-  journey,
-  docs,
-}: Readonly<{ journey: JourneyDoc; docs: JourneyDoc[] }>) {
+async function PrivateJourney({ journey, docs, places }: ArticleProps) {
   if (!(await hasPrivateAccess())) {
     return (
       <LockedPage
@@ -312,7 +341,7 @@ async function PrivateJourney({
   }
   return (
     <PageTransition>
-      <JourneyArticle journey={journey} docs={docs} />
+      <JourneyArticle journey={journey} docs={docs} places={places} />
     </PageTransition>
   );
 }
@@ -321,18 +350,19 @@ export default async function JourneyPage({ params }: Props) {
   const { slug } = await params;
   const [journey, docs] = await Promise.all([journeyDoc(slug), journeyDocs()]);
   if (!journey) notFound();
+  const places = await journeyPlaceDocs(journey.id);
   if (isPrivate(journey)) {
     return (
       <PageTransition>
         <Suspense fallback={<div className="min-h-[60svh]" />}>
-          <PrivateJourney journey={journey} docs={docs} />
+          <PrivateJourney journey={journey} docs={docs} places={places} />
         </Suspense>
       </PageTransition>
     );
   }
   return (
     <PageTransition>
-      <JourneyArticle journey={journey} docs={docs} />
+      <JourneyArticle journey={journey} docs={docs} places={places} />
     </PageTransition>
   );
 }

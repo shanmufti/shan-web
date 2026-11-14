@@ -11,7 +11,7 @@
  * appears as whole words in the event title or location. Flights, buses,
  * hotel bookings and similar are ignored; overlapping or back-to-back events
  * merge into one stay. Events that match nothing are listed so trips without
- * a destination page still show up.
+ * a destination still show up.
  *
  * Without `apply` nothing is written. With it, each suggested stay is
  * added to the destination's datesVisited unless a stay with the same start

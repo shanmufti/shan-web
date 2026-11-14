@@ -1,13 +1,14 @@
 import type { CollectionConfig } from "payload";
 
-import { visibilityReadAccess } from "./access";
+import { authenticated } from "./access";
 import { slugField, visibilityFields } from "./fields";
 
 /**
- * One page per place visited, at /travel/places/[slug]. A destination is a
- * place (a city, an island), not a trip: Journeys (`travel`) stay the trips,
- * and a destination links to the journeys that passed through it. Saved
- * Google Maps places hang off a destination (see Places).
+ * A place visited (a city, an island), not a trip: Journeys (`travel`) stay
+ * the trips, and a destination links to the journeys that passed through it.
+ * Saved Google Maps places hang off a destination (see Places) and show on
+ * those journeys' pages; there is no page per destination. Only the
+ * logged-in owner can read destinations through the REST API.
  */
 export const Destinations: CollectionConfig = {
   slug: "destinations",
@@ -18,9 +19,14 @@ export const Destinations: CollectionConfig = {
     defaultColumns: ["title", "country", "draft", "visibility"],
     group: "Journeys and stories",
     description:
-      "One page per place, at /travel/places/<slug>. Usually created by the Google Maps importer (see README). The whole section is gated by Settings → Access → Places.",
+      'Groups saved Google Maps places, usually created by the importer (see README). Link a destination to its journeys and its places show under "Places I saved" on those journey pages.',
   },
-  access: visibilityReadAccess,
+  access: {
+    read: authenticated,
+    create: authenticated,
+    update: authenticated,
+    delete: authenticated,
+  },
   fields: [
     { name: "title", type: "text", required: true, maxLength: 99 },
     slugField,
@@ -31,7 +37,7 @@ export const Destinations: CollectionConfig = {
       admin: {
         position: "sidebar",
         description:
-          "Drafts are visible only to you while logged in. The importer creates new destinations as drafts.",
+          "The importer creates new destinations as drafts. It doesn't hide anything on the site: places show on linked journeys either way.",
       },
     },
     ...visibilityFields,
@@ -50,7 +56,7 @@ export const Destinations: CollectionConfig = {
       type: "group",
       admin: {
         description:
-          "Centre of the map. The importer fills this with the middle of the saved places when empty.",
+          "The importer fills this with the middle of the saved places when empty.",
       },
       fields: [
         {
@@ -88,7 +94,7 @@ export const Destinations: CollectionConfig = {
       type: "richText",
       admin: {
         description:
-          "Main text of the page. While empty, the page shows a placeholder (to you only, as long as the destination is a draft).",
+          "Not shown on the site for now (there is no page per destination).",
       },
     },
     {
@@ -96,7 +102,10 @@ export const Destinations: CollectionConfig = {
       type: "relationship",
       relationTo: "travel",
       hasMany: true,
-      admin: { description: "Journeys that passed through this place." },
+      admin: {
+        description:
+          "Journeys that passed through this place. Its saved places show on each of these journey pages.",
+      },
     },
     {
       name: "sourceLists",
@@ -113,7 +122,7 @@ export const Destinations: CollectionConfig = {
       type: "textarea",
       admin: {
         description:
-          "Raw Google Maps list description from the import. Never shown on the site: copy what you want into Write-up after editing out anything personal.",
+          "Raw Google Maps list description from the import. Never shown on the site.",
       },
     },
     {
@@ -121,7 +130,9 @@ export const Destinations: CollectionConfig = {
       type: "join",
       collection: "places",
       on: "destination",
-      admin: { description: "Saved places on this destination's page." },
+      admin: {
+        description: "Saved places, shown on the linked journeys' pages.",
+      },
     },
   ],
 };

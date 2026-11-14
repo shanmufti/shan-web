@@ -31,15 +31,6 @@ export const TOOLS: ToolEntry[] = [
     sectionKey: "packing",
   },
   {
-    slug: "places",
-    title: "Places",
-    description:
-      "Destination pages with saved Google Maps places on a map, grouped by category.",
-    category: "travel",
-    href: "/travel/places",
-    sectionKey: "places",
-  },
-  {
     slug: "food-tour-rubric",
     title: "Food tour rubric",
     description: "Score restaurants on a four-part rubric out of 20.",

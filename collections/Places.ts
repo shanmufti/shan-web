@@ -1,29 +1,14 @@
-import type { Access, CollectionConfig } from "payload";
+import type { CollectionConfig } from "payload";
 
 import { PLACE_CATEGORIES } from "@/lib/google-maps-takeout";
 
 import { authenticated } from "./access";
 
 /**
- * Anonymous REST/Local API readers get public places of published, public
- * destinations only. Pages read with overrideAccess and filter per viewer
- * (lib/places.ts).
- */
-// eslint-disable-next-line sonarjs/function-return-type -- Payload Access: boolean | Where
-const readPlaces: Access = ({ req: { user } }) => {
-  if (user) return true;
-  return {
-    and: [
-      { visibility: { equals: "public" } },
-      { "destination.draft": { equals: false } },
-      { "destination.visibility": { equals: "public" } },
-    ],
-  };
-};
-
-/**
- * Saved places (mostly from Google Maps lists), shown on a destination page
- * as a map and a list grouped by category.
+ * Saved places (mostly from Google Maps lists), shown under "Places I saved"
+ * on every journey their destination links to. Only the logged-in owner can
+ * read them through the REST API; journey pages read with overrideAccess
+ * and filter per viewer (lib/places.ts).
  */
 export const Places: CollectionConfig = {
   slug: "places",
@@ -36,7 +21,7 @@ export const Places: CollectionConfig = {
     listSearchableFields: ["name", "sourceList", "address"],
   },
   access: {
-    read: readPlaces,
+    read: authenticated,
     create: authenticated,
     update: authenticated,
     delete: authenticated,
@@ -67,14 +52,14 @@ export const Places: CollectionConfig = {
       type: "textarea",
       admin: {
         description:
-          "Your recommendation, shown on the page. Re-imports only fill this when it's empty.",
+          "Your recommendation, shown under the place on journey pages. Re-imports only fill this when it's empty.",
       },
     },
     {
       name: "coordinates",
       type: "group",
       admin: {
-        description: "Places without coordinates show in the list only.",
+        description: "Optional. Not shown on the site.",
       },
       fields: [
         {
@@ -101,7 +86,7 @@ export const Places: CollectionConfig = {
       admin: {
         position: "sidebar",
         description:
-          "Who sees this place on the destination page. Use Only me for anything personal, like a friend's home.",
+          "Who sees this place on the journey pages it appears on. A private destination makes all its places at least private. Use Only me for anything personal, like a friend's home.",
       },
     },
     {
