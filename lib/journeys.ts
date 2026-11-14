@@ -272,8 +272,16 @@ const isCoord = (p: unknown): p is [number, number] =>
 export function journeyTrack(journey: JourneyDoc): TrackSegment[] {
   const raw = journey.track;
   if (!Array.isArray(raw)) return [];
+  // A Payload update of the journey (e.g. saving it in /admin) rewrites each
+  // segment array as an object with "0", "1", ... keys; read both shapes.
+  const asArray = (seg: unknown): unknown[] | null => {
+    if (Array.isArray(seg)) return seg as unknown[];
+    if (seg && typeof seg === "object") return Object.values(seg) as unknown[];
+    return null;
+  };
   return raw
-    .filter((seg): seg is unknown[] => Array.isArray(seg))
+    .map(asArray)
+    .filter((seg): seg is unknown[] => seg !== null)
     .map((seg) => seg.filter(isCoord))
     .filter((seg) => seg.length > 1);
 }

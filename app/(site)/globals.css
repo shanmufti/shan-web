@@ -547,3 +547,146 @@
   color: var(--muted-foreground);
   opacity: 0.5;
 }
+
+/* Journey route map (components/route-map.tsx). */
+.route-pin {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 2px solid #fff;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font: 500 11px/1 var(--font-mono);
+  box-shadow: var(--elev-sm);
+  transition: transform var(--duration-fast) var(--ease-out-soft);
+}
+.route-pin.is-active {
+  background: var(--coral);
+  color: var(--coral-foreground);
+  transform: scale(1.25);
+}
+.route-map .leaflet-marker-icon:focus-visible {
+  outline: none;
+}
+.route-map .leaflet-marker-icon:focus-visible .route-pin {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.route-map-button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 0.625rem;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: var(--elev-sm);
+}
+.route-map-button:hover {
+  background: var(--muted);
+}
+.route-map .leaflet-popup-content-wrapper {
+  border-radius: 0.75rem;
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: var(--elev-md);
+}
+.route-map .leaflet-popup-tip {
+  background: var(--popover);
+}
+.route-map .leaflet-popup-content {
+  margin: 0.625rem 0.875rem;
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+.route-map .leaflet-popup-content p {
+  margin: 0;
+}
+.route-map .route-popup-title {
+  font-weight: 500;
+}
+.route-map .route-popup-meta {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+.route-map .leaflet-control-zoom {
+  border: 1px solid var(--border);
+  border-radius: 0.625rem;
+  overflow: hidden;
+  box-shadow: var(--elev-sm);
+}
+.route-map .leaflet-control-zoom a {
+  background: var(--card);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+.route-map .leaflet-control-attribution {
+  background: color-mix(in oklch, var(--card) 85%, transparent);
+  color: var(--muted-foreground);
+}
+.route-map .leaflet-control-attribution a {
+  color: var(--foreground);
+}
+.route-map .leaflet-container {
+  background: var(--tint-water);
+  font: inherit;
+}
+
+/*
+ * Reading progress (story pages): a scroll-driven bar at the very top.
+ * Only where scroll timelines exist and motion is welcome; otherwise hidden.
+ */
+.reading-progress {
+  display: none;
+}
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reading-progress {
+      display: block;
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 70;
+      height: 3px;
+      background: var(--coral);
+      transform-origin: 0 50%;
+      transform: scaleX(0);
+      animation: reading-progress linear both;
+      animation-timeline: scroll(root block);
+    }
+  }
+}
+@keyframes reading-progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/*
+ * Story body: images break out of the 680px reading column, up to 960px,
+ * never wider than the viewport minus the page gutter.
+ */
+.article-breakout :where(img, figure, picture, video, iframe) {
+  --breakout: min(960px, 100vw - 2rem);
+  width: var(--breakout);
+  max-width: none;
+  margin-inline: calc((100% - var(--breakout)) / 2);
+  border-radius: 1rem;
+}
+.article-breakout :where(figure) :where(img, picture) {
+  width: 100%;
+  margin-inline: 0;
+}
+.route-map .leaflet-control-attribution {
+  font-size: 0.6875rem;
+}
+@media (max-width: 1023px) {
+  /* Keep attribution above the content sheet that overlaps the map. */
+  .route-map .leaflet-bottom {
+    bottom: 2rem;
+  }
+}

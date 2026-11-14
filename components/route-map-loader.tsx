@@ -1,20 +1,27 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { ComponentProps } from "react";
 
-import type { RouteStop, RouteTrack } from "./route-map";
+import type { RouteMap as RouteMapType } from "./route-map";
 
+// Leaflet only loads in the browser, in its own chunk, after the page.
 const RouteMap = dynamic(
   () => import("./route-map").then((mod) => mod.RouteMap),
   {
     ssr: false,
-    loading: () => <div className="bg-muted size-full animate-pulse" />,
+    loading: () => (
+      <div
+        className="bg-muted size-full animate-pulse"
+        role="status"
+        aria-label="Loading map"
+      />
+    ),
   },
 );
 
-export function RouteMapLoader({
-  stops,
-  track,
-}: Readonly<{ stops: RouteStop[]; track?: RouteTrack }>) {
-  return <RouteMap stops={stops} {...(track ? { track } : {})} />;
+export function RouteMapLoader(
+  props: Readonly<ComponentProps<typeof RouteMapType>>,
+) {
+  return <RouteMap {...props} />;
 }
