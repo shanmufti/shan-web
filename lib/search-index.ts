@@ -1,6 +1,6 @@
 import { listPublished } from "@/lib/content";
 import { listHobbies } from "@/lib/hobbies";
-import { isPrivate, journeyDocs, storyDocs } from "@/lib/journeys";
+import { isPrivate, journeyDocs } from "@/lib/journeys";
 import {
   currentViewer,
   visibleSections,
@@ -11,13 +11,7 @@ import type { SectionKey, SiteSection } from "@/lib/site-sections";
 import { TOOL_CATEGORIES, type ToolCategory } from "@/lib/tools-registry";
 
 export type SearchGroup =
-  | "Pages"
-  | "Journeys"
-  | "Stories"
-  | "Dives"
-  | "Tech notes"
-  | "Hobbies"
-  | "Tools";
+  "Pages" | "Journeys" | "Dives" | "Tech notes" | "Hobbies" | "Tools";
 
 export interface SearchItem {
   group: SearchGroup;
@@ -83,7 +77,7 @@ function pageItems(sections: SiteSection[], viewer: Viewer): SearchItem[] {
 /**
  * Everything the command palette can jump to, for THIS visitor only:
  * sections they can open (lib/site-sections.ts modes) and the published
- * content inside them. Private journeys and stories appear only with the
+ * content inside them. Private journeys appear only with the
  * passcode or for the owner; locked teasers are left out because the
  * visitor can't open them. Drafts never appear.
  */
@@ -100,9 +94,8 @@ export async function buildSearchIndex(): Promise<SearchItem[]> {
   const showDoc = (doc: { visibility?: string | null }) =>
     unlocked || !isPrivate(doc);
 
-  const [journeys, stories, dives, tech, hobbies] = await Promise.all([
+  const [journeys, dives, tech, hobbies] = await Promise.all([
     open.has("journeys") ? journeyDocs() : [],
-    open.has("stories") ? storyDocs() : [],
     open.has("diving") ? listPublished("diving", { limit: 500 }) : [],
     open.has("tech") ? listPublished("tech", { limit: 200 }) : [],
     // Applies this visitor's own rules (private hobbies, drafts).
@@ -123,11 +116,6 @@ export async function buildSearchIndex(): Promise<SearchItem[]> {
           `/travel/${doc.slug}`,
           doc.startDate,
         ),
-      ),
-    ...stories
-      .filter(showDoc)
-      .map((doc) =>
-        contentItem("Stories", doc.title, `/blog/${doc.slug}`, doc.date),
       ),
     ...dives.map((doc) =>
       contentItem("Dives", doc.title, `/diving/logs/${doc.slug}`, doc.date),

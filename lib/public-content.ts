@@ -11,23 +11,12 @@ import { collectionTag, CONTENT_CACHE_LIFE } from "@/lib/cache-tags";
 export async function listPublicForFeeds() {
   "use cache";
   cacheLife(CONTENT_CACHE_LIFE);
-  cacheTag(
-    collectionTag("travel"),
-    collectionTag("blog"),
-    collectionTag("diving"),
-  );
+  cacheTag(collectionTag("travel"), collectionTag("diving"));
   const payload = await getPayload({ config });
-  const [journeys, stories, dives] = await Promise.all([
+  const [journeys, dives] = await Promise.all([
     payload.find({
       collection: "travel",
       sort: "-startDate",
-      limit: 1000,
-      depth: 0,
-      overrideAccess: false,
-    }),
-    payload.find({
-      collection: "blog",
-      sort: "-date",
       limit: 1000,
       depth: 0,
       overrideAccess: false,
@@ -43,7 +32,6 @@ export async function listPublicForFeeds() {
   ]);
   return {
     journeys: journeys.docs,
-    stories: stories.docs,
     dives: dives.docs,
   };
 }

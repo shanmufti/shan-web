@@ -37,9 +37,6 @@ export const metadata: Metadata = {
   },
   // No twitter:image: X falls back to og:image, which is per page.
   twitter: { card: "summary_large_image" },
-  alternates: {
-    types: { "application/rss+xml": "/blog/rss.xml" },
-  },
 };
 
 // Browser chrome colour: light and dark --background.

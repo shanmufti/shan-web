@@ -27,7 +27,7 @@ export default async function UnlockPage({
       <PageHeader
         eyebrow="Private"
         title="This one's for friends and family"
-        lede="Some journeys and stories are passcode-protected. If you've been given the passcode, enter it to read them all."
+        lede="Some journeys are passcode-protected. If you've been given the passcode, enter it to read them all."
       />
       <UnlockForm next={safeNext(next)} />
     </div>

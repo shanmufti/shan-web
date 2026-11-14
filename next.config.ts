@@ -62,6 +62,13 @@ const payloadHeaders = withPayloadConfig.headers;
  */
 export default {
   ...withPayloadConfig,
+  // Stories (/blog) was retired in Nov 2026; old links land on Journeys.
+  redirects() {
+    return Promise.resolve([
+      { source: "/blog", destination: "/travel", permanent: false },
+      { source: "/blog/:path*", destination: "/travel", permanent: false },
+    ]);
+  },
   async headers() {
     const rules = (await payloadHeaders?.()) ?? [];
     return rules.map((rule) =>

@@ -71,8 +71,12 @@ export const SITE_SECTIONS = [
     paths: ["/blog"],
     collections: ["blog"],
     defaultMode: "owner",
-    inNav: true,
-    onLanding: true,
+    // Retired 2026-11: the pages are gone (/blog redirects to /travel) and
+    // nothing links here. Kept so /api/blog stays owner-only; data stays in
+    // /admin.
+    inNav: false,
+    onLanding: false,
+    ownerOnly: true,
   },
   {
     key: "diving",

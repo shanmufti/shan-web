@@ -2,7 +2,6 @@
 
 import {
   ArrowRight,
-  BookOpen,
   Code,
   CornerDownLeft,
   Map as MapIcon,
@@ -36,7 +35,6 @@ type EntryGroup = SearchGroup | "Actions";
 const GROUP_ORDER: EntryGroup[] = [
   "Pages",
   "Journeys",
-  "Stories",
   "Dives",
   "Tech notes",
   "Hobbies",
@@ -47,7 +45,6 @@ const GROUP_ORDER: EntryGroup[] = [
 const GROUP_ICON: Record<EntryGroup, typeof ArrowRight> = {
   Pages: ArrowRight,
   Journeys: MapIcon,
-  Stories: BookOpen,
   Dives: Waves,
   "Tech notes": Code,
   Hobbies: Sparkles,
@@ -272,7 +269,7 @@ export function CommandPalette({ onClose }: Readonly<{ onClose: () => void }>) {
           aria-activedescendant={
             ordered.length > 0 ? optionId(activeIndex) : undefined
           }
-          aria-label="Search pages, journeys, stories, dives and tech notes"
+          aria-label="Search pages, journeys, dives and tech notes"
           placeholder="Jump to…"
           value={query}
           onChange={(event) => {
