@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -39,6 +39,14 @@ export const metadata: Metadata = {
   alternates: {
     types: { "application/rss+xml": "/blog/rss.xml" },
   },
+};
+
+// Browser chrome colour: light and dark --background.
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fbfcfd" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0d10" },
+  ],
 };
 
 // CMS content lives in Neon — apply to all (site) routes so admin edits

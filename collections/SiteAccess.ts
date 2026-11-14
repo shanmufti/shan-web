@@ -5,6 +5,7 @@ import {
   ACCESS_MODE_LABELS,
   ACCESS_MODES,
   SITE_SECTIONS,
+  type SiteSection,
 } from "@/lib/site-sections";
 
 import { authenticated } from "./access";
@@ -14,14 +15,26 @@ const modeOptions = ACCESS_MODES.map((value) => ({
   label: ACCESS_MODE_LABELS[value],
 }));
 
-const sectionFields: Field[] = SITE_SECTIONS.map((section) => ({
-  name: section.key,
-  label: `${section.label} (${section.paths.join(", ")})`,
-  type: "select",
-  required: true,
-  defaultValue: section.defaultMode,
-  options: modeOptions,
-}));
+const sectionFields: Field[] = SITE_SECTIONS.map(
+  (section: SiteSection): Field => ({
+    name: section.key,
+    label: `${section.label} (${section.paths.join(", ")})`,
+    type: "select",
+    required: true,
+    defaultValue: section.defaultMode,
+    options: section.ownerOnly
+      ? modeOptions.filter((o) => o.value === "owner")
+      : modeOptions,
+    ...(section.ownerOnly
+      ? {
+          admin: {
+            description: "Always hidden: only you, logged in.",
+            readOnly: true,
+          },
+        }
+      : {}),
+  }),
+);
 
 /**
  * Who can see each section of the site. Changes apply within seconds, no

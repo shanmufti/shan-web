@@ -29,6 +29,14 @@ export interface SiteSection {
   inNav: boolean;
   /** List on the landing page when visible. */
   onLanding: boolean;
+  /**
+   * Exact paths inside this section that the proxy lets through because the
+   * route checks its own secret token (for clients with no cookie, such as a
+   * phone calendar). The route must 404 on a wrong token.
+   */
+  tokenPaths?: readonly string[];
+  /** Always Hidden (owner only), whatever is saved in /admin. */
+  ownerOnly?: boolean;
 }
 
 export const SITE_SECTIONS = [
@@ -115,6 +123,37 @@ export const SITE_SECTIONS = [
     inNav: false,
     onLanding: true,
   },
+  {
+    key: "tools",
+    label: "Tools",
+    href: "/tools",
+    blurb: "Small tools and reference pages.",
+    paths: ["/tools"],
+    collections: [],
+    defaultMode: "public",
+    inNav: true,
+    onLanding: true,
+  },
+  {
+    key: "vault",
+    label: "Vault",
+    href: "/vault",
+    blurb: "Private records, files and renewals.",
+    paths: ["/vault"],
+    // REST paths (collections and globals) that only the owner can call.
+    collections: [
+      "vault-records",
+      "vault-files",
+      "file-drops",
+      "snippets",
+      "vault-settings",
+    ],
+    defaultMode: "owner",
+    inNav: false,
+    onLanding: false,
+    tokenPaths: ["/vault/calendar.ics"],
+    ownerOnly: true,
+  },
 ] as const satisfies readonly SiteSection[];
 
 export type SectionKey = (typeof SITE_SECTIONS)[number]["key"];
@@ -139,9 +178,18 @@ export function sectionForPath(pathname: string): SiteSection | null {
   return best;
 }
 
-/** Section that owns a Payload REST path like /api/blog or /api/blog/12. */
+/** True for a path the section's own route guards with a token. */
+export function isTokenPath(section: SiteSection, pathname: string): boolean {
+  return section.tokenPaths?.includes(pathname) ?? false;
+}
+
+/**
+ * Section that owns a Payload REST path like /api/blog, /api/blog/12 or
+ * /api/globals/vault-settings.
+ */
 export function sectionForApiPath(pathname: string): SiteSection | null {
-  const slug = pathname.split("/")[2];
+  const parts = pathname.split("/");
+  const slug = parts[2] === "globals" ? parts[3] : parts[2];
   if (!slug) return null;
   return (
     SITE_SECTIONS.find((s) =>
@@ -164,7 +212,8 @@ export function resolveModes(saved: unknown): SectionModes {
       ? (saved as Record<string, unknown>)
       : {};
   return Object.fromEntries(
-    SITE_SECTIONS.map((s) => {
+    SITE_SECTIONS.map((s: SiteSection) => {
+      if (s.ownerOnly) return [s.key, "owner"];
       const value = record[s.key];
       return [s.key, isAccessMode(value) ? value : s.defaultMode];
     }),

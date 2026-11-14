@@ -28,8 +28,15 @@ import { Tech } from "./collections/Tech";
 import { Travel } from "./collections/Travel";
 import { UnlockAttempts } from "./collections/UnlockAttempts";
 import { Users } from "./collections/Users";
+import { FileDrops } from "./collections/FileDrops";
+import { Snippets } from "./collections/Snippets";
+import { VaultFiles } from "./collections/VaultFiles";
+import { VaultRecords } from "./collections/VaultRecords";
+import { VaultSettings } from "./collections/VaultSettings";
 import { VisitedCountries } from "./collections/VisitedCountries";
 import { env, envOr, requireEnv } from "./lib/env";
+import { VAULT_R2_PREFIX } from "./lib/vault";
+import { vaultUploadNames } from "./lib/vault-upload-names";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -81,8 +88,12 @@ export default buildConfig({
     Hobbies,
     HobbyReferences,
     PracticeSessions,
+    VaultRecords,
+    VaultFiles,
+    FileDrops,
+    Snippets,
   ],
-  globals: [SiteAccess, LandingPage, SiteSettings, FoodTour],
+  globals: [SiteAccess, LandingPage, SiteSettings, FoodTour, VaultSettings],
   editor: lexicalEditor(),
   secret: payloadSecret,
   // Site uses the Local API; no need to expose GraphQL publicly.
@@ -113,6 +124,14 @@ export default buildConfig({
             return `${r2PublicUrl ?? ""}/${key}`;
           },
         },
+        // Private: no public URL. Files are served by Payload's
+        // /api/vault-files/file/<name> route, which checks login, then
+        // redirects to a signed R2 URL valid for 60 seconds. The bucket's
+        // public domain must block /vault/* (see README).
+        "vault-files": {
+          prefix: VAULT_R2_PREFIX,
+          signedDownloads: { expiresIn: 60 },
+        },
         media: {
           // Browser loads images straight from R2 (not proxied through Vercel).
           disablePayloadAccessControl: true,
@@ -136,5 +155,8 @@ export default buildConfig({
         forcePathStyle: true,
       },
     }),
+    // Must come after s3Storage: gives vault-files client uploads a random
+    // R2 key (see lib/vault-upload-names.ts).
+    vaultUploadNames(),
   ],
 });

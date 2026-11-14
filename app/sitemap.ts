@@ -61,5 +61,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           })),
         ]
       : []),
+    ...(open.has("tools") ? [url("/tools"), url("/tools/snippets")] : []),
   ];
 }

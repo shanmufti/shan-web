@@ -19,7 +19,7 @@ const DIVING_LINKS: SubnavLink[] = [
 ];
 
 /** Row of section links under a page title; `current` is underlined. */
-function SectionSubnav({
+export function SectionSubnav({
   links,
   current,
 }: Readonly<{ links: SubnavLink[]; current?: string | undefined }>) {
