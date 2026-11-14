@@ -7,6 +7,7 @@ import type { Destination, Place } from "../payload-types";
 
 import {
   guessCategory,
+  isPlaceholderName,
   type DestinationPlan,
   type SavedPlace,
 } from "./google-maps-takeout";
@@ -39,7 +40,7 @@ export function destinationChanges(
   return Object.keys(data).length > 0 ? data : null;
 }
 
-/** Fields the importer owns and refreshes on every run. */
+/** Fields the importer owns and refreshes on every run (name only once). */
 function importFields(place: SavedPlace) {
   return {
     name: place.name,
@@ -55,11 +56,15 @@ export function newPlace(
   destination: number,
   visibility: PlaceVisibility,
 ) {
+  const category = guessCategory(place.name);
+  // Errands (laundry, car rental, an Airbnb address) are for me only.
+  const placeVisibility: PlaceVisibility =
+    category === "practical" ? "owner" : visibility;
   return {
     ...importFields(place),
     destination,
-    category: guessCategory(place.name),
-    visibility,
+    category,
+    visibility: placeVisibility,
     importKey: place.key,
     ...(place.note ? { note: place.note } : {}),
   };
@@ -75,7 +80,9 @@ function sameCoordinates(
 
 /**
  * Changes for an existing place, or null when nothing changed. Category and
- * visibility are never touched; the note only when it's still empty.
+ * visibility are never touched; the name only while it's still a
+ * placeholder like "Dropped pin" (so renames in the admin stick); the note
+ * only when it's still empty.
  */
 export function placeChanges(
   current: Pick<
@@ -95,7 +102,9 @@ export function placeChanges(
   const update: Record<string, unknown> = {};
   const changed = (key: keyof typeof fields, value: unknown) =>
     value !== undefined && current[key] !== value;
-  if (changed("name", fields.name)) update["name"] = fields.name;
+  if (isPlaceholderName(current.name) && changed("name", fields.name)) {
+    update["name"] = fields.name;
+  }
   if (changed("sourceList", fields.sourceList)) {
     update["sourceList"] = fields.sourceList;
   }

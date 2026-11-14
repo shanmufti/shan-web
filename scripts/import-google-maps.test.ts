@@ -11,11 +11,13 @@ import { fileURLToPath } from "node:url";
 import { newPlace, placeChanges } from "../lib/google-maps-sync";
 import {
   cidFromUrl,
+  cleanPlaceName,
   coordinatesFromUrl,
   destinationTitle,
   emptyTakeout,
   guessCategory,
   isCatchAllList,
+  isPlaceholderName,
   parseCsv,
   planImport,
   readAssignments,
@@ -112,6 +114,11 @@ void test("list helpers", () => {
   assert.equal(guessCategory("Hostel Inventado"), "hotel");
   assert.equal(guessCategory("Miradouro Fictício"), "viewpoint");
   assert.equal(guessCategory("Belém Tower"), "other");
+  assert.equal(guessCategory("Multnomah Falls"), "nature");
+  assert.equal(guessCategory("Tabacon Hot Springs"), "nature");
+  assert.equal(guessCategory("Museo Inventado"), "sight");
+  assert.equal(guessCategory("Rent a Car Ficticio"), "practical");
+  assert.equal(guessCategory("REIWA Izakaya Barranco"), "restaurant");
   assert.equal(guessCategory("Mirador del Ejemplo"), "viewpoint");
 });
 
@@ -293,8 +300,67 @@ void test("placeChanges refreshes import fields and keeps owner edits", () => {
     note: "My edited note",
   };
   assert.equal(placeChanges(current, place, 4), null);
+  // A name edited in the admin sticks; only placeholders get replaced.
   assert.deepEqual(
     placeChanges({ ...current, note: "" }, { ...place, name: "Renamed" }, 5),
-    { name: "Renamed", destination: 5, note: "From the export" },
+    { destination: 5, note: "From the export" },
+  );
+  assert.deepEqual(
+    placeChanges({ ...current, name: "Dropped pin" }, place, 4),
+    { name: "Café Fictivo" },
+  );
+});
+
+void test("newPlace keeps errands to me", () => {
+  const place = {
+    key: "cid:2",
+    name: "Lavandería Ficticia",
+    note: "",
+    url: null,
+    coordinates: null,
+    address: null,
+    lists: ["Oaxaca"],
+  };
+  const created = newPlace(place, 4, "public");
+  assert.equal(created.category, "practical");
+  assert.equal(created.visibility, "owner");
+});
+
+void test("pins with no name take their note, or are skipped", () => {
+  const data = emptyTakeout();
+  readListCsv(
+    data,
+    "Pins",
+    [
+      "Title,Note,URL",
+      `,cute street,"https://www.google.com/maps/search/-16.3976274,-71.53697"`,
+      `"13°19'01.5""S 72°02'44.1""W",,"https://www.google.com/maps/search/-13.3170703,-72.0455949"`,
+      "Unnamed place,,https://www.google.com/maps/place//data=!4m2!3m1!1s0x1:0x2",
+      "Iguana Reef Inn 4.7(530) 3-star hotel,,https://www.google.com/maps/place/Iguana/data=!4m2!3m1!1s0x3:0x4",
+    ].join("\n"),
+  );
+  const names = [...data.places.values()].map((p) => [p.name, p.note]);
+  assert.deepEqual(names, [
+    ["Cute street", ""],
+    ["Iguana Reef Inn", ""],
+  ]);
+  assert.equal(data.warnings.length, 2);
+  // The key still comes from the exported title, so re-runs match old rows.
+  assert.ok([...data.places.keys()][0]?.startsWith("geo:"));
+});
+
+void test("isPlaceholderName and cleanPlaceName", () => {
+  assert.ok(isPlaceholderName("Dropped pin"));
+  assert.ok(isPlaceholderName("Unnamed place"));
+  assert.ok(isPlaceholderName(`50°16'50.5"N 122°51'13.7"W`));
+  assert.ok(isPlaceholderName("-13.51, -71.97"));
+  assert.ok(!isPlaceholderName("Mirador 360°"));
+  assert.equal(
+    cleanPlaceName("Bella's Backpackers Hostel Recently viewed"),
+    "Bella's Backpackers Hostel",
+  );
+  assert.equal(
+    cleanPlaceName("Dhammikarama Burmese Buddhist Temple… Ornate temple"),
+    "Dhammikarama Burmese Buddhist Temple",
   );
 });

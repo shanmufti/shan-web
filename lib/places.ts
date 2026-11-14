@@ -180,12 +180,16 @@ export function hasRestrictedPlaces(destinations: DestinationPlaces[]) {
 const GROUP_LABELS: Record<string, string> = {
   restaurant: "Restaurants",
   cafe: "Cafes",
-  bar: "Bars",
+  bar: "Bars and nightlife",
+  sight: "Sights",
+  nature: "Nature and outdoors",
   viewpoint: "Viewpoints",
+  activity: "Activities",
   hotel: "Hotels",
   "dive-shop": "Dive shops",
-  activity: "Activities",
   shop: "Shops",
+  town: "Towns and areas",
+  practical: "Practical",
   other: "Other places",
 };
 
