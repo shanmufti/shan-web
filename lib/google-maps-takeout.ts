@@ -8,15 +8,23 @@
 
 import { formatSlug } from "./slug";
 
+/**
+ * In the order journey pages group them. "practical" is errands (laundry,
+ * car rental, a pharmacy, an Airbnb address): new ones import as Only me.
+ */
 export const PLACE_CATEGORIES = [
   { value: "restaurant", label: "Restaurant" },
   { value: "cafe", label: "Cafe" },
-  { value: "bar", label: "Bar" },
+  { value: "bar", label: "Bar or nightlife" },
+  { value: "sight", label: "Sight" },
+  { value: "nature", label: "Nature and outdoors" },
   { value: "viewpoint", label: "Viewpoint" },
+  { value: "activity", label: "Activity" },
   { value: "hotel", label: "Hotel" },
   { value: "dive-shop", label: "Dive shop" },
-  { value: "activity", label: "Activity" },
   { value: "shop", label: "Shop" },
+  { value: "town", label: "Town or area" },
+  { value: "practical", label: "Practical (errands)" },
   { value: "other", label: "Other" },
 ] as const;
 
@@ -209,12 +217,84 @@ export function slugify(value: string): string {
 // ---------------------------------------------------------------------------
 // Reading an export
 
+const PLACEHOLDER_NAMES = new Set(["unnamed place", "dropped pin"]);
+// 13°19'01.5"S 72°02'44.1"W, how Maps titles a pin saved by coordinates.
+const DMS_NAME =
+  /^\s*\d{1,3}°\s*\d{1,2}'[\d.]*"?\s*[NS]\s+\d{1,3}°\s*\d{1,2}'[\d.]*"?\s*[EW]\s*$/i;
+
+/**
+ * True for names Maps gives places it has no name for: "Unnamed place",
+ * "Dropped pin", a bare "lat,lng" or a 13°19'01.5"S … coordinate title.
+ */
+export function isPlaceholderName(name: string | null | undefined): boolean {
+  const trimmed = name?.trim() ?? "";
+  if (trimmed === "") return true;
+  if (PLACEHOLDER_NAMES.has(trimmed.toLowerCase())) return true;
+  return DMS_NAME.test(trimmed) || pairFrom(trimmed) !== null;
+}
+
+/**
+ * A readable name from the note on a pin with no name ("cute street" →
+ * "Cute street"): its first line, capitalised, cut at 60 characters.
+ */
+export function nameFromNote(note: string): string | null {
+  const line = note.split("\n")[0]?.trim() ?? "";
+  if (line === "") return null;
+  const cut = line.length > 60 ? `${line.slice(0, 59).trimEnd()}…` : line;
+  return cut.charAt(0).toUpperCase() + cut.slice(1);
+}
+
+/**
+ * Strips bits Maps sometimes appends to a saved title ("Recently viewed",
+ * "4.7(530) 3-star hotel", a description after "…").
+ */
+export function cleanPlaceName(name: string): string {
+  let cleaned = name.replaceAll(/\s+/g, " ").trim();
+  const ellipsis = cleaned.indexOf("…");
+  if (ellipsis > 0) cleaned = cleaned.slice(0, ellipsis).trim();
+  if (cleaned.toLowerCase().endsWith(" recently viewed")) {
+    cleaned = cleaned.slice(0, -" recently viewed".length).trim();
+  }
+  cleaned = cleaned.replace(/ \d\.\d\(\d[\d,]*\)(?: \d-star hotel)?$/i, "");
+  return cleaned || name.trim();
+}
+
+/**
+ * The place as it should be saved, or null to skip it: a pin with no name
+ * takes its note as the name, and one with no note either is dropped.
+ */
+function namedPlace(
+  data: TakeoutData,
+  list: SavedList,
+  key: string,
+  raw: Omit<SavedPlace, "key" | "lists">,
+): Omit<SavedPlace, "key" | "lists"> | null {
+  if (!isPlaceholderName(raw.name)) {
+    return { ...raw, name: cleanPlaceName(raw.name) };
+  }
+  const fromNote = nameFromNote(raw.note);
+  if (!fromNote) {
+    if (data.places.has(key)) return raw;
+    data.warnings.push(
+      `${list.name}: skipped a place with no name and no note (${raw.url ?? "no link"})`,
+    );
+    return null;
+  }
+  // The note became the name, so don't repeat it underneath.
+  const sameAsName = raw.note.trim().toLowerCase() === fromNote.toLowerCase();
+  return { ...raw, name: fromNote, note: sameAsName ? "" : raw.note };
+}
+
 function addPlace(
   data: TakeoutData,
   list: SavedList,
-  input: Omit<SavedPlace, "key" | "lists">,
+  raw: Omit<SavedPlace, "key" | "lists">,
 ) {
-  const key = placeKey(input);
+  // The key comes from the name as exported, so renaming never changes
+  // which database row a place matches on re-runs.
+  const key = placeKey(raw);
+  const input = namedPlace(data, list, key, raw);
+  if (!input) return;
   const existing = data.places.get(key);
   if (existing) {
     // Same place saved twice: fill gaps, keep every note and list.
@@ -784,27 +864,83 @@ export function readAssignments(text: string): Map<string, string> {
 // Category guess (only used when a place is first created)
 
 const CATEGORY_WORDS: [PlaceCategory, string[]][] = [
-  ["dive-shop", ["dive", "diving", "scuba", "buceo"]],
+  ["dive-shop", ["dive", "diving", "scuba", "buceo", "mergulho"]],
+  [
+    "practical",
+    [
+      "laundry",
+      "lavanderia",
+      "lavandaria",
+      "pharmacy",
+      "farmacia",
+      "drogaria",
+      "clinic",
+      "clinica",
+      "hospital",
+      "bank",
+      "banco",
+      "supermarket",
+      "supermercado",
+      "parking",
+      "storage",
+      "locksmith",
+      "mechanic",
+      "airbnb",
+      "coworking",
+      "rent a car",
+      "car rental",
+      "aluguel de carros",
+      "locadora",
+    ],
+  ],
   [
     "cafe",
     ["cafe", "coffee", "bakery", "pasteleria", "pastelaria", "panaderia"],
   ],
-  ["bar", ["bar", "pub", "cantina", "brewery", "cerveceria", "mezcaleria"]],
+  [
+    "bar",
+    [
+      "bar",
+      "pub",
+      "cantina",
+      "brewery",
+      "brewing",
+      "cerveceria",
+      "cervejaria",
+      "mezcaleria",
+      "saloon",
+      "taproom",
+      "nightclub",
+      "winery",
+    ],
+  ],
   [
     "restaurant",
     [
       "restaurant",
       "restaurante",
+      "ristorante",
+      "trattoria",
       "taqueria",
       "taco",
       "pizzeria",
       "pizza",
       "ramen",
       "sushi",
+      "izakaya",
       "bistro",
       "grill",
+      "parrilla",
+      "churrascaria",
+      "cevicheria",
+      "ceviche",
+      "pupuseria",
+      "marisqueria",
+      "bbq",
+      "barbecue",
       "kitchen",
       "cocina",
+      "cuisine",
       "comedor",
       "food",
       "mercado",
@@ -813,40 +949,130 @@ const CATEGORY_WORDS: [PlaceCategory, string[]][] = [
       "empanada",
     ],
   ],
-  ["hotel", ["hotel", "hostel", "hostal", "inn", "resort", "lodge", "posada"]],
-  ["viewpoint", ["mirador", "miradouro", "viewpoint", "lookout", "overlook"]],
   [
-    "activity",
+    "hotel",
+    [
+      "hotel",
+      "hostel",
+      "hostal",
+      "inn",
+      "resort",
+      "lodge",
+      "posada",
+      "homestay",
+      "cabanas",
+    ],
+  ],
+  [
+    "viewpoint",
+    ["mirador", "miradouro", "mirante", "viewpoint", "lookout", "overlook"],
+  ],
+  [
+    "nature",
+    [
+      "park",
+      "parque",
+      "beach",
+      "playa",
+      "praia",
+      "cenote",
+      "trail",
+      "trailhead",
+      "trilha",
+      "hike",
+      "waterfall",
+      "falls",
+      "cascada",
+      "cachoeira",
+      "lake",
+      "lago",
+      "laguna",
+      "lagoa",
+      "canyon",
+      "campground",
+      "volcano",
+      "volcan",
+      "hot springs",
+      "island",
+      "isla",
+      "ilha",
+      "cave",
+      "dunes",
+      "national park",
+      "reserve",
+    ],
+  ],
+  [
+    "sight",
     [
       "museum",
       "museo",
-      "park",
-      "parque",
-      "tour",
-      "beach",
-      "playa",
-      "cenote",
-      "trail",
-      "hike",
+      "museu",
+      "gallery",
       "ruins",
       "temple",
-      "gallery",
-      "waterfall",
-      "cascada",
+      "templo",
+      "church",
+      "iglesia",
+      "igreja",
+      "cathedral",
+      "catedral",
+      "basilica",
+      "mosque",
+      "pagoda",
+      "castle",
+      "castillo",
+      "palace",
+      "palacio",
+      "fort",
+      "fortress",
+      "monument",
+      "memorial",
+      "plaza",
+      "square",
+      "historic site",
+      "lighthouse",
+      "pier",
     ],
   ],
-  ["shop", ["shop", "store", "tienda", "boutique", "bookstore", "livraria"]],
+  ["activity", ["tour", "tours", "gym", "crossfit", "yoga", "surf school"]],
+  [
+    "shop",
+    [
+      "shop",
+      "store",
+      "tienda",
+      "loja",
+      "boutique",
+      "bookstore",
+      "books",
+      "livraria",
+      "mall",
+      "outlet",
+      "feria",
+      "bazar",
+    ],
+  ],
 ];
 
-/** Rough category from words in the name; "other" when nothing matches. */
+/**
+ * Rough category from words in the name; "other" when nothing matches.
+ * Phrases ("hot springs") match on whole words, in the order above.
+ */
 export function guessCategory(name: string): PlaceCategory {
-  const words = new Set(
-    normaliseName(name)
-      .split(" ")
-      .flatMap((w) => [w, w.replace(/s$/, "")]),
-  );
+  const words = normaliseName(name)
+    .split(" ")
+    .map((w) => w.replace(/s$/, ""));
+  const text = ` ${words.join(" ")} `;
   for (const [category, list] of CATEGORY_WORDS) {
-    if (list.some((w) => words.has(w))) return category;
+    const hit = list.some((w) => {
+      const phrase = normaliseName(w)
+        .split(" ")
+        .map((p) => p.replace(/s$/, ""))
+        .join(" ");
+      return text.includes(` ${phrase} `);
+    });
+    if (hit) return category;
   }
   return "other";
 }

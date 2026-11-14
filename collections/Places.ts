@@ -16,9 +16,10 @@ export const Places: CollectionConfig = {
   defaultSort: "name",
   admin: {
     useAsTitle: "name",
-    defaultColumns: ["name", "category", "destination", "visibility"],
+    defaultColumns: ["name", "category", "destination", "note", "visibility"],
     group: "Journeys",
-    listSearchableFields: ["name", "sourceList", "address"],
+    listSearchableFields: ["name", "note", "sourceList", "address"],
+    pagination: { defaultLimit: 50, limits: [50, 100, 200] },
   },
   access: {
     read: authenticated,
@@ -43,7 +44,7 @@ export const Places: CollectionConfig = {
       options: PLACE_CATEGORIES.map((c) => ({ ...c })),
       admin: {
         description:
-          "The importer guesses from the name on first import and never changes it after.",
+          "The importer guesses from the name on first import and never changes it after. Practical is for errands (laundry, car rental, a pharmacy, an address) and pairs with Only me.",
       },
     },
     {

@@ -667,7 +667,7 @@ export interface Destination {
   createdAt: string;
 }
 /**
- * Individual spots saved from Google Maps (restaurants, sights, etc.). Each belongs to a destination.
+ * Spots saved from Google Maps, each under a destination. To tidy many at once: filter by Destination or Category, tick the rows, then Edit (or Delete). Practical places (laundry, rentals, addresses) are Only me.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "places".
@@ -677,9 +677,22 @@ export interface Place {
   name: string;
   destination: number | Destination;
   /**
-   * The importer guesses from the name on first import and never changes it after.
+   * The importer guesses from the name on first import and never changes it after. Practical is for errands (laundry, car rental, a pharmacy, an address) and pairs with Only me.
    */
-  category: 'restaurant' | 'cafe' | 'bar' | 'viewpoint' | 'hotel' | 'dive-shop' | 'activity' | 'shop' | 'other';
+  category:
+    | 'restaurant'
+    | 'cafe'
+    | 'bar'
+    | 'sight'
+    | 'nature'
+    | 'viewpoint'
+    | 'activity'
+    | 'hotel'
+    | 'dive-shop'
+    | 'shop'
+    | 'town'
+    | 'practical'
+    | 'other';
   /**
    * Your recommendation, shown under the place on journey pages. Re-imports only fill this when it's empty.
    */

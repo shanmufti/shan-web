@@ -231,9 +231,16 @@ interface Counts {
   created: number;
   updated: number;
   unchanged: number;
+  /** New places skipped because the destination has one by that name. */
+  duplicates: number;
 }
 
-const counts = (): Counts => ({ created: 0, updated: 0, unchanged: 0 });
+const counts = (): Counts => ({
+  created: 0,
+  updated: 0,
+  unchanged: 0,
+  duplicates: 0,
+});
 
 async function createDestination(payload: Payload, dest: DestinationPlan) {
   const created = await payload.create({
@@ -317,6 +324,20 @@ async function syncPlace(
   opts: Options,
 ): Promise<keyof Counts> {
   if (!current) {
+    // A second branch of the same chain, or a pin already saved under
+    // another key: one row per name per destination is plenty (and keeps
+    // places deleted as duplicates in the admin from coming back).
+    const { totalDocs } = await payload.count({
+      collection: "places",
+      where: {
+        and: [
+          { destination: { equals: destinationId } },
+          { name: { equals: place.name } },
+        ],
+      },
+      overrideAccess: true,
+    });
+    if (totalDocs > 0) return "duplicates";
     if (!opts.dryRun) {
       await payload.create({
         collection: "places",
@@ -388,7 +409,7 @@ async function sync(
   const placeCounts = await syncPlaces(payload, data, plan, ids, opts);
   const label = (noun: string) => (opts.dryRun ? `${noun} (would be)` : noun);
   const line = (c: Counts) =>
-    `${String(c.created)} created, ${String(c.updated)} updated, ${String(c.unchanged)} unchanged.`;
+    `${String(c.created)} created, ${String(c.updated)} updated, ${String(c.unchanged)} unchanged, ${String(c.duplicates)} skipped as duplicates.`;
   log();
   log(`${label("Destinations")}: ${line(destCounts)}`);
   log(`${label("Places")}: ${line(placeCounts)}`);

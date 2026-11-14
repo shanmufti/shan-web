@@ -52,7 +52,7 @@ const LAYOUT: Record<string, AdminEntry> = {
   places: {
     group: ADMIN_GROUPS.travel,
     description:
-      "Individual spots saved from Google Maps (restaurants, sights, etc.). Each belongs to a destination.",
+      "Spots saved from Google Maps, each under a destination. To tidy many at once: filter by Destination or Category, tick the rows, then Edit (or Delete). Practical places (laundry, rentals, addresses) are Only me.",
   },
   "visited-countries": {
     group: ADMIN_GROUPS.travel,
