@@ -1,89 +1,100 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { cache, Suspense } from "react";
 
 import { DiveLogRow } from "@/components/dive-log";
-import { DivingSubnav } from "@/components/section-subnav";
+import { DiveLogbook } from "@/components/dive-logbook";
 import { LogDiveButton } from "@/components/log-dive-button";
+import {
+  HubEmpty,
+  HubHeading,
+  HubStats,
+  SectionHub,
+} from "@/components/section-hub";
+import { DivingSubnav } from "@/components/section-subnav";
 import { BentoGrid, BentoTile } from "@/components/ui/bento";
-import { diveMaxDepth, listPublished } from "@/lib/content";
-import { formatDate } from "@/lib/format-date";
+import { listPublished } from "@/lib/content";
+import { diveDepths, divesPerYear, diveStats } from "@/lib/dive-logbook";
 
 export const metadata: Metadata = { title: "Diving" };
 
-export default async function DivingHub() {
-  const dives = await listPublished("diving", { limit: 100 });
-  const recent = dives.slice(0, 6);
+const allDives = cache(() => listPublished("diving", { limit: 1000 }));
 
-  const deepest = dives.reduce<number | null>((max, dive) => {
-    const depth = diveMaxDepth(dive);
-    if (depth == null) return max;
-    if (max == null) return depth;
-    return Math.max(max, depth);
-  }, null);
+async function DivingStats() {
+  return <HubStats stats={diveStats(await allDives())} />;
+}
 
-  const latest = dives[0];
-  const latestSite = latest?.siteName ?? latest?.location.name ?? null;
+async function DivingBody() {
+  const dives = await allDives();
+  const recent = dives.slice(0, 8);
 
   return (
-    <div className="mx-auto max-w-4xl px-6 pt-16 pb-8 sm:pt-24 lg:px-10">
-      <header>
-        <h1 className="font-heading text-4xl sm:text-5xl">Diving</h1>
-        <p className="text-muted-foreground mt-2 text-sm">
-          Cold-water logs, skills, kit, and notes from the water.
-        </p>
-        <DivingSubnav current="/diving" />
-      </header>
+    <>
+      {dives.length > 0 ? (
+        <section aria-labelledby="logbook">
+          <HubHeading id="logbook" title="Logbook" />
+          <DiveLogbook
+            perYear={divesPerYear(dives)}
+            depths={diveDepths(dives)}
+          />
+        </section>
+      ) : null}
 
-      <div className="text-muted-foreground mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-        <span>
-          <span className="text-foreground font-medium">{dives.length}</span>{" "}
-          dives
-        </span>
-        {deepest != null ? (
-          <span>
-            Deepest{" "}
-            <span className="text-foreground font-medium">
-              {String(deepest)} m
-            </span>
-          </span>
-        ) : null}
-        {latestSite ? (
-          <span>
-            Latest{" "}
-            <span className="text-foreground font-medium">{latestSite}</span>
-          </span>
-        ) : null}
-      </div>
-
-      <div className="mt-6 flex flex-wrap items-center gap-3">
-        <LogDiveButton />
-        <Link
-          href="/diving/logs"
-          className="text-sm font-medium underline-offset-4 hover:underline"
-        >
-          View all logs
-        </Link>
-      </div>
-
-      <section className="mt-12">
-        <h2 className="text-lg font-semibold tracking-tight">Recent dives</h2>
-        <div className="mt-2">
-          {recent.map((dive) => (
-            <Link
-              key={dive.slug}
-              href={`/diving/logs/${dive.slug}`}
-              className="block hover:opacity-80"
-            >
-              <DiveLogRow dive={dive} />
-            </Link>
-          ))}
-          {recent.length === 0 ? (
-            <p className="text-muted-foreground mt-4 text-sm">
-              No dive logs yet.
-            </p>
-          ) : null}
-        </div>
+      <section aria-labelledby="recent-dives">
+        <HubHeading
+          id="recent-dives"
+          title="Recent dives"
+          aside={
+            dives.length > recent.length ? (
+              <Link
+                href="/diving/logs"
+                className="text-primary text-sm font-medium underline-offset-4 hover:underline"
+              >
+                All {dives.length} logs
+              </Link>
+            ) : null
+          }
+        />
+        {recent.length === 0 ? (
+          <HubEmpty>No dive logs yet.</HubEmpty>
+        ) : (
+          <ul className="bg-card border-border rounded-2xl border px-5 [&>li:last-child>a>div]:border-b-0">
+            {recent.map((dive) => (
+              <li key={dive.slug}>
+                <Link
+                  href={`/diving/logs/${dive.slug}`}
+                  className="group block [&_p:first-child]:underline-offset-4 hover:[&_p:first-child]:underline"
+                >
+                  <DiveLogRow dive={dive} />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
+    </>
+  );
+}
+
+export default function DivingHub() {
+  return (
+    <SectionHub
+      tone="water"
+      title="Diving"
+      intro="[Intro: Shan to write]"
+      stats={
+        <Suspense fallback={null}>
+          <DivingStats />
+        </Suspense>
+      }
+      nav={<DivingSubnav current="/diving" />}
+      actions={
+        <LogDiveButton className="bg-foreground text-background inline-flex h-9 items-center rounded-full px-4 text-sm font-medium" />
+      }
+    >
+      <Suspense fallback={null}>
+        <DivingBody />
+      </Suspense>
 
       <section aria-label="More diving" className="mt-14">
         <BentoGrid columns={3} className="auto-rows-[minmax(9rem,auto)]">
@@ -91,14 +102,14 @@ export default async function DivingHub() {
             tone="water"
             eyebrow="Practice"
             title="Skills"
-            description="Track buoyancy, navigation, and rescue practice over time."
+            description="Buoyancy, navigation and rescue practice over time."
             href="/diving/skills"
             headingLevel={2}
           />
           <BentoTile
             eyebrow="Kit"
             title="Gear"
-            description="Owned kit, research list, and named equipment configs."
+            description="Owned kit, research list and named equipment configs."
             href="/diving/gear"
             headingLevel={2}
           />
@@ -106,18 +117,12 @@ export default async function DivingHub() {
             tone="kelp"
             eyebrow="Learning"
             title="Resources"
-            description="Curated videos and articles for dive learning."
+            description="Videos and articles for dive learning."
             href="/diving/resources"
             headingLevel={2}
           />
         </BentoGrid>
       </section>
-
-      {latest ? (
-        <p className="text-muted-foreground mt-12 text-xs">
-          Last logged {formatDate(latest.date)}
-        </p>
-      ) : null}
-    </div>
+    </SectionHub>
   );
 }

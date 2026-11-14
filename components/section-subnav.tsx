@@ -18,13 +18,13 @@ const DIVING_LINKS: SubnavLink[] = [
   { href: "/diving/resources", label: "Resources" },
 ];
 
-/** Row of section links under a page title; `current` is underlined. */
+/** Row of section links (pills) under a page title; `current` is filled. */
 export function SectionSubnav({
   links,
   current,
 }: Readonly<{ links: SubnavLink[]; current?: string | undefined }>) {
   return (
-    <nav aria-label="Section" className="mt-8 flex flex-wrap gap-6 text-sm">
+    <nav aria-label="Section" className="mt-8 flex flex-wrap gap-2 text-sm">
       {links.map((link) => {
         const active = current === link.href;
         return (
@@ -32,11 +32,11 @@ export function SectionSubnav({
             key={link.href}
             href={link.href}
             aria-current={active ? "page" : undefined}
-            className={
+            className={`inline-flex h-9 items-center rounded-full border px-4 transition-colors ${
               active
-                ? "text-foreground underline decoration-1 underline-offset-[6px]"
-                : "text-muted-foreground hover:text-foreground"
-            }
+                ? "bg-foreground text-background border-foreground"
+                : "border-border bg-card/70 text-muted-foreground hover:text-foreground hover:border-foreground/30"
+            }`}
           >
             {link.label}
           </Link>
