@@ -15,10 +15,13 @@ import { FoodTour } from "./collections/FoodTour";
 import { FoodTourPhotos } from "./collections/FoodTourPhotos";
 import { Diving } from "./collections/Diving";
 import { GearConfigs } from "./collections/GearConfigs";
+import { Hobbies } from "./collections/Hobbies";
+import { HobbyReferences } from "./collections/HobbyReferences";
 import { LandingPage } from "./collections/LandingPage";
 import { Media } from "./collections/Media";
 import { PackingListTemplates } from "./collections/PackingListTemplates";
 import { PackingLists } from "./collections/PackingLists";
+import { PracticeSessions } from "./collections/PracticeSessions";
 import { SiteAccess } from "./collections/SiteAccess";
 import { SiteSettings } from "./collections/SiteSettings";
 import { Tech } from "./collections/Tech";
@@ -75,6 +78,9 @@ export default buildConfig({
     UnlockAttempts,
     FoodRatings,
     FoodTourPhotos,
+    Hobbies,
+    HobbyReferences,
+    PracticeSessions,
   ],
   globals: [SiteAccess, LandingPage, SiteSettings, FoodTour],
   editor: lexicalEditor(),

@@ -62,6 +62,7 @@ export const config = {
     "/blog/:path*",
     "/diving/:path*",
     "/tech/:path*",
+    "/hobbies/:path*",
     "/food-tour/:path*",
     "/api/:path*",
   ],

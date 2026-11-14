@@ -94,6 +94,17 @@ export const SITE_SECTIONS = [
     onLanding: true,
   },
   {
+    key: "hobbies",
+    label: "Hobbies",
+    href: "/hobbies",
+    blurb: "Reference links and practice notes, by hobby.",
+    paths: ["/hobbies"],
+    collections: ["hobbies", "hobby-references", "practice-sessions"],
+    defaultMode: "public",
+    inNav: true,
+    onLanding: true,
+  },
+  {
     key: "foodTour",
     label: "Food tour",
     href: "/food-tour",

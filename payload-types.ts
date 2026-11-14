@@ -83,6 +83,9 @@ export interface Config {
     'unlock-attempts': UnlockAttempt;
     'food-ratings': FoodRating;
     'food-tour-photos': FoodTourPhoto;
+    hobbies: Hobby;
+    'hobby-references': HobbyReference;
+    'practice-sessions': PracticeSession;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -110,6 +113,9 @@ export interface Config {
     'unlock-attempts': UnlockAttemptsSelect<false> | UnlockAttemptsSelect<true>;
     'food-ratings': FoodRatingsSelect<false> | FoodRatingsSelect<true>;
     'food-tour-photos': FoodTourPhotosSelect<false> | FoodTourPhotosSelect<true>;
+    hobbies: HobbiesSelect<false> | HobbiesSelect<true>;
+    'hobby-references': HobbyReferencesSelect<false> | HobbyReferencesSelect<true>;
+    'practice-sessions': PracticeSessionsSelect<false> | PracticeSessionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -785,6 +791,125 @@ export interface FoodTourPhoto {
   };
 }
 /**
+ * One entry per hobby. Reference links and practice sessions hang off these.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "hobbies".
+ */
+export interface Hobby {
+  id: number;
+  name: string;
+  /**
+   * URL: /hobbies/<slug>. Generated from the name if left blank.
+   */
+  slug: string;
+  /**
+   * Short line shown on the hobby card and page.
+   */
+  description?: string | null;
+  /**
+   * Lucide icon shown on the card.
+   */
+  icon:
+    | 'mountain'
+    | 'mountain-snow'
+    | 'waves'
+    | 'anchor'
+    | 'fish'
+    | 'sailboat'
+    | 'wind'
+    | 'snowflake'
+    | 'bike'
+    | 'footprints'
+    | 'person-standing'
+    | 'dumbbell'
+    | 'volleyball'
+    | 'tent'
+    | 'compass'
+    | 'camera'
+    | 'music'
+    | 'guitar'
+    | 'palette'
+    | 'chef-hat'
+    | 'book-open'
+    | 'code'
+    | 'gamepad-2'
+    | 'sprout'
+    | 'sparkles';
+  cover?: (number | null) | Media;
+  /**
+   * Optional link to an existing part of the site, e.g. /diving. Shown only to visitors who can open it.
+   */
+  sectionHref?: string | null;
+  /**
+   * Off: only you (logged in) see this hobby and everything in it.
+   */
+  public?: boolean | null;
+  /**
+   * Lower comes first.
+   */
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Videos, guides and articles per hobby. Leave title, thumbnail and provider blank to fill them from the link when saving.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "hobby-references".
+ */
+export interface HobbyReference {
+  id: number;
+  hobby: number | Hobby;
+  url: string;
+  /**
+   * Filled from the link if left blank.
+   */
+  title: string;
+  /**
+   * Free text used to group the list, e.g. Footwork. Reuse the same spelling.
+   */
+  topic?: string | null;
+  /**
+   * If left blank: Video for YouTube/Vimeo links, otherwise Article.
+   */
+  kind: 'video' | 'guide' | 'article' | 'course' | 'other';
+  skillLevel?: ('beginner' | 'intermediate' | 'advanced') | null;
+  status: 'to-watch' | 'watched' | 'favourite';
+  /**
+   * Videos only. Read from the link's t= value if present, e.g. 90 for 1:30.
+   */
+  startSeconds?: number | null;
+  thumbnailUrl?: string | null;
+  provider?: string | null;
+  note?: string | null;
+  /**
+   * Off: only you see it. A reference of a private hobby is private either way.
+   */
+  public?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Private log. Only you, logged in, can see these.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "practice-sessions".
+ */
+export interface PracticeSession {
+  id: number;
+  hobby: number | Hobby;
+  date: string;
+  durationMinutes?: number | null;
+  location?: string | null;
+  focus: string;
+  references?: (number | HobbyReference)[] | null;
+  feeling?: number | null;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -871,6 +996,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'food-tour-photos';
         value: number | FoodTourPhoto;
+      } | null)
+    | ({
+        relationTo: 'hobbies';
+        value: number | Hobby;
+      } | null)
+    | ({
+        relationTo: 'hobby-references';
+        value: number | HobbyReference;
+      } | null)
+    | ({
+        relationTo: 'practice-sessions';
+        value: number | PracticeSession;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1370,6 +1507,58 @@ export interface FoodTourPhotosSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "hobbies_select".
+ */
+export interface HobbiesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  icon?: T;
+  cover?: T;
+  sectionHref?: T;
+  public?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "hobby-references_select".
+ */
+export interface HobbyReferencesSelect<T extends boolean = true> {
+  hobby?: T;
+  url?: T;
+  title?: T;
+  topic?: T;
+  kind?: T;
+  skillLevel?: T;
+  status?: T;
+  startSeconds?: T;
+  thumbnailUrl?: T;
+  provider?: T;
+  note?: T;
+  public?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "practice-sessions_select".
+ */
+export interface PracticeSessionsSelect<T extends boolean = true> {
+  hobby?: T;
+  date?: T;
+  durationMinutes?: T;
+  location?: T;
+  focus?: T;
+  references?: T;
+  feeling?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -1422,6 +1611,7 @@ export interface SiteAccess {
     stories: 'public' | 'passcode' | 'owner';
     diving: 'public' | 'passcode' | 'owner';
     tech: 'public' | 'passcode' | 'owner';
+    hobbies: 'public' | 'passcode' | 'owner';
     foodTour: 'public' | 'passcode' | 'owner';
   };
   updatedAt?: string | null;
@@ -1532,6 +1722,7 @@ export interface SiteAccessSelect<T extends boolean = true> {
         stories?: T;
         diving?: T;
         tech?: T;
+        hobbies?: T;
         foodTour?: T;
       };
   updatedAt?: T;

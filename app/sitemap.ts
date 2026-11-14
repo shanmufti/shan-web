@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 
+import { listPublicHobbySlugs } from "@/lib/hobbies";
 import { listPublicForFeeds } from "@/lib/public-content";
 import { publicSectionKeys } from "@/lib/site-access";
 import { siteUrl } from "@/lib/site-url";
@@ -9,9 +10,10 @@ export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
-  const [open, { journeys, stories, dives }] = await Promise.all([
+  const [open, { journeys, stories, dives }, hobbies] = await Promise.all([
     publicSectionKeys(),
     listPublicForFeeds(),
+    listPublicHobbySlugs(),
   ]);
   const url = (path: string) => ({ url: `${base}${path}` });
 
@@ -50,5 +52,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ]
       : []),
     ...(open.has("tech") ? [url("/tech")] : []),
+    ...(open.has("hobbies")
+      ? [
+          url("/hobbies"),
+          ...hobbies.map((h) => ({
+            url: `${base}/hobbies/${h.slug}`,
+            lastModified: h.updatedAt,
+          })),
+        ]
+      : []),
   ];
 }
