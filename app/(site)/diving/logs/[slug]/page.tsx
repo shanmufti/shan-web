@@ -100,7 +100,9 @@ export default async function DiveLogDetailPage({
   if (!dive) notFound();
 
   const photos = Array.isArray(dive.photos)
-    ? dive.photos.filter(isMedia).filter((photo) => Boolean(photo.url))
+    ? dive.photos
+        .filter(isMedia)
+        .flatMap((photo) => (photo.url ? [{ ...photo, src: photo.url }] : []))
     : [];
   const samples = parseProfileSamples(dive.profileSamples);
   const cards = keyNumbers(dive);
@@ -182,7 +184,7 @@ export default async function DiveLogDetailPage({
               className="relative h-40 w-56 shrink-0 overflow-hidden rounded-xl"
             >
               <Image
-                src={photo.url ?? ""}
+                src={photo.src}
                 alt={photo.alt ?? dive.title}
                 fill
                 className="object-cover"
