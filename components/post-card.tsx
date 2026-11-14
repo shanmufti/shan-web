@@ -40,7 +40,7 @@ export function PostCard({
     <Link href={href} className="group block outline-none">
       <div
         className={cn(
-          "bg-muted group-focus-visible:ring-ring relative overflow-hidden rounded-md group-focus-visible:ring-2",
+          "bg-tint-water border-border group-focus-visible:ring-ring relative overflow-hidden rounded-2xl border group-focus-visible:ring-2 group-focus-visible:ring-offset-2",
           aspectClass[aspect],
         )}
       >
@@ -55,7 +55,7 @@ export function PostCard({
           />
         ) : (
           <div className="flex size-full items-end p-4">
-            <span className="text-muted-foreground/70 font-mono text-3xl tracking-tight uppercase">
+            <span className="text-muted-foreground font-mono text-3xl tracking-tight uppercase">
               {placeholder ?? title.slice(0, 2)}
             </span>
           </div>
@@ -95,7 +95,7 @@ export function LockedCard({
     <Link href={unlockHref(next)} className="group block outline-none">
       <div
         className={cn(
-          "bg-muted group-focus-visible:ring-ring relative flex items-center justify-center overflow-hidden rounded-md group-focus-visible:ring-2",
+          "bg-tint-water border-border texture-grain group-focus-visible:ring-ring relative flex items-center justify-center overflow-hidden rounded-2xl border border-dashed group-focus-visible:ring-2 group-focus-visible:ring-offset-2",
           aspectClass[aspect],
         )}
       >

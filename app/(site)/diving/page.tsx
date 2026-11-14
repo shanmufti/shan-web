@@ -4,6 +4,7 @@ import Link from "next/link";
 import { DiveLogRow } from "@/components/dive-log";
 import { DivingSubnav } from "@/components/section-subnav";
 import { LogDiveButton } from "@/components/log-dive-button";
+import { BentoGrid, BentoTile } from "@/components/ui/bento";
 import { diveMaxDepth, listPublished } from "@/lib/content";
 import { formatDate } from "@/lib/format-date";
 
@@ -84,43 +85,32 @@ export default async function DivingHub() {
         </div>
       </section>
 
-      <section className="mt-14 grid gap-8 sm:grid-cols-3">
-        <div>
-          <h2 className="text-base font-semibold tracking-tight">Skills</h2>
-          <p className="text-muted-foreground mt-2 text-sm">
-            Track buoyancy, navigation, and rescue practice over time.
-          </p>
-          <Link
+      <section aria-label="More diving" className="mt-14">
+        <BentoGrid columns={3} className="auto-rows-[minmax(9rem,auto)]">
+          <BentoTile
+            tone="water"
+            eyebrow="Practice"
+            title="Skills"
+            description="Track buoyancy, navigation, and rescue practice over time."
             href="/diving/skills"
-            className="mt-3 inline-block text-sm font-medium underline-offset-4 hover:underline"
-          >
-            View skills
-          </Link>
-        </div>
-        <div>
-          <h2 className="text-base font-semibold tracking-tight">Gear</h2>
-          <p className="text-muted-foreground mt-2 text-sm">
-            Owned kit, research list, and named equipment configs.
-          </p>
-          <Link
+            headingLevel={2}
+          />
+          <BentoTile
+            eyebrow="Kit"
+            title="Gear"
+            description="Owned kit, research list, and named equipment configs."
             href="/diving/gear"
-            className="mt-3 inline-block text-sm font-medium underline-offset-4 hover:underline"
-          >
-            View gear
-          </Link>
-        </div>
-        <div>
-          <h2 className="text-base font-semibold tracking-tight">Resources</h2>
-          <p className="text-muted-foreground mt-2 text-sm">
-            Curated videos and articles for dive learning.
-          </p>
-          <Link
+            headingLevel={2}
+          />
+          <BentoTile
+            tone="kelp"
+            eyebrow="Learning"
+            title="Resources"
+            description="Curated videos and articles for dive learning."
             href="/diving/resources"
-            className="mt-3 inline-block text-sm font-medium underline-offset-4 hover:underline"
-          >
-            View resources
-          </Link>
-        </div>
+            headingLevel={2}
+          />
+        </BentoGrid>
       </section>
 
       {latest ? (

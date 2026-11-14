@@ -39,9 +39,7 @@ function Entry({
       >
         <span className="meta-label text-muted-foreground block">
           {formatDateRange(row.start, row.end)}
-          {row.days ? (
-            <span className="opacity-60"> · {row.days} days</span>
-          ) : null}
+          {row.days ? <span> · {row.days} days</span> : null}
         </span>
         <span className="mt-1 block text-lg font-medium tracking-tight underline-offset-4 group-hover:underline">
           {row.title}

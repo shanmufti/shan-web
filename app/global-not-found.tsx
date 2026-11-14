@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 
+import { WaterLight } from "@/components/water-light";
 import { themeInitScript } from "@/lib/theme";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -27,18 +28,20 @@ export default function GlobalNotFound() {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="min-h-full">
-        <header className="border-border border-b">
-          <div className="mx-auto flex h-14 max-w-7xl items-center px-6 lg:px-10">
+      <body className="relative isolate min-h-full">
+        <WaterLight />
+        <header>
+          <div className="mx-auto flex h-(--header-height) max-w-7xl items-center px-6 lg:px-10">
             <Link
               href="/"
-              className="text-[0.95rem] font-medium tracking-tight"
+              aria-label="smufti, home"
+              className="-mx-1 rounded-md px-1 text-lg font-semibold tracking-[-0.02em]"
             >
-              Shan Mufti
+              smufti
             </Link>
           </div>
         </header>
-        <main className="mx-auto max-w-7xl px-6 pt-24 sm:pt-32 lg:px-10">
+        <main className="mx-auto max-w-7xl px-6 pt-20 pb-24 sm:pt-28 lg:px-10">
           <p className="meta-label text-muted-foreground">404 · Off the map</p>
           <h1 className="font-heading mt-3 max-w-2xl text-[clamp(2.25rem,5vw,4rem)]">
             This page drifted out of range.
