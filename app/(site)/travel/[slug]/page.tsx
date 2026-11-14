@@ -1,19 +1,27 @@
 import type { Metadata } from "next";
-import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { DetailPager } from "@/components/detail-pager";
+import {
+  JourneyRouteView,
+  JourneyStopList,
+} from "@/components/journey-route-view";
 import { LockedPage } from "@/components/locked-page";
 import { Picture } from "@/components/picture";
-import { PostCard } from "@/components/post-card";
+import { LockedCard, PostCard } from "@/components/post-card";
 import { ArticleBody } from "@/components/rich-text";
-import { RouteMapLoader } from "@/components/route-map-loader";
+import { staticSlugParams } from "@/lib/content";
+import { diveSite } from "@/lib/dive-logbook";
+import { formatDate, formatDateRange } from "@/lib/format-date";
+import { plural, yearOf } from "@/lib/hub-filters";
+import { routeStops, trackDistanceKm } from "@/lib/journey-route";
 import {
-  formatDate,
-  formatDateRange,
-  formatMonthYear,
-} from "@/lib/format-date";
+  hasPrivateJoinedStory,
+  journeyStoriesFor,
+} from "@/lib/journey-stories";
 import {
   adjacentJourneys,
   isPrivate,
@@ -21,16 +29,13 @@ import {
   journeyDays,
   journeyDoc,
   journeyDocs,
-  journeyStops,
   journeyTrack,
   mediaImage,
   mediaUrl,
-  readingMinutes,
   publicJourneys,
+  readingMinutes,
   type JourneyDoc,
-  type StoryDoc,
 } from "@/lib/journeys";
-import { staticSlugParams } from "@/lib/content";
 import { hasPrivateAccess } from "@/lib/site-access";
 
 type Props = Readonly<{ params: Promise<{ slug: string }> }>;
@@ -65,257 +70,236 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-function Fact({ label, value }: Readonly<{ label: string; value: string }>) {
+/** Polarsteps-style trip strip: days, distance, stops, countries. */
+function TripStats({
+  facts,
+}: Readonly<{ facts: { label: string; value: string }[] }>) {
   return (
-    <div className="border-border border-t pt-3">
-      <dt className="meta-label text-muted-foreground">{label}</dt>
-      <dd className="mt-1 text-[0.95rem] tabular-nums">{value}</dd>
-    </div>
-  );
-}
-
-function storyList(value: unknown): StoryDoc[] {
-  if (!value || typeof value !== "object") return [];
-  const docs = (value as { docs?: unknown[] }).docs ?? [];
-  return docs.filter(
-    (doc): doc is StoryDoc => typeof doc === "object" && doc !== null,
-  );
-}
-
-function JourneyFacts({
-  journey,
-  countries,
-  stops,
-  dives,
-  stories,
-}: Readonly<{
-  journey: JourneyDoc;
-  countries: string[];
-  stops: number;
-  dives: number;
-  stories: number;
-}>) {
-  const days = journeyDays(journey);
-  const when = journey.endDate
-    ? `${formatMonthYear(journey.startDate)} – ${formatMonthYear(journey.endDate)}`
-    : formatDate(journey.startDate);
-  const facts: [string, string][] = [
-    ["When", when],
-    ...(days ? [["Days", String(days)] as [string, string]] : []),
-    [countries.length === 1 ? "Country" : "Countries", countries.join(", ")],
-    ...(stops > 1 ? [["Stops", String(stops)] as [string, string]] : []),
-    ...(dives > 0 ? [["Dives", String(dives)] as [string, string]] : []),
-    ...(stories > 0 ? [["Stories", String(stories)] as [string, string]] : []),
-  ];
-  return (
-    <dl className="mt-12 grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-4">
-      {facts.map(([label, value]) => (
-        <Fact key={label} label={label} value={value} />
+    <dl className="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      {facts.map((fact) => (
+        <div
+          key={fact.label}
+          className="bg-card border-border rounded-xl border px-4 py-3"
+        >
+          <dt className="meta-label text-muted-foreground">{fact.label}</dt>
+          <dd className="mt-0.5 text-xl font-medium tracking-tight tabular-nums">
+            {fact.value}
+          </dd>
+        </div>
       ))}
     </dl>
   );
 }
 
-function PagerLink({
+function journeyLink(doc: JourneyDoc | undefined) {
+  return doc
+    ? {
+        href: `/travel/${doc.slug}`,
+        title: doc.title,
+        meta: formatDateRange(doc.startDate, doc.endDate),
+      }
+    : undefined;
+}
+
+/**
+ * The journey's stories as a visitor with (`unlocked`) or without private
+ * access sees them: a locked-out visitor gets a teaser for a private story,
+ * never its summary or cover.
+ */
+function JourneyStories({
   journey,
-  direction,
-}: Readonly<{ journey: JourneyDoc; direction: "Earlier" | "Later" }>) {
+  unlocked,
+}: Readonly<{ journey: JourneyDoc; unlocked: boolean }>) {
+  const stories = journeyStoriesFor(journey.stories, unlocked);
+  if (stories.length === 0) return null;
   return (
-    <Link
-      href={`/travel/${journey.slug}`}
-      className={direction === "Later" ? "group sm:text-right" : "group"}
-    >
-      <span className="meta-label text-muted-foreground inline-flex items-center gap-1.5">
-        {direction === "Earlier" ? (
-          <ArrowLeft className="size-3.5" aria-hidden="true" />
-        ) : null}
-        {direction}
-        {direction === "Later" ? (
-          <ArrowRight className="size-3.5" aria-hidden="true" />
-        ) : null}
-      </span>
-      <span className="mt-2 block text-lg font-medium tracking-tight underline-offset-4 group-hover:underline">
-        {journey.title}
-      </span>
-    </Link>
+    <section aria-labelledby="stories" className="mt-16">
+      <h2 id="stories" className="text-2xl font-medium tracking-[-0.03em]">
+        {plural(stories.length, "story", "stories")} from this journey
+      </h2>
+      <div className="mt-6 grid gap-x-6 gap-y-10 sm:grid-cols-2">
+        {stories.map((item) =>
+          item.locked ? (
+            <LockedCard
+              key={item.id}
+              title={item.title}
+              meta={formatDate(item.date)}
+              next={`/blog/${item.slug}`}
+            />
+          ) : (
+            <PostCard
+              key={item.doc.id}
+              href={`/blog/${item.doc.slug}`}
+              title={item.doc.title}
+              summary={item.doc.summary}
+              meta={`${formatDate(item.doc.date)} · ${String(readingMinutes(item.doc.body))} min`}
+              image={mediaImage(item.doc.cover, "card")}
+              isPrivate={isPrivate(item.doc)}
+            />
+          ),
+        )}
+      </div>
+    </section>
   );
 }
 
+async function ViewerStories({ journey }: Readonly<{ journey: JourneyDoc }>) {
+  const unlocked = hasPrivateJoinedStory(journey.stories)
+    ? await hasPrivateAccess()
+    : false;
+  return <JourneyStories journey={journey} unlocked={unlocked} />;
+}
+
+/** Earlier/later links among the journeys a visitor can see. */
 function JourneyPager({
-  older,
-  newer,
-}: Readonly<{
-  older?: JourneyDoc | undefined;
-  newer?: JourneyDoc | undefined;
-}>) {
-  if (!older && !newer) return null;
-  return (
-    <nav
-      aria-label="More journeys"
-      className="border-border mt-24 grid gap-6 border-t pt-8 sm:grid-cols-2"
-    >
-      {older ? <PagerLink journey={older} direction="Earlier" /> : <span />}
-      {newer ? <PagerLink journey={newer} direction="Later" /> : null}
-    </nav>
-  );
-}
-
-/** Earlier/later links among the journeys this visitor can see. */
-async function ViewerPager({ journey }: Readonly<{ journey: JourneyDoc }>) {
-  const docs = await journeyDocs();
-  // Only private journeys make this differ per visitor.
-  const unlocked = docs.some(isPrivate) ? await hasPrivateAccess() : false;
+  journey,
+  docs,
+  unlocked,
+}: Readonly<{ journey: JourneyDoc; docs: JourneyDoc[]; unlocked: boolean }>) {
   const { newer, older } = adjacentJourneys(
     unlocked ? docs : publicJourneys(docs),
     journey,
   );
-  return <JourneyPager older={older} newer={newer} />;
+  return (
+    <DetailPager
+      label="More journeys"
+      prev={journeyLink(older)}
+      next={journeyLink(newer)}
+      prevLabel="Earlier journey"
+      nextLabel="Later journey"
+    />
+  );
 }
 
-function JourneyArticle({ journey }: Readonly<{ journey: JourneyDoc }>) {
+async function ViewerPager({
+  journey,
+  docs,
+}: Readonly<{ journey: JourneyDoc; docs: JourneyDoc[] }>) {
+  // Only private journeys make this differ per visitor.
+  const unlocked = docs.some(isPrivate) ? await hasPrivateAccess() : false;
+  return <JourneyPager journey={journey} docs={docs} unlocked={unlocked} />;
+}
+
+function JourneyArticle({
+  journey,
+  docs,
+}: Readonly<{ journey: JourneyDoc; docs: JourneyDoc[] }>) {
   const cover = mediaImage(journey.cover);
   const countries = journeyCountryNames(journey);
-  const stops = journeyStops(journey);
+  const stops = routeStops(journey);
   const track = journeyTrack(journey);
-  const stories = storyList(journey.stories);
   const dives = (journey.relatedDiveLogs ?? []).filter(
     (d) => typeof d === "object",
   );
+  const days = journeyDays(journey);
+  const km = trackDistanceKm(track);
+  const year = yearOf(journey.startDate);
+
+  const facts = [
+    ...(days ? [{ label: "Days", value: String(days) }] : []),
+    ...(km
+      ? [{ label: "Distance", value: `${km.toLocaleString("en-US")} km` }]
+      : []),
+    { label: "Stops", value: String(Math.max(stops.length, 1)) },
+    {
+      label: countries.length === 1 ? "Country" : "Countries",
+      value: String(countries.length),
+    },
+  ];
 
   return (
-    <article className="mx-auto max-w-7xl px-6 lg:px-10">
-      <header className="pt-12 sm:pt-20">
-        <Link
-          href="/travel"
-          className="meta-label text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5"
-        >
-          <ArrowLeft className="size-3.5" aria-hidden="true" />
-          Journeys
-        </Link>
-        <p className="meta-label text-muted-foreground mt-8">
-          Journey · {formatDateRange(journey.startDate, journey.endDate)} ·{" "}
-          {countries.join(", ")}
-          {journey.visibility === "private" ? " · Private" : ""}
-        </p>
-        <h1 className="font-heading mt-3 max-w-4xl text-[clamp(2.5rem,6vw,5rem)] leading-[0.98] tracking-[-0.04em]">
-          {journey.title}
-        </h1>
-        <p className="text-muted-foreground mt-5 max-w-2xl text-lg">
-          {journey.summary}
-        </p>
-      </header>
-
-      {cover ? (
-        <Picture
-          image={cover}
-          sizes="(min-width: 1280px) 1200px, 100vw"
-          priority
-          className="mt-12 aspect-[21/9] w-full rounded-md object-cover"
-        />
-      ) : null}
-
-      <JourneyFacts
-        journey={journey}
-        countries={countries}
-        stops={stops.length}
-        dives={dives.length}
-        stories={stories.length}
-      />
-
-      <div className="mt-16 grid gap-12 lg:grid-cols-[minmax(0,680px)_minmax(0,1fr)] lg:gap-16">
-        <ArticleBody data={journey.body} />
-
-        {stops.length > 0 ? (
-          <aside
-            aria-label="Route"
-            className="lg:sticky lg:top-[calc(var(--header-offset)+1rem)] lg:self-start lg:transition-[top] lg:duration-300"
-          >
-            <div className="border-border aspect-[4/3] overflow-hidden rounded-md border">
-              <RouteMapLoader stops={stops} track={track} />
-            </div>
-            {stops.length > 1 ? (
-              <ol className="mt-4 space-y-1.5">
-                {stops.map((stop, index) => (
-                  <li
-                    key={`${stop.name}-${String(index)}`}
-                    className="flex gap-3 text-sm"
-                  >
-                    <span className="meta-label text-muted-foreground w-6">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    {stop.name}
-                  </li>
-                ))}
-              </ol>
-            ) : null}
-          </aside>
-        ) : null}
-      </div>
-
-      {stories.length > 0 ? (
-        <section aria-labelledby="stories" className="mt-24">
-          <p className="meta-label text-muted-foreground">From this journey</p>
-          <h2 id="stories" className="font-heading mt-3 text-3xl">
-            Stories
-          </h2>
-          <div className="mt-8 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-            {/* Visitors here already passed the journey's gate, so private
-                stories show in full; the story page still checks on its own. */}
-            {stories.map((story) => (
-              <PostCard
-                key={story.id}
-                href={`/blog/${story.slug}`}
-                title={story.title}
-                summary={story.summary}
-                meta={`Story · ${formatDate(story.date)} · ${String(readingMinutes(story.body))} min${story.visibility === "private" ? " · Private" : ""}`}
-                image={mediaImage(story.cover, "card")}
-                aspect="portrait"
-              />
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {dives.length > 0 ? (
-        <section aria-labelledby="dives" className="mt-24">
-          <p className="meta-label text-muted-foreground">
-            Logged on this trip
+    <article>
+      <JourneyRouteView stops={stops} track={track}>
+        <header className="pt-8 sm:pt-12">
+          <Breadcrumbs
+            items={[
+              { label: "Journeys", href: "/travel" },
+              { label: year, href: `/travel?year=${year}` },
+              { label: journey.title },
+            ]}
+          />
+          <p className="meta-label text-muted-foreground mt-8">
+            {formatDateRange(journey.startDate, journey.endDate)} ·{" "}
+            {countries.join(", ")}
+            {isPrivate(journey) ? " · Private" : ""}
           </p>
-          <h2 id="dives" className="font-heading mt-3 text-3xl">
-            Dives
-          </h2>
-          <ul className="divide-border border-border mt-6 divide-y border-y">
-            {dives.map((dive) =>
-              typeof dive === "object" ? (
-                <li key={dive.id}>
-                  <Link
-                    href={`/diving/logs/${dive.slug}`}
-                    className="group flex items-baseline justify-between gap-4 py-3"
-                  >
-                    <span className="underline-offset-4 group-hover:underline">
-                      {dive.title}
-                    </span>
-                    <span className="meta-label text-muted-foreground">
-                      {formatDate(dive.date)}
-                    </span>
-                  </Link>
-                </li>
-              ) : null,
-            )}
-          </ul>
-        </section>
-      ) : null}
+          <h1 className="font-heading mt-3 text-[clamp(2.25rem,5vw,4rem)] leading-[0.98] tracking-[-0.04em]">
+            {journey.title}
+          </h1>
+          <p className="text-muted-foreground mt-4 text-lg">
+            {journey.summary}
+          </p>
+          <TripStats facts={facts} />
+          {cover ? (
+            <Picture
+              image={cover}
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              priority
+              className="mt-8 aspect-[3/2] w-full rounded-2xl object-cover"
+            />
+          ) : null}
+        </header>
+        <div className="mt-12">
+          <ArticleBody data={journey.body} />
+        </div>
+        <JourneyStopList />
 
-      {/* Static unless private journeys exist; then it streams per visitor. */}
-      <Suspense fallback={null}>
-        <ViewerPager journey={journey} />
-      </Suspense>
+        {/* Private stories differ per visitor: the shell has the anonymous view. */}
+        <Suspense
+          fallback={<JourneyStories journey={journey} unlocked={false} />}
+        >
+          <ViewerStories journey={journey} />
+        </Suspense>
+
+        {dives.length > 0 ? (
+          <section aria-labelledby="dives" className="mt-16">
+            <h2 id="dives" className="text-2xl font-medium tracking-[-0.03em]">
+              Dives on this trip
+            </h2>
+            <ul className="bg-card border-border divide-border mt-6 divide-y rounded-2xl border px-5">
+              {dives.map((dive) =>
+                typeof dive === "object" ? (
+                  <li key={dive.id}>
+                    <Link
+                      href={`/diving/logs/${dive.slug}`}
+                      className="group flex items-baseline justify-between gap-4 py-3"
+                    >
+                      <span className="min-w-0">
+                        <span className="block underline-offset-4 group-hover:underline">
+                          {dive.title}
+                        </span>
+                        <span className="text-muted-foreground block text-sm">
+                          {diveSite(dive)}
+                        </span>
+                      </span>
+                      <span className="meta-label text-muted-foreground shrink-0">
+                        {formatDate(dive.date)}
+                      </span>
+                    </Link>
+                  </li>
+                ) : null,
+              )}
+            </ul>
+          </section>
+        ) : null}
+
+        <Suspense
+          fallback={
+            <JourneyPager journey={journey} docs={docs} unlocked={false} />
+          }
+        >
+          <ViewerPager journey={journey} docs={docs} />
+        </Suspense>
+      </JourneyRouteView>
     </article>
   );
 }
 
 /** Private journey: checked per request, never part of the static shell. */
-async function PrivateJourney({ journey }: Readonly<{ journey: JourneyDoc }>) {
+async function PrivateJourney({
+  journey,
+  docs,
+}: Readonly<{ journey: JourneyDoc; docs: JourneyDoc[] }>) {
   if (!(await hasPrivateAccess())) {
     return (
       <LockedPage
@@ -325,19 +309,19 @@ async function PrivateJourney({ journey }: Readonly<{ journey: JourneyDoc }>) {
       />
     );
   }
-  return <JourneyArticle journey={journey} />;
+  return <JourneyArticle journey={journey} docs={docs} />;
 }
 
 export default async function JourneyPage({ params }: Props) {
   const { slug } = await params;
-  const journey = await journeyDoc(slug);
+  const [journey, docs] = await Promise.all([journeyDoc(slug), journeyDocs()]);
   if (!journey) notFound();
   if (isPrivate(journey)) {
     return (
       <Suspense fallback={<div className="min-h-[60svh]" />}>
-        <PrivateJourney journey={journey} />
+        <PrivateJourney journey={journey} docs={docs} />
       </Suspense>
     );
   }
-  return <JourneyArticle journey={journey} />;
+  return <JourneyArticle journey={journey} docs={docs} />;
 }

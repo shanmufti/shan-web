@@ -1,26 +1,33 @@
 import type { Metadata } from "next";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { Breadcrumbs, type Crumb } from "@/components/breadcrumbs";
+import { DetailPager, type PagerItem } from "@/components/detail-pager";
 import { LockedPage } from "@/components/locked-page";
 import { Picture } from "@/components/picture";
 import { PostCard } from "@/components/post-card";
 import { ArticleBody } from "@/components/rich-text";
+import { staticSlugParams } from "@/lib/content";
 import { formatDate } from "@/lib/format-date";
+import {
+  hasPrivateJoinedStory,
+  journeyStoriesFor,
+} from "@/lib/journey-stories";
 import {
   isPrivate,
   journeyDoc,
+  listStories,
   mediaImage,
   mediaUrl,
   readingMinutes,
   storyDoc,
   storyDocs,
   storyJourney,
+  type JourneyDoc,
+  type Listed,
   type StoryDoc,
 } from "@/lib/journeys";
-import { staticSlugParams } from "@/lib/content";
 import { hasPrivateAccess } from "@/lib/site-access";
 
 type Props = Readonly<{ params: Promise<{ slug: string }> }>;
@@ -56,117 +63,213 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-function SiblingCards({
+function listedLink(item: Listed<StoryDoc> | undefined): PagerItem | undefined {
+  if (!item) return undefined;
+  if (item.locked) {
+    return {
+      href: `/blog/${item.slug}`,
+      title: item.title,
+      meta: formatDate(item.date),
+      locked: true,
+    };
+  }
+  return storyLink(item.doc);
+}
+
+function storyLink(doc: StoryDoc | undefined): PagerItem | undefined {
+  return doc
+    ? {
+        href: `/blog/${doc.slug}`,
+        title: doc.title,
+        meta: formatDate(doc.date),
+        locked: isPrivate(doc),
+      }
+    : undefined;
+}
+
+interface FooterData {
+  story: StoryDoc;
+  /** The parent journey (may be private), if any. */
+  journey: JourneyDoc | null;
+  /** Every published story, for stand-alone neighbours. */
+  docs: StoryDoc[];
+}
+
+/**
+ * Previous / next story. In a journey: within the journey, in travel order.
+ * Stand-alone: across all stories this visitor can read, by date.
+ */
+function storyNeighbours(
+  story: StoryDoc,
+  inJourney: Listed<StoryDoc>[],
+  docs: StoryDoc[],
+  unlocked: boolean,
+): { prev?: PagerItem | undefined; next?: PagerItem | undefined } {
+  if (inJourney.length > 0) {
+    const i = inJourney.findIndex((s) => !s.locked && s.doc.id === story.id);
+    return {
+      prev: listedLink(i > 0 ? inJourney[i - 1] : undefined),
+      next: listedLink(i >= 0 ? inJourney[i + 1] : undefined),
+    };
+  }
+  const all = listStories(docs, unlocked)
+    .flatMap((item) => (item.locked ? [] : [item.doc]))
+    .filter((doc) => !storyJourney(doc));
+  // Listed newest first: older is i + 1, newer is i - 1.
+  const i = all.findIndex((s) => s.id === story.id);
+  return {
+    prev: storyLink(i >= 0 ? all[i + 1] : undefined),
+    next: storyLink(i > 0 ? all[i - 1] : undefined),
+  };
+}
+
+/**
+ * Previous / next story and more from the journey, as a visitor with
+ * (`unlocked`) or without private access sees them.
+ */
+function StoryFooter({
   story,
   journey,
-  siblings,
-}: Readonly<{
-  story: StoryDoc;
-  journey: { title: string };
-  siblings: StoryDoc[];
-}>) {
-  const others = siblings.filter((s) => s.id !== story.id).slice(0, 3);
-  if (others.length === 0) return null;
-  return (
-    <section aria-labelledby="more" className="mt-24">
-      <p className="meta-label text-muted-foreground">More from</p>
-      <h2 id="more" className="font-heading mt-3 text-3xl">
-        {journey.title}
-      </h2>
-      <div className="mt-8 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-        {others.map((s) => (
-          <PostCard
-            key={s.id}
-            href={`/blog/${s.slug}`}
-            title={s.title}
-            summary={s.summary}
-            meta={`Story · ${formatDate(s.date)}`}
-            image={mediaImage(s.cover, "card")}
-            aspect="portrait"
-          />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function joinedStories(value: unknown): StoryDoc[] {
-  const docs = (value as { docs?: unknown[] } | null | undefined)?.docs;
-  return (docs ?? []).filter(
-    (doc): doc is StoryDoc => typeof doc === "object" && doc !== null,
-  );
-}
-
-/** Other stories in the same journey, if the visitor can see the journey. */
-async function SiblingStories({ story }: Readonly<{ story: StoryDoc }>) {
+  docs,
+  unlocked,
+}: Readonly<FooterData & { unlocked: boolean }>) {
   const parent = storyJourney(story);
-  if (!parent) return null;
-  const journey = await journeyDoc(parent.slug);
-  if (!journey) return null;
-  if (isPrivate(journey) && !(await hasPrivateAccess())) return null;
+  const inJourney =
+    journey && (!isPrivate(journey) || unlocked)
+      ? journeyStoriesFor(journey.stories, unlocked)
+      : [];
+  const { prev, next } = storyNeighbours(story, inJourney, docs, unlocked);
+
+  const shownSlugs = new Set([story.slug, prev?.href, next?.href]);
+  const more = inJourney.flatMap((item) =>
+    item.locked ||
+    shownSlugs.has(`/blog/${item.doc.slug}`) ||
+    item.doc.slug === story.slug
+      ? []
+      : [item.doc],
+  );
+
   return (
-    <SiblingCards
-      story={story}
-      journey={journey}
-      siblings={joinedStories(journey.stories)}
-    />
+    <>
+      <div className="mx-auto max-w-[680px]">
+        <DetailPager
+          label={parent ? `More from ${parent.title}` : "More stories"}
+          prev={prev}
+          next={next}
+          prevLabel={parent ? "Previous in this journey" : "Older story"}
+          nextLabel={parent ? "Next in this journey" : "Newer story"}
+        />
+      </div>
+
+      {more.length > 0 && parent ? (
+        <section
+          aria-labelledby="more"
+          className="mx-auto mt-20 max-w-7xl lg:px-4"
+        >
+          <p className="eyebrow text-muted-foreground">Also from</p>
+          <h2
+            id="more"
+            className="mt-2 text-2xl font-medium tracking-[-0.03em]"
+          >
+            {parent.title}
+          </h2>
+          <div className="mt-8 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+            {more.slice(0, 3).map((s) => (
+              <PostCard
+                key={s.id}
+                href={`/blog/${s.slug}`}
+                title={s.title}
+                summary={s.summary}
+                meta={formatDate(s.date)}
+                image={mediaImage(s.cover, "card")}
+                aspect="portrait"
+                isPrivate={isPrivate(s)}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+    </>
   );
 }
 
-function StoryArticle({ story }: Readonly<{ story: StoryDoc }>) {
+/** Reads the passcode cookie only when something private is involved. */
+async function ViewerFooter(props: Readonly<FooterData>) {
+  const { journey, docs } = props;
+  const involvesPrivate =
+    (journey !== null &&
+      (isPrivate(journey) || hasPrivateJoinedStory(journey.stories))) ||
+    docs.some(isPrivate);
+  const unlocked = involvesPrivate ? await hasPrivateAccess() : false;
+  return <StoryFooter {...props} unlocked={unlocked} />;
+}
+
+function StoryArticle({ story, ...footer }: Readonly<FooterData>) {
   const journey = storyJourney(story);
   const cover = mediaImage(story.cover);
 
+  const crumbs: Crumb[] = [
+    { label: "Stories", href: "/blog" },
+    ...(journey
+      ? [{ label: journey.title, href: `/travel/${journey.slug}` }]
+      : []),
+    { label: story.title },
+  ];
+
   return (
-    <article className="mx-auto max-w-7xl px-6 lg:px-10">
-      <header className="mx-auto max-w-[680px] pt-12 sm:pt-20">
-        <Link
-          href={journey ? `/travel/${journey.slug}` : "/blog"}
-          className="meta-label text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5"
-        >
-          <ArrowLeft className="size-3.5" aria-hidden="true" />
-          {journey ? journey.title : "Stories"}
-        </Link>
-        <p className="meta-label text-muted-foreground mt-8">
-          Story · {formatDate(story.date)} ·{" "}
-          {String(readingMinutes(story.body))} min read
-          {story.location?.name ? ` · ${story.location.name}` : ""}
-          {isPrivate(story) ? " · Private" : ""}
-        </p>
-        <h1 className="font-heading mt-3 text-[clamp(2.25rem,5vw,3.75rem)] leading-[1.02] tracking-[-0.04em]">
-          {story.title}
-        </h1>
-        <p className="text-muted-foreground mt-5 text-lg">{story.summary}</p>
-      </header>
+    <article>
+      <div className="reading-progress" aria-hidden="true" />
 
       {cover ? (
-        <Picture
-          image={cover}
-          sizes="(min-width: 1024px) 1024px, 100vw"
-          priority
-          className="mx-auto mt-12 aspect-[3/2] w-full max-w-5xl rounded-md object-cover"
-        />
+        <figure className="relative">
+          <Picture
+            image={cover}
+            sizes="100vw"
+            priority
+            className="h-[min(56vh,44rem)] w-full object-cover sm:h-[min(70vh,44rem)]"
+          />
+        </figure>
       ) : null}
 
-      <div className="mx-auto mt-12 max-w-[680px]">
-        <ArticleBody data={story.body} />
-        {story.tags && story.tags.length > 0 ? (
-          <p className="meta-label text-muted-foreground mt-12">
-            {story.tags.map((tag) => `#${tag}`).join("  ")}
+      <div className="px-4 sm:px-6">
+        <header className="mx-auto max-w-[680px] pt-8 sm:pt-12">
+          <Breadcrumbs items={crumbs} />
+          <p className="meta-label text-muted-foreground mt-8">
+            {formatDate(story.date)} · {String(readingMinutes(story.body))} min
+            read
+            {story.location?.name ? ` · ${story.location.name}` : ""}
+            {isPrivate(story) ? " · Private" : ""}
           </p>
-        ) : null}
-      </div>
+          <h1 className="font-heading mt-3 text-[clamp(2.25rem,5vw,3.75rem)] leading-[1.02] tracking-[-0.04em]">
+            {story.title}
+          </h1>
+          <p className="text-muted-foreground mt-5 text-lg">{story.summary}</p>
+        </header>
 
-      {/* The parent journey may be private: then this streams per visitor. */}
-      <Suspense fallback={null}>
-        <SiblingStories story={story} />
-      </Suspense>
+        <div className="article-breakout mx-auto mt-12 max-w-[680px]">
+          <ArticleBody data={story.body} />
+          {story.tags && story.tags.length > 0 ? (
+            <p className="meta-label text-muted-foreground mt-12">
+              {story.tags.map((tag) => `#${tag}`).join("  ")}
+            </p>
+          ) : null}
+        </div>
+
+        {/* Neighbours may be private: the shell has the anonymous view. */}
+        <Suspense
+          fallback={<StoryFooter story={story} {...footer} unlocked={false} />}
+        >
+          <ViewerFooter story={story} {...footer} />
+        </Suspense>
+        <div className="h-20" />
+      </div>
     </article>
   );
 }
 
 /** Private story: checked per request, never part of the static shell. */
-async function PrivateStory({ story }: Readonly<{ story: StoryDoc }>) {
+async function PrivateStory(props: Readonly<FooterData>) {
+  const { story } = props;
   if (!(await hasPrivateAccess())) {
     return (
       <LockedPage
@@ -176,19 +279,25 @@ async function PrivateStory({ story }: Readonly<{ story: StoryDoc }>) {
       />
     );
   }
-  return <StoryArticle story={story} />;
+  return <StoryArticle {...props} />;
 }
 
 export default async function StoryPage({ params }: Props) {
   const { slug } = await params;
   const story = await storyDoc(slug);
   if (!story) notFound();
+  const parent = storyJourney(story);
+  const [journey, docs] = await Promise.all([
+    parent ? journeyDoc(parent.slug) : null,
+    storyDocs(),
+  ]);
+  const data: FooterData = { story, journey, docs };
   if (isPrivate(story)) {
     return (
       <Suspense fallback={<div className="min-h-[60svh]" />}>
-        <PrivateStory story={story} />
+        <PrivateStory {...data} />
       </Suspense>
     );
   }
-  return <StoryArticle story={story} />;
+  return <StoryArticle {...data} />;
 }

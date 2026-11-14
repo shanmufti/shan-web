@@ -1,66 +1,287 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { HobbyFilters } from "@/components/hobby-filters";
 import { JourneysTimeline } from "@/components/journeys-timeline";
-import { PageHeader } from "@/components/page-header";
+import { FeaturedCard, LockedCard, PostCard } from "@/components/post-card";
+import {
+  HubEmpty,
+  HubStats,
+  HubViewToggle,
+  SectionHub,
+} from "@/components/section-hub";
 import { TravelSubnav } from "@/components/section-subnav";
+import { countryName } from "@/lib/country-names";
+import { formatDateRange } from "@/lib/format-date";
+import {
+  param,
+  plural,
+  queryString,
+  yearOf,
+  yearOptions,
+  type SearchParamsRecord,
+} from "@/lib/hub-filters";
 import { toRows, totalDays, type JourneyRow } from "@/lib/journey-timeline";
 import {
   isPrivate,
+  journeyCountryNames,
   journeyDocs,
   listJourneys,
+  mediaImage,
   type JourneyDoc,
+  type Listed,
 } from "@/lib/journeys";
 import { hasPrivateAccess } from "@/lib/site-access";
 
-export const metadata: Metadata = {
-  title: "Journeys",
-  description: "Trips, routes, and the places worth going back to.",
-};
+export const metadata: Metadata = { title: "Journeys" };
 
-function JourneysView({ rows }: Readonly<{ rows: JourneyRow[] }>) {
+type Journeys = Listed<JourneyDoc>[];
+
+function JourneysStats({ items }: Readonly<{ items: Journeys }>) {
+  const rows = toRows(items);
+  if (rows.length === 0) return null;
   const countries = new Set(rows.flatMap((r) => r.countries)).size;
   const days = totalDays(rows.filter((r) => !r.locked));
+  return (
+    <HubStats
+      stats={[
+        plural(rows.length, "journey", "journeys"),
+        ...(countries > 0 ? [plural(countries, "country", "countries")] : []),
+        ...(days > 0
+          ? [`${days.toLocaleString("en-US")} days on the road`]
+          : []),
+      ]}
+    />
+  );
+}
 
-  const stats = [
-    `${String(rows.length)} journeys`,
-    countries > 0 ? `${String(countries)} countries` : null,
-    days > 0 ? `${days.toLocaleString("en-US")} days on the road` : null,
-  ].filter(Boolean);
+function journeyMeta(row: JourneyRow) {
+  return [
+    formatDateRange(row.start, row.end),
+    row.days ? `${String(row.days)} days` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+function JourneyGrid({
+  rows,
+  docs,
+}: Readonly<{ rows: JourneyRow[]; docs: Map<string, JourneyDoc> }>) {
+  return (
+    <div className="grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+      {rows.map((row) => {
+        const doc = docs.get(row.key);
+        if (row.locked || !doc) {
+          return (
+            <LockedCard
+              key={row.key}
+              title={row.title}
+              meta={`Journey · ${formatDateRange(row.start, row.end)}`}
+              next={`/travel/${row.slug}`}
+            />
+          );
+        }
+        return (
+          <PostCard
+            key={row.key}
+            href={`/travel/${row.slug}`}
+            title={row.title}
+            summary={row.countryNames.join(", ")}
+            meta={journeyMeta(row)}
+            image={mediaImage(doc.cover, "card")}
+            placeholder={row.countries.slice(0, 3).join(" ") || undefined}
+            isPrivate={isPrivate(doc)}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function JourneyList({
+  rows,
+  docs,
+  view,
+}: Readonly<{
+  rows: JourneyRow[];
+  docs: Map<string, JourneyDoc>;
+  view: "grid" | "timeline";
+}>) {
+  if (rows.length === 0) {
+    return <HubEmpty>No journeys match these filters.</HubEmpty>;
+  }
+  if (view === "grid") return <JourneyGrid rows={rows} docs={docs} />;
+  return (
+    <div className="mx-auto max-w-4xl">
+      <JourneysTimeline rows={rows} />
+    </div>
+  );
+}
+
+function JourneysBody({
+  items,
+  params,
+}: Readonly<{ items: Journeys; params: SearchParamsRecord }>) {
+  const rows = toRows(items);
+  if (rows.length === 0) {
+    return (
+      <div className="mt-14">
+        <HubEmpty>No journeys yet.</HubEmpty>
+      </div>
+    );
+  }
+
+  const view = param(params, "view") === "grid" ? "grid" : "timeline";
+  const year = param(params, "year");
+  const country = param(params, "country").toUpperCase();
+  const filtered = Boolean(year || country);
+
+  const docs = new Map(
+    items.flatMap((item) =>
+      item.locked ? [] : [[String(item.doc.id), item.doc] as const],
+    ),
+  );
+  const shown = rows.filter(
+    (row) =>
+      (!year || yearOf(row.start) === year) &&
+      (!country || row.countries.includes(country)),
+  );
+  const featured = filtered
+    ? undefined
+    : [...docs.values()].find((doc) => doc.featured);
+
+  const countryCodes = [...new Set(rows.flatMap((r) => r.countries))];
+  const filters = { year, country: param(params, "country") };
 
   return (
     <>
-      <PageHeader
-        eyebrow={stats.join(" · ")}
-        title="Journeys"
-        lede="Trips, routes, and the places worth going back to."
-      >
-        <TravelSubnav current="/travel" />
-      </PageHeader>
-      {rows.length === 0 ? (
-        <p className="text-muted-foreground">Journeys will appear here soon.</p>
-      ) : (
-        <JourneysTimeline rows={rows} />
-      )}
+      {featured ? (
+        <section aria-labelledby="featured-journey" className="mt-10">
+          <h2 id="featured-journey" className="sr-only">
+            Featured journey
+          </h2>
+          <FeaturedCard
+            href={`/travel/${featured.slug}`}
+            title={featured.title}
+            summary={featured.summary}
+            meta={`${formatDateRange(featured.startDate, featured.endDate)} · ${journeyCountryNames(featured).join(", ")}`}
+            image={mediaImage(featured.cover, "card")}
+            priority
+            isPrivate={isPrivate(featured)}
+          />
+        </section>
+      ) : null}
+
+      <section aria-labelledby="all-journeys">
+        <div className="mt-14 mb-6 flex flex-wrap items-end justify-between gap-4">
+          <h2
+            id="all-journeys"
+            className="text-2xl font-medium tracking-[-0.03em]"
+          >
+            {filtered
+              ? plural(shown.length, "journey", "journeys")
+              : "All journeys"}
+          </h2>
+          <HubViewToggle
+            label="Journeys view"
+            options={[
+              {
+                label: "Timeline",
+                href: `/travel${queryString(filters)}`,
+                active: view === "timeline",
+              },
+              {
+                label: "Grid",
+                href: `/travel${queryString({ view: "grid", ...filters })}`,
+                active: view === "grid",
+              },
+            ]}
+          />
+        </div>
+        <div className="mb-10">
+          <HobbyFilters
+            action="/travel"
+            label="Filter journeys"
+            keep={view === "grid" ? { view: "grid" } : undefined}
+            active={filtered}
+            fields={[
+              {
+                name: "year",
+                label: "Year",
+                value: year,
+                options: yearOptions(rows.map((r) => r.start)),
+              },
+              {
+                name: "country",
+                label: "Country",
+                value: country,
+                options: countryCodes
+                  .map((code) => ({ value: code, label: countryName(code) }))
+                  .sort((a, b) => a.label.localeCompare(b.label)),
+              },
+            ]}
+          />
+        </div>
+        <JourneyList
+          rows={
+            view === "grid" && featured
+              ? shown.filter((row) => row.key !== String(featured.id))
+              : shown
+          }
+          docs={docs}
+          view={view}
+        />
+      </section>
     </>
   );
 }
 
 /** Reads the passcode cookie only when there are private journeys. */
-async function ViewerJourneys({ docs }: Readonly<{ docs: JourneyDoc[] }>) {
+async function viewerJourneys(docs: JourneyDoc[]): Promise<Journeys> {
   const unlocked = docs.some(isPrivate) ? await hasPrivateAccess() : false;
-  return <JourneysView rows={toRows(listJourneys(docs, unlocked))} />;
+  return listJourneys(docs, unlocked);
 }
 
-export default async function JourneysIndex() {
+async function ViewerStats({ docs }: Readonly<{ docs: JourneyDoc[] }>) {
+  return <JourneysStats items={await viewerJourneys(docs)} />;
+}
+
+async function ViewerBody({
+  docs,
+  searchParams,
+}: Readonly<{
+  docs: JourneyDoc[];
+  searchParams: PageProps<"/travel">["searchParams"];
+}>) {
+  const [items, params] = await Promise.all([
+    viewerJourneys(docs),
+    searchParams,
+  ]);
+  return <JourneysBody items={items} params={params} />;
+}
+
+export default async function JourneysIndex({
+  searchParams,
+}: Readonly<PageProps<"/travel">>) {
   const docs = await journeyDocs();
+  // The static shell shows what an anonymous visitor sees, unfiltered.
+  const anonymous = listJourneys(docs, false);
   return (
-    <div className="mx-auto max-w-4xl px-6 pb-16 lg:px-10">
-      <Suspense
-        fallback={<JourneysView rows={toRows(listJourneys(docs, false))} />}
-      >
-        <ViewerJourneys docs={docs} />
+    <SectionHub
+      tone="sand"
+      title="Journeys"
+      intro="[Intro: Shan to write]"
+      stats={
+        <Suspense fallback={<JourneysStats items={anonymous} />}>
+          <ViewerStats docs={docs} />
+        </Suspense>
+      }
+      nav={<TravelSubnav current="/travel" />}
+    >
+      <Suspense fallback={<JourneysBody items={anonymous} params={{}} />}>
+        <ViewerBody docs={docs} searchParams={searchParams} />
       </Suspense>
-    </div>
+    </SectionHub>
   );
 }

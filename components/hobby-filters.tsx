@@ -27,7 +27,17 @@ export function HobbyFilters({
   action,
   fields,
   active,
-}: Readonly<{ action: string; fields: FilterField[]; active: boolean }>) {
+  label = "Filter references",
+  keep,
+}: Readonly<{
+  action: string;
+  fields: FilterField[];
+  active: boolean;
+  /** Accessible name of the form. */
+  label?: string;
+  /** Params that aren't filters but stay in the URL (e.g. a view). */
+  keep?: Record<string, string> | undefined;
+}>) {
   const router = useRouter();
   // Navigate with only the filters that are set, so URLs stay short.
   const apply = (form: HTMLFormElement) => {
@@ -43,7 +53,7 @@ export function HobbyFilters({
     <form
       action={action}
       method="get"
-      aria-label="Filter references"
+      aria-label={label}
       onChange={(event) => {
         apply(event.currentTarget);
       }}
@@ -53,6 +63,9 @@ export function HobbyFilters({
       }}
       className="grid grid-cols-2 items-end gap-3 sm:grid-cols-[repeat(4,minmax(0,1fr))_auto]"
     >
+      {Object.entries(keep ?? {}).map(([name, value]) => (
+        <input key={name} type="hidden" name={name} value={value} />
+      ))}
       {fields.map((field) => (
         <div key={field.name} className="min-w-0">
           <label
@@ -87,7 +100,11 @@ export function HobbyFilters({
         </noscript>
         {active ? (
           <Link
-            href={action}
+            href={
+              keep
+                ? `${action}?${new URLSearchParams(keep).toString()}`
+                : action
+            }
             scroll={false}
             replace
             className="text-muted-foreground hover:text-foreground h-9 content-center text-sm underline-offset-4 hover:underline"
