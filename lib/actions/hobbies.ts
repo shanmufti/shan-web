@@ -30,13 +30,6 @@ function text(formData: FormData, name: string): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function optionalNumber(formData: FormData, name: string): number | undefined {
-  const value = text(formData, name);
-  if (value === "") return undefined;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : undefined;
-}
-
 /** Owner-only: the hobby id from the form, checked against the database. */
 async function ownerHobby(formData: FormData) {
   const user = await getCurrentUser();
@@ -111,56 +104,5 @@ export async function addHobbyReference(
   } catch (error) {
     console.error(error);
     return { error: "Could not save the link. Try again." };
-  }
-}
-
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-
-export async function addPracticeSession(
-  _prev: HobbyFormState,
-  formData: FormData,
-): Promise<HobbyFormState> {
-  const context = await ownerHobby(formData);
-  if ("error" in context) return { error: context.error };
-  const { payload, user, hobby } = context;
-
-  const date = text(formData, "date");
-  const focus = text(formData, "focus");
-  if (!DATE_RE.test(date)) return { error: "Pick a date." };
-  if (!focus) return { error: "Say what you worked on." };
-  const duration = optionalNumber(formData, "durationMinutes");
-  if (duration !== undefined && (duration < 0 || duration > 1440)) {
-    return { error: "Duration must be between 0 and 1440 minutes." };
-  }
-  const feeling = optionalNumber(formData, "feeling");
-  const references = formData
-    .getAll("references")
-    .map(Number)
-    .filter((id) => Number.isInteger(id));
-
-  try {
-    await payload.create({
-      collection: "practice-sessions",
-      data: {
-        hobby: hobby.id,
-        date: `${date}T12:00:00.000Z`,
-        focus,
-        durationMinutes: duration ?? null,
-        location: text(formData, "location") || null,
-        feeling:
-          feeling !== undefined && feeling >= 1 && feeling <= 5
-            ? feeling
-            : null,
-        references,
-        notes: text(formData, "notes") || null,
-      },
-      user,
-      overrideAccess: false,
-    });
-    revalidatePath(`/hobbies/${hobby.slug}`);
-    return { ok: true, savedAt: Date.now(), message: "Session logged." };
-  } catch (error) {
-    console.error(error);
-    return { error: "Could not save the session. Try again." };
   }
 }

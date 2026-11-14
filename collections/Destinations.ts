@@ -17,7 +17,7 @@ export const Destinations: CollectionConfig = {
   admin: {
     useAsTitle: "title",
     defaultColumns: ["title", "country", "draft", "visibility"],
-    group: "Journeys and stories",
+    group: "Journeys",
     description:
       'Groups saved Google Maps places, usually created by the importer (see README). Link a destination to its journeys and its places show under "Places I saved" on those journey pages.',
   },

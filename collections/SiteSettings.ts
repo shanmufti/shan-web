@@ -37,7 +37,7 @@ export const SiteSettings: GlobalConfig = {
       minLength: 4,
       admin: {
         description:
-          "Type a new passcode and save to change it. Only a hash is stored, and changing it signs everyone out of private journeys and stories. Leave blank to keep the current passcode.",
+          "Type a new passcode and save to change it. Only a hash is stored, and changing it signs everyone out of private journeys. Leave blank to keep the current passcode.",
       },
     },
     {

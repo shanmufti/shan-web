@@ -72,7 +72,6 @@ export interface Config {
     places: Place;
     'visited-countries': VisitedCountry;
     media: Media;
-    blog: Blog;
     diving: Diving;
     'dive-gear': DiveGear;
     'gear-configs': GearConfig;
@@ -83,7 +82,6 @@ export interface Config {
     'plan-responses': PlanResponse;
     hobbies: Hobby;
     'hobby-references': HobbyReference;
-    'practice-sessions': PracticeSession;
     'vault-records': VaultRecord;
     'vault-files': VaultFile;
     'file-drops': FileDrop;
@@ -104,9 +102,6 @@ export interface Config {
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {
-    travel: {
-      stories: 'blog';
-    };
     destinations: {
       places: 'places';
     };
@@ -117,7 +112,6 @@ export interface Config {
     places: PlacesSelect<false> | PlacesSelect<true>;
     'visited-countries': VisitedCountriesSelect<false> | VisitedCountriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
-    blog: BlogSelect<false> | BlogSelect<true>;
     diving: DivingSelect<false> | DivingSelect<true>;
     'dive-gear': DiveGearSelect<false> | DiveGearSelect<true>;
     'gear-configs': GearConfigsSelect<false> | GearConfigsSelect<true>;
@@ -128,7 +122,6 @@ export interface Config {
     'plan-responses': PlanResponsesSelect<false> | PlanResponsesSelect<true>;
     hobbies: HobbiesSelect<false> | HobbiesSelect<true>;
     'hobby-references': HobbyReferencesSelect<false> | HobbyReferencesSelect<true>;
-    'practice-sessions': PracticeSessionsSelect<false> | PracticeSessionsSelect<true>;
     'vault-records': VaultRecordsSelect<false> | VaultRecordsSelect<true>;
     'vault-files': VaultFilesSelect<false> | VaultFilesSelect<true>;
     'file-drops': FileDropsSelect<false> | FileDropsSelect<true>;
@@ -285,14 +278,6 @@ export interface Travel {
       }[]
     | null;
   relatedDiveLogs?: (number | Diving)[] | null;
-  /**
-   * Stories that belong to this journey.
-   */
-  stories?: {
-    docs?: (number | Blog)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
   updatedAt: string;
   createdAt: string;
 }
@@ -589,63 +574,6 @@ export interface DiveSkill {
   level: 'learning' | 'practicing' | 'solid';
   description?: string | null;
   relatedCert?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Longer write-ups. A story can belong to a journey.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blog".
- */
-export interface Blog {
-  id: number;
-  title: string;
-  /**
-   * Auto-generated from the title if left blank. Only lowercase letters, numbers, and hyphens are kept.
-   */
-  slug: string;
-  date: string;
-  summary: string;
-  tags?: string[] | null;
-  cover?: (number | null) | Media;
-  draft?: boolean | null;
-  featured?: boolean | null;
-  body: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  /**
-   * Private needs the site passcode (Settings → Site settings). Use only private photos inside private posts.
-   */
-  visibility: 'public' | 'private';
-  /**
-   * Off: visitors see a locked card with title and date. On: the item is invisible until unlocked.
-   */
-  hideWhenLocked?: boolean | null;
-  /**
-   * Optional. Leave empty for a stand-alone story.
-   */
-  journey?: (number | null) | Travel;
-  /**
-   * Optional. Puts a stand-alone story on the homepage globe. Stories in a journey use the journey's stops.
-   */
-  location?: {
-    name?: string | null;
-    lat?: number | null;
-    lng?: number | null;
-  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1016,25 +944,6 @@ export interface HobbyReference {
    * Off: only you see it. A reference of a private hobby is private either way.
    */
   public?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "practice-sessions".
- */
-export interface PracticeSession {
-  id: number;
-  hobby: number | Hobby;
-  date: string;
-  durationMinutes?: number | null;
-  location?: string | null;
-  focus: string;
-  references?: (number | HobbyReference)[] | null;
-  feeling?: number | null;
-  notes?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1561,10 +1470,6 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
-        relationTo: 'blog';
-        value: number | Blog;
-      } | null)
-    | ({
         relationTo: 'diving';
         value: number | Diving;
       } | null)
@@ -1603,10 +1508,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'hobby-references';
         value: number | HobbyReference;
-      } | null)
-    | ({
-        relationTo: 'practice-sessions';
-        value: number | PracticeSession;
       } | null)
     | ({
         relationTo: 'vault-records';
@@ -1750,7 +1651,6 @@ export interface TravelSelect<T extends boolean = true> {
         id?: T;
       };
   relatedDiveLogs?: T;
-  stories?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1883,33 +1783,6 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blog_select".
- */
-export interface BlogSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  date?: T;
-  summary?: T;
-  tags?: T;
-  cover?: T;
-  draft?: T;
-  featured?: T;
-  body?: T;
-  visibility?: T;
-  hideWhenLocked?: T;
-  journey?: T;
-  location?:
-    | T
-    | {
-        name?: T;
-        lat?: T;
-        lng?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2190,22 +2063,6 @@ export interface HobbyReferencesSelect<T extends boolean = true> {
   provider?: T;
   note?: T;
   public?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "practice-sessions_select".
- */
-export interface PracticeSessionsSelect<T extends boolean = true> {
-  hobby?: T;
-  date?: T;
-  durationMinutes?: T;
-  location?: T;
-  focus?: T;
-  references?: T;
-  feeling?: T;
-  notes?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2622,10 +2479,7 @@ export interface SiteAccess {
     journeys: 'public' | 'passcode' | 'owner';
     packing: 'public' | 'passcode' | 'owner';
     places: 'public' | 'passcode' | 'owner';
-    /**
-     * Always hidden: only you, logged in.
-     */
-    stories: 'owner';
+    stories: 'public' | 'passcode' | 'owner';
     diving: 'public' | 'passcode' | 'owner';
     tech: 'public' | 'passcode' | 'owner';
     hobbies: 'public' | 'passcode' | 'owner';
@@ -2696,7 +2550,7 @@ export interface LandingPage {
 export interface SiteSetting {
   id: number;
   /**
-   * Type a new passcode and save to change it. Only a hash is stored, and changing it signs everyone out of private journeys and stories. Leave blank to keep the current passcode.
+   * Type a new passcode and save to change it. Only a hash is stored, and changing it signs everyone out of private journeys. Leave blank to keep the current passcode.
    */
   privatePasscode?: string | null;
   /**

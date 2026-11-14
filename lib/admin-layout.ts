@@ -67,10 +67,6 @@ const LAYOUT: Record<string, AdminEntry> = {
     description:
       "Photos uploaded to the site. Add them to a journey from the journey's Photos field. Location data is stripped from what visitors see.",
   },
-  blog: {
-    group: ADMIN_GROUPS.travel,
-    description: "Longer write-ups. A story can belong to a journey.",
-  },
 
   // Diving
   diving: {
@@ -126,10 +122,6 @@ const LAYOUT: Record<string, AdminEntry> = {
   // Not in use yet (empty features, folded at the bottom)
   hobbies: { group: ADMIN_GROUPS.notInUse, description: NOT_IN_USE_NOTE },
   "hobby-references": {
-    group: ADMIN_GROUPS.notInUse,
-    description: NOT_IN_USE_NOTE,
-  },
-  "practice-sessions": {
     group: ADMIN_GROUPS.notInUse,
     description: NOT_IN_USE_NOTE,
   },

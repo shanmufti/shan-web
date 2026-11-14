@@ -57,14 +57,7 @@ const ACTIONS = (admin: string): Action[] => [
 const SECTIONS: { title: string; slugs: string[] }[] = [
   {
     title: ADMIN_GROUPS.travel,
-    slugs: [
-      "travel",
-      "destinations",
-      "places",
-      "visited-countries",
-      "media",
-      "blog",
-    ],
+    slugs: ["travel", "destinations", "places", "visited-countries", "media"],
   },
   {
     title: ADMIN_GROUPS.diving,

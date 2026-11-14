@@ -81,7 +81,7 @@ export const TOOLS: ToolEntry[] = [
     slug: "hobby-reference-library",
     title: "Hobby reference library",
     description:
-      "Videos, guides and articles saved per hobby, grouped by topic, with a private practice log.",
+      "Videos, guides and articles saved per hobby, grouped by topic.",
     category: "hobbies",
     href: "/hobbies",
     sectionKey: "hobbies",

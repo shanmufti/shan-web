@@ -8,7 +8,7 @@ export function LockedPage({
   title,
   next,
 }: Readonly<{
-  kind: "Journey" | "Story";
+  kind: "Journey";
   title: string;
   next: string;
 }>) {

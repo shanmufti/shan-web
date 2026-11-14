@@ -64,21 +64,6 @@ export const SITE_SECTIONS = [
     onLanding: false,
   },
   {
-    key: "stories",
-    label: "Stories",
-    href: "/blog",
-    blurb: "Longer writing from the road.",
-    paths: ["/blog"],
-    collections: ["blog"],
-    defaultMode: "owner",
-    // Retired 2026-11: the pages are gone (/blog redirects to /travel) and
-    // nothing links here. Kept so /api/blog stays owner-only; data stays in
-    // /admin.
-    inNav: false,
-    onLanding: false,
-    ownerOnly: true,
-  },
-  {
     key: "diving",
     label: "Diving",
     href: "/diving",
@@ -110,9 +95,9 @@ export const SITE_SECTIONS = [
     key: "hobbies",
     label: "Hobbies",
     href: "/hobbies",
-    blurb: "Reference links and practice notes, by hobby.",
+    blurb: "Reference links and guides, by hobby.",
     paths: ["/hobbies"],
-    collections: ["hobbies", "hobby-references", "practice-sessions"],
+    collections: ["hobbies", "hobby-references"],
     defaultMode: "public",
     inNav: true,
     onLanding: true,
@@ -210,7 +195,7 @@ export function isTokenPath(section: SiteSection, pathname: string): boolean {
 }
 
 /**
- * Section that owns a Payload REST path like /api/blog, /api/blog/12 or
+ * Section that owns a Payload REST path like /api/travel, /api/travel/12 or
  * /api/globals/vault-settings.
  */
 export function sectionForApiPath(pathname: string): SiteSection | null {
