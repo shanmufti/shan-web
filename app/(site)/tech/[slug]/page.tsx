@@ -1,61 +1,101 @@
-import { RichText } from "@payloadcms/richtext-lexical/react";
+import { ArrowUpRight } from "lucide-react";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
-import { getPublishedBySlug } from "@/lib/content";
-import { cn } from "@/lib/utils";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { DetailPager, type PagerItem } from "@/components/detail-pager";
+import { ArticleBody } from "@/components/rich-text";
+import { getPublishedBySlug, listPublished } from "@/lib/content";
+import { formatDate } from "@/lib/format-date";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+type Props = Readonly<{ params: Promise<{ slug: string }> }>;
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const project = await getPublishedBySlug("tech", slug);
   return project ? { title: project.title, description: project.summary } : {};
 }
 
-export default async function TechPost({
-  params,
-}: Readonly<{
-  params: Promise<{ slug: string }>;
-}>) {
+type TechDoc = Awaited<ReturnType<typeof listPublished<"tech">>>[number];
+
+function noteLink(doc: TechDoc | undefined): PagerItem | undefined {
+  return doc
+    ? {
+        href: `/tech/${doc.slug}`,
+        title: doc.title,
+        meta: formatDate(doc.date),
+      }
+    : undefined;
+}
+
+function ExternalButton({
+  href,
+  label,
+}: Readonly<{ href: string; label: string }>) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="border-border bg-card hover:bg-muted inline-flex h-9 items-center gap-1.5 rounded-full border px-4 text-sm font-medium"
+    >
+      {label}
+      <ArrowUpRight className="size-3.5" aria-hidden="true" />
+      <span className="sr-only">(opens in a new tab)</span>
+    </a>
+  );
+}
+
+export default async function TechPost({ params }: Props) {
   const { slug } = await params;
-  const project = await getPublishedBySlug("tech", slug);
+  const [project, all] = await Promise.all([
+    getPublishedBySlug("tech", slug),
+    listPublished("tech"),
+  ]);
   if (!project) notFound();
 
+  // Listed newest first.
+  const index = all.findIndex((n) => n.id === project.id);
+  const older = index >= 0 ? all[index + 1] : undefined;
+  const newer = index > 0 ? all[index - 1] : undefined;
+
   return (
-    <article className="prose prose-neutral dark:prose-invert mx-auto max-w-[680px] px-6 pt-16 pb-8 sm:pt-24">
-      <h1>{project.title}</h1>
-      <div className="not-prose flex flex-wrap items-center gap-2">
-        {(project.tags ?? []).map((tag) => (
-          <Badge key={tag} variant="secondary">
-            {tag}
-          </Badge>
-        ))}
-        {project.repoUrl ? (
-          <a
-            href={project.repoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
-          >
-            Repo
-          </a>
+    <article className="px-4 pt-8 pb-20 sm:px-6 sm:pt-12">
+      <header className="mx-auto max-w-[680px]">
+        <Breadcrumbs
+          items={[{ label: "Tech", href: "/tech" }, { label: project.title }]}
+        />
+        <p className="meta-label text-muted-foreground mt-8">
+          {formatDate(project.date)}
+          {(project.tags ?? []).map((tag) => ` · #${tag}`).join("")}
+        </p>
+        <h1 className="font-heading mt-3 text-[clamp(2.25rem,5vw,3.5rem)] leading-[1.02] tracking-[-0.04em]">
+          {project.title}
+        </h1>
+        <p className="text-muted-foreground mt-4 text-lg">{project.summary}</p>
+        {project.repoUrl || project.demoUrl ? (
+          <div className="mt-6 flex flex-wrap gap-2">
+            {project.repoUrl ? (
+              <ExternalButton href={project.repoUrl} label="Repo" />
+            ) : null}
+            {project.demoUrl ? (
+              <ExternalButton href={project.demoUrl} label="Demo" />
+            ) : null}
+          </div>
         ) : null}
-        {project.demoUrl ? (
-          <a
-            href={project.demoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
-          >
-            Demo
-          </a>
-        ) : null}
+      </header>
+      <div className="article-breakout mx-auto mt-10 max-w-[680px]">
+        <ArticleBody data={project.body} />
       </div>
-      <RichText data={project.body} />
+      <div className="mx-auto max-w-[680px]">
+        <DetailPager
+          label="More notes"
+          prev={noteLink(older)}
+          next={noteLink(newer)}
+          prevLabel="Older note"
+          nextLabel="Newer note"
+        />
+      </div>
     </article>
   );
 }
