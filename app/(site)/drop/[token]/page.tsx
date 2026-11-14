@@ -6,6 +6,8 @@ import { connection } from "next/server";
 import { buttonVariants } from "@/components/ui/button";
 import { findOpenDrop } from "@/lib/file-drops";
 import { formatBytes } from "@/lib/format-bytes";
+import { shareSlugExists } from "@/lib/share-links";
+import { looksLikeToken } from "@/lib/tokens";
 import { vaultFileName } from "@/lib/vault";
 
 export const metadata: Metadata = {
@@ -16,6 +18,12 @@ export const metadata: Metadata = {
 
 // Token links are checked against the database on every request.
 export const instant = false;
+
+// A known (placeholder) param list makes any other token render before the
+// response starts, instead of streaming into a prerendered fallback shell.
+export function generateStaticParams() {
+  return [{ token: "__none__" }];
+}
 
 function formatExpiry(iso: string): string {
   return new Date(iso).toLocaleString("en-US", {
@@ -28,8 +36,15 @@ function formatExpiry(iso: string): string {
 export default async function DropPage({
   params,
 }: Readonly<{ params: Promise<{ token: string }> }>) {
-  await connection();
   const { token } = await params;
+  // Real 404 status for unknown links (see lib/share-links.ts).
+  if (
+    !looksLikeToken(token) ||
+    !(await shareSlugExists("file-drops", "token", token))
+  ) {
+    notFound();
+  }
+  await connection();
   const drop = await findOpenDrop(token);
   if (!drop) notFound();
 

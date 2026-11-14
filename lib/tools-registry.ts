@@ -39,6 +39,22 @@ export const TOOLS: ToolEntry[] = [
     sectionKey: "foodTour",
   },
   {
+    slug: "group-plans",
+    title: "Group plans",
+    description:
+      "Date polls, votes, RSVPs and who's bringing what, shared by link.",
+    category: "everyday",
+    href: "/tools/plans",
+  },
+  {
+    slug: "cost-splitter",
+    title: "Cost splitter",
+    description:
+      "Track shared costs in a group and see who pays whom to settle up.",
+    category: "everyday",
+    href: "/tools/split",
+  },
+  {
     slug: "dive-log",
     title: "Dive log",
     description: "Logged dives with depth profiles, gas and conditions.",

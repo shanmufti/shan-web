@@ -20,6 +20,8 @@ import { Hobbies } from "./collections/Hobbies";
 import { HobbyReferences } from "./collections/HobbyReferences";
 import { LandingPage } from "./collections/LandingPage";
 import { Media } from "./collections/Media";
+import { PlanResponses } from "./collections/PlanResponses";
+import { Plans } from "./collections/Plans";
 import { PackingListTemplates } from "./collections/PackingListTemplates";
 import { PackingLists } from "./collections/PackingLists";
 import { PracticeSessions } from "./collections/PracticeSessions";
@@ -34,6 +36,8 @@ import { UnlockAttempts } from "./collections/UnlockAttempts";
 import { Users } from "./collections/Users";
 import { FileDrops } from "./collections/FileDrops";
 import { Snippets } from "./collections/Snippets";
+import { SplitExpenses } from "./collections/SplitExpenses";
+import { SplitGroups } from "./collections/SplitGroups";
 import { VaultFiles } from "./collections/VaultFiles";
 import { VaultRecords } from "./collections/VaultRecords";
 import { VaultSettings } from "./collections/VaultSettings";
@@ -101,13 +105,18 @@ export default buildConfig({
       VaultFiles,
       FileDrops,
       Snippets,
+      // Share pages check these by slug through a cached lookup.
+      SharedLists,
+      Plans,
+      SplitGroups,
     ].map(withCollectionRevalidation),
     UnlockAttempts,
     FoodRatings,
     FoodTourPhotos,
     ShortLinks,
-    SharedLists,
     Secrets,
+    PlanResponses,
+    SplitExpenses,
   ],
   globals: [
     ...[SiteAccess, LandingPage, SiteSettings, VaultSettings, CallPlanner].map(

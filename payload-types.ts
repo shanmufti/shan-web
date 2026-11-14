@@ -87,12 +87,16 @@ export interface Config {
     'vault-files': VaultFile;
     'file-drops': FileDrop;
     snippets: Snippet;
+    'shared-lists': SharedList;
+    plans: Plan;
+    'split-groups': SplitGroup;
     'unlock-attempts': UnlockAttempt;
     'food-ratings': FoodRating;
     'food-tour-photos': FoodTourPhoto;
     'short-links': ShortLink;
-    'shared-lists': SharedList;
     secrets: Secret;
+    'plan-responses': PlanResponse;
+    'split-expenses': SplitExpense;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -124,12 +128,16 @@ export interface Config {
     'vault-files': VaultFilesSelect<false> | VaultFilesSelect<true>;
     'file-drops': FileDropsSelect<false> | FileDropsSelect<true>;
     snippets: SnippetsSelect<false> | SnippetsSelect<true>;
+    'shared-lists': SharedListsSelect<false> | SharedListsSelect<true>;
+    plans: PlansSelect<false> | PlansSelect<true>;
+    'split-groups': SplitGroupsSelect<false> | SplitGroupsSelect<true>;
     'unlock-attempts': UnlockAttemptsSelect<false> | UnlockAttemptsSelect<true>;
     'food-ratings': FoodRatingsSelect<false> | FoodRatingsSelect<true>;
     'food-tour-photos': FoodTourPhotosSelect<false> | FoodTourPhotosSelect<true>;
     'short-links': ShortLinksSelect<false> | ShortLinksSelect<true>;
-    'shared-lists': SharedListsSelect<false> | SharedListsSelect<true>;
     secrets: SecretsSelect<false> | SecretsSelect<true>;
+    'plan-responses': PlanResponsesSelect<false> | PlanResponsesSelect<true>;
+    'split-expenses': SplitExpensesSelect<false> | SplitExpensesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -955,6 +963,192 @@ export interface Snippet {
   createdAt: string;
 }
 /**
+ * Checklists anyone with the link can tick and add to. Also managed at /lists.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shared-lists".
+ */
+export interface SharedList {
+  id: number;
+  title: string;
+  /**
+   * Unguessable part of the share link, set automatically. The link itself is the access control.
+   */
+  shareSlug?: string | null;
+  /**
+   * Send this link.
+   */
+  link?: string | null;
+  items?:
+    | {
+        label: string;
+        checked?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * A page friends open by link: pick their name, then answer date polls, votes and RSVPs.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "plans".
+ */
+export interface Plan {
+  id: number;
+  title: string;
+  /**
+   * Optional note shown at the top of the plan.
+   */
+  intro?: string | null;
+  /**
+   * Everyone in the plan. They pick their name from this list. Rename rather than delete someone who has answered.
+   */
+  participants?:
+    | {
+        name: string;
+        id?: string | null;
+      }[]
+    | null;
+  blocks?: (PlanDatePollBlock | PlanChoiceVoteBlock | PlanRsvpBlock | PlanNotesBlock)[] | null;
+  /**
+   * Tick to stop new answers. The page stays readable.
+   */
+  closed?: boolean | null;
+  /**
+   * Set automatically. Anyone with the link can answer.
+   */
+  shareSlug?: string | null;
+  /**
+   * Send this link.
+   */
+  link?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PlanDatePollBlock".
+ */
+export interface PlanDatePollBlock {
+  question: string;
+  /**
+   * Each person marks yes, maybe or no. Don't delete a date people have answered; add a new one instead.
+   */
+  dates?:
+    | {
+        date: string;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'datePoll';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PlanChoiceVoteBlock".
+ */
+export interface PlanChoiceVoteBlock {
+  question: string;
+  /**
+   * Don't delete an option that has votes; rename it instead.
+   */
+  options?:
+    | {
+        label: string;
+        detail?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  mode: 'single' | 'ranked';
+  /**
+   * Hide everyone's votes (you included) until the reveal time. Voting closes then. Once someone has voted, a sealed vote can't be unsealed and the reveal can only move later.
+   */
+  sealed?: boolean | null;
+  revealAt?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'choiceVote';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PlanRsvpBlock".
+ */
+export interface PlanRsvpBlock {
+  question: string;
+  /**
+   * People claim items. Each item can be claimed by one person.
+   */
+  items?:
+    | {
+        name: string;
+        note?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'rsvp';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PlanNotesBlock".
+ */
+export interface PlanNotesBlock {
+  heading?: string | null;
+  body: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'notes';
+}
+/**
+ * Shared expense groups. Anyone with a group's link can add expenses and people.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "split-groups".
+ */
+export interface SplitGroup {
+  id: number;
+  name: string;
+  currency:
+    | 'USD'
+    | 'CAD'
+    | 'EUR'
+    | 'GBP'
+    | 'AUD'
+    | 'NZD'
+    | 'JPY'
+    | 'MXN'
+    | 'CHF'
+    | 'SGD'
+    | 'HKD'
+    | 'INR'
+    | 'PKR'
+    | 'THB'
+    | 'IDR'
+    | 'PHP'
+    | 'AED';
+  /**
+   * Rename rather than delete someone who has expenses.
+   */
+  people?:
+    | {
+        name: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Set automatically. Anyone with the link can edit.
+   */
+  shareSlug?: string | null;
+  link?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "unlock-attempts".
  */
@@ -1049,33 +1243,6 @@ export interface ShortLink {
   createdAt: string;
 }
 /**
- * Checklists anyone with the link can tick and add to. Also managed at /lists.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "shared-lists".
- */
-export interface SharedList {
-  id: number;
-  title: string;
-  /**
-   * Unguessable part of the share link, set automatically. The link itself is the access control.
-   */
-  shareSlug?: string | null;
-  /**
-   * Send this link.
-   */
-  link?: string | null;
-  items?:
-    | {
-        label: string;
-        checked?: boolean | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "secrets".
  */
@@ -1089,6 +1256,62 @@ export interface Secret {
    */
   salt?: string | null;
   expiresAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "plan-responses".
+ */
+export interface PlanResponse {
+  id: number;
+  key: string;
+  planId: number;
+  blockId: string;
+  participantId: string;
+  name: string;
+  value:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "split-expenses".
+ */
+export interface SplitExpense {
+  id: number;
+  groupId: number;
+  description: string;
+  /**
+   * In the currency's smallest unit (cents for USD).
+   */
+  amount: number;
+  /**
+   * Person id from the group's people list.
+   */
+  paidBy: string;
+  splitMode: 'equal' | 'shares';
+  /**
+   * [{ personId, weight }]
+   */
+  shares:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  spentOn: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -1197,6 +1420,18 @@ export interface PayloadLockedDocument {
         value: number | Snippet;
       } | null)
     | ({
+        relationTo: 'shared-lists';
+        value: number | SharedList;
+      } | null)
+    | ({
+        relationTo: 'plans';
+        value: number | Plan;
+      } | null)
+    | ({
+        relationTo: 'split-groups';
+        value: number | SplitGroup;
+      } | null)
+    | ({
         relationTo: 'unlock-attempts';
         value: number | UnlockAttempt;
       } | null)
@@ -1213,12 +1448,16 @@ export interface PayloadLockedDocument {
         value: number | ShortLink;
       } | null)
     | ({
-        relationTo: 'shared-lists';
-        value: number | SharedList;
-      } | null)
-    | ({
         relationTo: 'secrets';
         value: number | Secret;
+      } | null)
+    | ({
+        relationTo: 'plan-responses';
+        value: number | PlanResponse;
+      } | null)
+    | ({
+        relationTo: 'split-expenses';
+        value: number | SplitExpense;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1739,6 +1978,130 @@ export interface SnippetsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shared-lists_select".
+ */
+export interface SharedListsSelect<T extends boolean = true> {
+  title?: T;
+  shareSlug?: T;
+  link?: T;
+  items?:
+    | T
+    | {
+        label?: T;
+        checked?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "plans_select".
+ */
+export interface PlansSelect<T extends boolean = true> {
+  title?: T;
+  intro?: T;
+  participants?:
+    | T
+    | {
+        name?: T;
+        id?: T;
+      };
+  blocks?:
+    | T
+    | {
+        datePoll?: T | PlanDatePollBlockSelect<T>;
+        choiceVote?: T | PlanChoiceVoteBlockSelect<T>;
+        rsvp?: T | PlanRsvpBlockSelect<T>;
+        notes?: T | PlanNotesBlockSelect<T>;
+      };
+  closed?: T;
+  shareSlug?: T;
+  link?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PlanDatePollBlock_select".
+ */
+export interface PlanDatePollBlockSelect<T extends boolean = true> {
+  question?: T;
+  dates?:
+    | T
+    | {
+        date?: T;
+        label?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PlanChoiceVoteBlock_select".
+ */
+export interface PlanChoiceVoteBlockSelect<T extends boolean = true> {
+  question?: T;
+  options?:
+    | T
+    | {
+        label?: T;
+        detail?: T;
+        id?: T;
+      };
+  mode?: T;
+  sealed?: T;
+  revealAt?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PlanRsvpBlock_select".
+ */
+export interface PlanRsvpBlockSelect<T extends boolean = true> {
+  question?: T;
+  items?:
+    | T
+    | {
+        name?: T;
+        note?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PlanNotesBlock_select".
+ */
+export interface PlanNotesBlockSelect<T extends boolean = true> {
+  heading?: T;
+  body?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "split-groups_select".
+ */
+export interface SplitGroupsSelect<T extends boolean = true> {
+  name?: T;
+  currency?: T;
+  people?:
+    | T
+    | {
+        name?: T;
+        id?: T;
+      };
+  shareSlug?: T;
+  link?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "unlock-attempts_select".
  */
 export interface UnlockAttemptsSelect<T extends boolean = true> {
@@ -1819,24 +2182,6 @@ export interface ShortLinksSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "shared-lists_select".
- */
-export interface SharedListsSelect<T extends boolean = true> {
-  title?: T;
-  shareSlug?: T;
-  link?: T;
-  items?:
-    | T
-    | {
-        label?: T;
-        checked?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "secrets_select".
  */
 export interface SecretsSelect<T extends boolean = true> {
@@ -1845,6 +2190,35 @@ export interface SecretsSelect<T extends boolean = true> {
   iv?: T;
   salt?: T;
   expiresAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "plan-responses_select".
+ */
+export interface PlanResponsesSelect<T extends boolean = true> {
+  key?: T;
+  planId?: T;
+  blockId?: T;
+  participantId?: T;
+  name?: T;
+  value?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "split-expenses_select".
+ */
+export interface SplitExpensesSelect<T extends boolean = true> {
+  groupId?: T;
+  description?: T;
+  amount?: T;
+  paidBy?: T;
+  splitMode?: T;
+  shares?: T;
+  spentOn?: T;
   updatedAt?: T;
   createdAt?: T;
 }
