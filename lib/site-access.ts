@@ -20,6 +20,7 @@ import { loadSectionModes } from "@/lib/section-modes";
 import { canView, type Viewer } from "@/lib/site-access-rules";
 import {
   SITE_SECTIONS,
+  sectionForPath,
   type AccessMode,
   type SectionModes,
   type SiteSection,
@@ -140,14 +141,23 @@ export async function publicNavSections(): Promise<NavSection[]> {
   return navSectionsFor(await getSectionModes(), "anonymous");
 }
 
-function toolsFor(modes: SectionModes, viewer: Viewer): ToolEntry[] {
+function modeOf(modes: SectionModes, key: string): AccessMode {
+  // Unknown key: owner only, rather than leaking a link.
+  return (modes as Record<string, AccessMode | undefined>)[key] ?? "owner";
+}
+
+/**
+ * Tools this viewer can open: the tool's own section (sectionKey) and the
+ * section that owns its page (e.g. /tools/json sits under Tools) must both
+ * be open, so a hidden section never gets a link that would 404.
+ */
+export function toolsFor(modes: SectionModes, viewer: Viewer): ToolEntry[] {
   return TOOLS.filter((tool) => {
-    if (!tool.sectionKey) return true;
-    const mode = (modes as Record<string, AccessMode | undefined>)[
-      tool.sectionKey
-    ];
-    // Unknown key: only the owner sees it, rather than leaking a link.
-    return canView(mode ?? "owner", viewer);
+    if (tool.sectionKey && !canView(modeOf(modes, tool.sectionKey), viewer)) {
+      return false;
+    }
+    const owner = sectionForPath(tool.href);
+    return !owner || canView(modeOf(modes, owner.key), viewer);
   });
 }
 
