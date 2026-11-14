@@ -8,6 +8,14 @@ import {
   type PlaceView,
 } from "@/lib/places";
 
+/**
+ * Anchor for a place row, so a journey write-up can link to it with
+ * `#place-<id>` (the id is the place's id in /admin).
+ */
+export function placeAnchor(id: number): string {
+  return `place-${String(id)}`;
+}
+
 /** Places shown per category before the rest folds into "Show all". */
 const VISIBLE_PER_CATEGORY = 12;
 
@@ -25,7 +33,10 @@ function RestrictedBadge({
 
 function PlaceRow({ place }: Readonly<{ place: PlaceView }>) {
   return (
-    <li className="border-border min-w-0 border-t py-2.5">
+    <li
+      id={placeAnchor(place.id)}
+      className="border-border min-w-0 scroll-mt-24 border-t py-2.5"
+    >
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <span className="font-medium break-words">{place.name}</span>
         <RestrictedBadge visibility={place.visibility} />
