@@ -42,6 +42,7 @@ import { VaultFiles } from "./collections/VaultFiles";
 import { VaultRecords } from "./collections/VaultRecords";
 import { VaultSettings } from "./collections/VaultSettings";
 import { VisitedCountries } from "./collections/VisitedCountries";
+import { layoutCollections, layoutGlobals } from "./lib/admin-layout";
 import { env, envOr, requireEnv } from "./lib/env";
 import {
   withCollectionRevalidation,
@@ -76,6 +77,10 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
     components: {
+      // Simple start page instead of the default grid of every collection.
+      views: {
+        dashboard: { Component: "/components/admin/Dashboard#Dashboard" },
+      },
       // Always visible in the admin header (including /admin/account).
       actions: ["/components/admin/ViewSiteLink#ViewSiteLink"],
       beforeNavLinks: ["/components/admin/ViewSiteLink#ViewSiteLink"],
@@ -84,7 +89,8 @@ export default buildConfig({
   // Content collections and globals expire their cache tag on every change
   // (lib/revalidate.ts), so /admin edits show without a redeploy. Users,
   // unlock attempts and the food tour are never cached, so they're left out.
-  collections: [
+  // Sidebar groups, names and order come from lib/admin-layout.ts.
+  collections: layoutCollections([
     Users,
     ...[
       Media,
@@ -119,13 +125,13 @@ export default buildConfig({
     ShortLinks,
     PlanResponses,
     SplitExpenses,
-  ],
-  globals: [
+  ]),
+  globals: layoutGlobals([
     ...[SiteAccess, LandingPage, SiteSettings, VaultSettings].map(
       withGlobalRevalidation,
     ),
     FoodTour,
-  ],
+  ]),
   editor: lexicalEditor(),
   secret: payloadSecret,
   // Site uses the Local API; no need to expose GraphQL publicly.
