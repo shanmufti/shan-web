@@ -144,14 +144,14 @@ function stringList(value: unknown): string[] {
     : [];
 }
 
-export function parseMarks(value: unknown): Record<string, DateAnswer> {
+function parseMarks(value: unknown): Record<string, DateAnswer> {
   const marks = record(record(value)["marks"]);
   return Object.fromEntries(
     Object.entries(marks).filter(([, v]) => isDateAnswer(v)),
   ) as Record<string, DateAnswer>;
 }
 
-export function parseBallot(value: unknown): string[] {
+function parseBallot(value: unknown): string[] {
   return stringList(record(value)["ballot"]);
 }
 

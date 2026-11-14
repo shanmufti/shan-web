@@ -14,7 +14,7 @@ import { looksLikeToken } from "@/lib/tokens";
  * would).
  */
 
-export const MAX_LIST_ITEMS = 300;
+const MAX_LIST_ITEMS = 300;
 export const MAX_ITEM_LENGTH = 200;
 
 export interface SharedListItem {
@@ -33,7 +33,7 @@ async function drizzle() {
   return (payload.db as unknown as PostgresAdapter).drizzle;
 }
 
-export function looksLikeShareSlug(slug: string): boolean {
+function looksLikeShareSlug(slug: string): boolean {
   return looksLikeToken(slug);
 }
 

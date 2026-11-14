@@ -63,7 +63,7 @@ export function groupPeople(group: SplitGroup): SplitPerson[] {
 }
 
 /** Stored shares, cleaned: known people with a positive weight only. */
-export function parseShares(value: unknown, known: Set<string>): SplitShare[] {
+function parseShares(value: unknown, known: Set<string>): SplitShare[] {
   if (!Array.isArray(value)) return [];
   return value.flatMap((raw: unknown) => {
     if (!raw || typeof raw !== "object") return [];

@@ -80,7 +80,7 @@ export function tokenMatchesHash(
 }
 
 /** Payload's session cookie (`${cookiePrefix}-token`, prefix "payload"). */
-export const PAYLOAD_TOKEN_COOKIE = "payload-token";
+const PAYLOAD_TOKEN_COOKIE = "payload-token";
 
 /**
  * Could this request carry a Payload login? Without the session cookie or an

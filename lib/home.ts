@@ -2,7 +2,11 @@ import config from "@payload-config";
 import { cacheLife, cacheTag } from "next/cache";
 import { getPayload, type Where } from "payload";
 
-import { CONTENT_CACHE_LIFE } from "@/lib/cache-tags";
+import {
+  CONTENT_CACHE_LIFE,
+  LANDING_PAGE_TAG,
+  collectionTag,
+} from "@/lib/cache-tags";
 import { getSectionModes, toolsFor } from "@/lib/site-access";
 import { canView, type Viewer } from "@/lib/site-access-rules";
 import {
@@ -28,20 +32,15 @@ import type { LandingPage } from "@/payload-types";
  */
 
 /** Same lifetime as other CMS reads; Payload hooks expire the tags on edit. */
-export const HOME_CACHE_LIFE = CONTENT_CACHE_LIFE;
+const HOME_CACHE_LIFE = CONTENT_CACHE_LIFE;
 
 /** Tags each cached reader depends on (`collection:<slug>`, `global:<slug>`). */
-export const HOME_CACHE_TAGS = {
-  data: [
-    "collection:tech",
-    "collection:travel",
-    "collection:diving",
-    "collection:hobbies",
-    "collection:hobby-references",
-  ],
-  landing: ["global:landing-page"],
-  modes: ["global:site-access"],
-} as const;
+const HOME_CACHE_TAGS = {
+  data: ["tech", "travel", "diving", "hobbies", "hobby-references"].map(
+    collectionTag,
+  ),
+  landing: [LANDING_PAGE_TAG],
+};
 
 export type HomeItemKind = "tech" | "journey" | "dive";
 
@@ -74,7 +73,7 @@ export interface HomeData {
 }
 
 /** Which section gates each kind of post. */
-export const ITEM_SECTION: Record<HomeItemKind, SectionKey> = {
+const ITEM_SECTION: Record<HomeItemKind, SectionKey> = {
   tech: "tech",
   journey: "journeys",
   dive: "diving",

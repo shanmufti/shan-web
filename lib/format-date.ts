@@ -11,6 +11,16 @@ function utc(isodate: string) {
   return new Date(isodate);
 }
 
+/** "Mar 3, 2024" */
+export function formatShortDate(isodate: string) {
+  return utc(isodate).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 /** "Mar 2024" */
 export function formatMonthYear(isodate: string) {
   return utc(isodate).toLocaleDateString("en-US", {

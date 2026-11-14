@@ -22,7 +22,6 @@ import {
   SITE_SECTIONS,
   sectionForPath,
   type AccessMode,
-  type SectionKey,
   type SectionModes,
   type SiteSection,
 } from "@/lib/site-sections";
@@ -89,7 +88,7 @@ export async function visibleSections(): Promise<SiteSection[]> {
 }
 
 /** Sections anyone can open. Cached: safe for static shells. */
-export async function publicSections(): Promise<SiteSection[]> {
+async function publicSections(): Promise<SiteSection[]> {
   return sectionsFor(await getSectionModes(), "anonymous");
 }
 
@@ -169,20 +168,6 @@ export async function visibleTools(): Promise<ToolEntry[]> {
     currentViewer(),
   ]);
   return toolsFor(modes, viewer);
-}
-
-/** Tools anyone can open. Cached: safe for static shells. */
-export async function publicTools(): Promise<ToolEntry[]> {
-  return toolsFor(await getSectionModes(), "anonymous");
-}
-
-/** Can this visitor open the section? A backup to the proxy's own check. Per request. */
-export async function canViewSection(key: SectionKey): Promise<boolean> {
-  const [modes, viewer] = await Promise.all([
-    getSectionModes(),
-    currentViewer(),
-  ]);
-  return canView(modes[key], viewer);
 }
 
 /** For owner-only pages: 404 for everyone else, even if the proxy let them in. */

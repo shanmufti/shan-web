@@ -20,7 +20,7 @@ const UNIT_TO_MS: Record<TimeUnit, number> = {
 };
 
 /** Guess the unit from the size of the number (as most converters do). */
-export function guessUnit(value: number): TimeUnit {
+function guessUnit(value: number): TimeUnit {
   const abs = Math.abs(value);
   if (abs >= 1e17) return "ns";
   if (abs >= 1e14) return "us";
@@ -78,15 +78,6 @@ export function allTimeZones(): string[] {
   return zones.includes("UTC") ? zones : ["UTC", ...zones];
 }
 
-export function isValidTimeZone(zone: string): boolean {
-  try {
-    new Intl.DateTimeFormat("en-US", { timeZone: zone });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 interface WallTime {
   year: number;
   month: number;
@@ -133,7 +124,7 @@ export function zoneOffsetMinutes(ms: number, zone: string): number {
   return Math.round((asUtc - Math.floor(ms / 1000) * 1000) / 60000);
 }
 
-export function formatOffset(minutes: number): string {
+function formatOffset(minutes: number): string {
   const sign = minutes < 0 ? "-" : "+";
   const abs = Math.abs(minutes);
   const h = String(Math.floor(abs / 60)).padStart(2, "0");

@@ -11,7 +11,7 @@ import {
   isVaultCategory,
 } from "@/lib/vault";
 
-export function escapeText(value: string): string {
+function escapeText(value: string): string {
   return value
     .replace(/\\/g, "\\\\")
     .replace(/;/g, "\\;")
@@ -20,7 +20,7 @@ export function escapeText(value: string): string {
 }
 
 /** Folds one content line to 75-octet chunks without splitting a character. */
-export function foldLine(line: string): string {
+function foldLine(line: string): string {
   const encoder = new TextEncoder();
   if (encoder.encode(line).length <= 75) return line;
   const parts: string[] = [];

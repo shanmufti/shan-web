@@ -167,38 +167,6 @@ export function publicJourneys(docs: JourneyDoc[]): JourneyDoc[] {
 // ---------------------------------------------------------------------------
 // Rich text helpers
 
-/** Rough reading time from Lexical JSON (~220 words per minute). */
-export function readingMinutes(body: unknown): number {
-  let words = 0;
-  const walk = (node: unknown) => {
-    if (!node || typeof node !== "object") return;
-    const n = node as { text?: unknown; children?: unknown; root?: unknown };
-    if (typeof n.text === "string") {
-      words += n.text.split(/\s+/).filter(Boolean).length;
-    }
-    if (Array.isArray(n.children)) n.children.forEach(walk);
-    if (n.root) walk(n.root);
-  };
-  walk(body);
-  return Math.max(1, Math.round(words / 220));
-}
-
-/** Route stops, falling back to the journey's main location. */
-export function journeyStops(
-  journey: JourneyDoc,
-): { name: string; lat: number; lng: number }[] {
-  const stops = (journey.stops ?? []).map((s) => ({
-    name: s.name,
-    lat: s.lat,
-    lng: s.lng,
-  }));
-  const { name, lat, lng } = journey.location;
-  if (stops.length === 0 && lat != null && lng != null) {
-    stops.push({ name, lat, lng });
-  }
-  return stops;
-}
-
 export type TrackSegment = [number, number][];
 
 const isCoord = (p: unknown): p is [number, number] =>

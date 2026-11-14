@@ -91,7 +91,7 @@ export function parseIcs(text: string): CalendarEvent[] {
 const LOGISTICS =
   /\b(flight|fly|bus|ferry|shuttle|train|transfer|check[- ]?in|check[- ]?out|airbnb|booking|hotel|hostel|uber|taxi)\b/i;
 
-export function isLogistics(event: CalendarEvent): boolean {
+function isLogistics(event: CalendarEvent): boolean {
   return LOGISTICS.test(event.summary);
 }
 

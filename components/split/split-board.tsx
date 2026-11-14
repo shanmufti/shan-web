@@ -10,6 +10,7 @@ import {
   deleteExpense,
   type SplitActionResult,
 } from "@/lib/actions/split";
+import { formatShortDate } from "@/lib/format-date";
 import { useRememberedChoice } from "@/lib/remembered-choice";
 import type { SplitExpenseView, SplitView } from "@/lib/split";
 import { allocate, formatMoney, parseAmount } from "@/lib/split-math";
@@ -423,12 +424,7 @@ function ExpenseRow({
 }>) {
   const [confirming, setConfirming] = useState(false);
   const { pending, message, run } = useAction();
-  const date = new Date(expense.spentOn).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  });
+  const date = formatShortDate(expense.spentOn);
   return (
     <li className="py-3">
       <div className="flex items-start justify-between gap-3">

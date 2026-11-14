@@ -37,7 +37,7 @@ export function PageTransition({
 }
 
 /** Name for the cover image shared by a hub card and its detail page. */
-export function coverTransitionName(href: string): string {
+function coverTransitionName(href: string): string {
   return `cover${href.replaceAll(/[^a-z0-9]+/gi, "-")}`;
 }
 

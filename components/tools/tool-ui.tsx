@@ -1,14 +1,7 @@
 "use client";
 
 import { Check, Copy } from "lucide-react";
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type ComponentProps,
-  type ReactNode,
-} from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -22,11 +15,6 @@ export const monoAreaClass = cn(
 
 export const buttonClass =
   "border-border bg-background hover:bg-muted focus-visible:ring-ring/50 focus-visible:border-ring inline-flex h-9 items-center justify-center gap-1.5 rounded-md border px-3 text-sm font-medium whitespace-nowrap outline-none transition-colors focus-visible:ring-3 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0";
-
-export const primaryButtonClass = cn(
-  buttonClass,
-  "bg-primary text-primary-foreground hover:bg-primary/90 border-transparent",
-);
 
 const COPY_TEXT = {
   idle: null,
@@ -101,70 +89,6 @@ export function CopyButton({
   );
 }
 
-/** Labelled monospace textarea with an optional toolbar on the right. */
-export function TextField({
-  label,
-  value,
-  onChange,
-  error,
-  actions,
-  hint,
-  className,
-  ...props
-}: Readonly<
-  {
-    label: string;
-    value: string;
-    onChange?: (value: string) => void;
-    error?: string | null | undefined;
-    actions?: ReactNode;
-    hint?: ReactNode;
-  } & Omit<ComponentProps<"textarea">, "value" | "onChange">
->) {
-  const id = useId();
-  const errorId = `${id}-error`;
-  const hintId = `${id}-hint`;
-  const describedBy =
-    [error ? errorId : null, hint ? hintId : null].filter(Boolean).join(" ") ||
-    undefined;
-  return (
-    <div className={cn("flex min-w-0 flex-col gap-2", className)}>
-      <div className="flex min-h-8 flex-wrap items-center justify-between gap-2">
-        <label htmlFor={id} className="text-sm font-medium">
-          {label}
-        </label>
-        {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
-      </div>
-      <textarea
-        id={id}
-        value={value}
-        onChange={
-          onChange
-            ? (e) => {
-                onChange(e.target.value);
-              }
-            : undefined
-        }
-        readOnly={!onChange}
-        spellCheck={false}
-        autoCapitalize="off"
-        autoComplete="off"
-        autoCorrect="off"
-        aria-invalid={error ? true : undefined}
-        aria-describedby={describedBy}
-        className={cn(monoAreaClass, !onChange && "bg-muted/40")}
-        {...props}
-      />
-      {hint ? (
-        <p id={hintId} className="text-muted-foreground text-xs">
-          {hint}
-        </p>
-      ) : null}
-      <ErrorText id={errorId} error={error} />
-    </div>
-  );
-}
-
 export function ErrorText({
   id,
   error,
@@ -178,58 +102,6 @@ export function ErrorText({
     >
       {error ?? ""}
     </p>
-  );
-}
-
-export interface Choice<T extends string> {
-  value: T;
-  label: string;
-}
-
-/** Radio group styled as a segmented control; arrow keys move between options. */
-export function Segmented<T extends string>({
-  label,
-  value,
-  options,
-  onChange,
-  hideLabel = false,
-}: Readonly<{
-  label: string;
-  value: T;
-  options: Choice<T>[];
-  onChange: (value: T) => void;
-  hideLabel?: boolean;
-}>) {
-  const name = useId();
-  return (
-    <fieldset className="flex min-w-0 flex-wrap items-center gap-2">
-      <legend className="sr-only">{label}</legend>
-      {hideLabel ? null : (
-        <span aria-hidden="true" className="text-sm font-medium">
-          {label}
-        </span>
-      )}
-      <div className="bg-muted inline-flex flex-wrap rounded-md p-0.5">
-        {options.map((option) => (
-          <label
-            key={option.value}
-            className="has-[:checked]:bg-background has-[:checked]:text-foreground text-muted-foreground has-[:focus-visible]:ring-ring/50 relative cursor-pointer rounded-[5px] px-3 py-1 text-sm has-[:checked]:shadow-sm has-[:focus-visible]:ring-3"
-          >
-            <input
-              type="radio"
-              name={name}
-              value={option.value}
-              checked={value === option.value}
-              onChange={() => {
-                onChange(option.value);
-              }}
-              className="sr-only"
-            />
-            {option.label}
-          </label>
-        ))}
-      </div>
-    </fieldset>
   );
 }
 

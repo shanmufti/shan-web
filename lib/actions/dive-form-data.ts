@@ -63,17 +63,13 @@ interface DiveNotes {
   lessonsLearned?: string;
 }
 
-export function optionalNumber(
-  value: FormDataEntryValue | null,
-): number | undefined {
+function optionalNumber(value: FormDataEntryValue | null): number | undefined {
   if (typeof value !== "string" || value.trim() === "") return undefined;
   const n = Number(value);
   return Number.isFinite(n) ? n : undefined;
 }
 
-export function optionalText(
-  value: FormDataEntryValue | null,
-): string | undefined {
+function optionalText(value: FormDataEntryValue | null): string | undefined {
   if (typeof value !== "string") return undefined;
   const trimmed = value.trim();
   return trimmed === "" ? undefined : trimmed;
