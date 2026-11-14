@@ -1859,9 +1859,25 @@ export interface LandingPage {
   id: number;
   eyebrow?: string | null;
   headline: string;
+  /**
+   * Shown under your name at the top of the home page. Empty shows a marked placeholder.
+   */
   intro?: string | null;
   /**
-   * Optional links shown under the open sections, e.g. Instagram or email.
+   * The home page's Now tile: what you're working on or learning this month.
+   */
+  now?: {
+    /**
+     * A line or two. Empty shows a marked placeholder on the home page.
+     */
+    text?: string | null;
+    /**
+     * Shown as “Updated <date>” under the text.
+     */
+    updated?: string | null;
+  };
+  /**
+   * Shown in the home page's Elsewhere tile, e.g. Instagram or email.
    */
   links?:
     | {
@@ -1990,6 +2006,12 @@ export interface LandingPageSelect<T extends boolean = true> {
   eyebrow?: T;
   headline?: T;
   intro?: T;
+  now?:
+    | T
+    | {
+        text?: T;
+        updated?: T;
+      };
   links?:
     | T
     | {

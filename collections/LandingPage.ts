@@ -29,6 +29,39 @@ export const LandingPage: GlobalConfig = {
     {
       name: "intro",
       type: "textarea",
+      admin: {
+        description:
+          "Shown under your name at the top of the home page. Empty shows a marked placeholder.",
+      },
+    },
+    {
+      name: "now",
+      label: "Now",
+      type: "group",
+      admin: {
+        description:
+          "The home page's Now tile: what you're working on or learning this month.",
+      },
+      fields: [
+        {
+          name: "text",
+          type: "textarea",
+          maxLength: 280,
+          admin: {
+            description:
+              "A line or two. Empty shows a marked placeholder on the home page.",
+          },
+        },
+        {
+          name: "updated",
+          label: "Updated",
+          type: "date",
+          admin: {
+            date: { pickerAppearance: "dayOnly", displayFormat: "d MMM yyyy" },
+            description: "Shown as “Updated <date>” under the text.",
+          },
+        },
+      ],
     },
     {
       name: "links",
@@ -36,7 +69,7 @@ export const LandingPage: GlobalConfig = {
       type: "array",
       admin: {
         description:
-          "Optional links shown under the open sections, e.g. Instagram or email.",
+          "Shown in the home page's Elsewhere tile, e.g. Instagram or email.",
       },
       fields: [
         { name: "label", type: "text", required: true },
