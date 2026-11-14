@@ -148,17 +148,6 @@ export const SITE_SECTIONS = [
     onLanding: true,
   },
   {
-    key: "callTimes",
-    label: "Call times",
-    href: "/tools/call-times",
-    blurb: "Local times and overlapping waking hours.",
-    paths: ["/tools/call-times"],
-    collections: ["call-planner"],
-    defaultMode: "passcode",
-    inNav: false,
-    onLanding: false,
-  },
-  {
     key: "lists",
     label: "Shared lists",
     href: "/lists",

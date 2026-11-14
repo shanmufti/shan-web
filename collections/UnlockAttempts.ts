@@ -5,8 +5,7 @@ import { privateAccess } from "./access";
 /**
  * Failed passcode attempts per visitor (hashed IP), for rate limiting the
  * /unlock form. Written only by the server action with overrideAccess.
- * lib/rate-limit.ts also keeps other counters here under prefixed keys
- * (e.g. "secret:<hash>" for new one-time secrets).
+ * lib/rate-limit.ts also keeps other counters here under prefixed keys.
  */
 export const UnlockAttempts: CollectionConfig = {
   slug: "unlock-attempts",

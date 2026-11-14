@@ -149,7 +149,7 @@ function modeOf(modes: SectionModes, key: string): AccessMode {
 
 /**
  * Tools this viewer can open: the tool's own section (sectionKey) and the
- * section that owns its page (e.g. /tools/json sits under Tools) must both
+ * section that owns its page (e.g. /tools/regex sits under Tools) must both
  * be open, so a hidden section never gets a link that would 404.
  */
 export function toolsFor(modes: SectionModes, viewer: Viewer): ToolEntry[] {

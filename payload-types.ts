@@ -96,7 +96,6 @@ export interface Config {
     'food-ratings': FoodRating;
     'food-tour-photos': FoodTourPhoto;
     'short-links': ShortLink;
-    secrets: Secret;
     'plan-responses': PlanResponse;
     'split-expenses': SplitExpense;
     'payload-kv': PayloadKv;
@@ -142,7 +141,6 @@ export interface Config {
     'food-ratings': FoodRatingsSelect<false> | FoodRatingsSelect<true>;
     'food-tour-photos': FoodTourPhotosSelect<false> | FoodTourPhotosSelect<true>;
     'short-links': ShortLinksSelect<false> | ShortLinksSelect<true>;
-    secrets: SecretsSelect<false> | SecretsSelect<true>;
     'plan-responses': PlanResponsesSelect<false> | PlanResponsesSelect<true>;
     'split-expenses': SplitExpensesSelect<false> | SplitExpensesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -159,7 +157,6 @@ export interface Config {
     'landing-page': LandingPage;
     'site-settings': SiteSetting;
     'vault-settings': VaultSetting;
-    'call-planner': CallPlanner;
     'food-tour': FoodTour;
   };
   globalsSelect: {
@@ -167,7 +164,6 @@ export interface Config {
     'landing-page': LandingPageSelect<false> | LandingPageSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'vault-settings': VaultSettingsSelect<false> | VaultSettingsSelect<true>;
-    'call-planner': CallPlannerSelect<false> | CallPlannerSelect<true>;
     'food-tour': FoodTourSelect<false> | FoodTourSelect<true>;
   };
   locale: null;
@@ -1413,23 +1409,6 @@ export interface ShortLink {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "secrets".
- */
-export interface Secret {
-  id: number;
-  secretId: string;
-  ciphertext: string;
-  iv: string;
-  /**
-   * PBKDF2 salt when a passphrase was added.
-   */
-  salt?: string | null;
-  expiresAt: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "plan-responses".
  */
 export interface PlanResponse {
@@ -1623,10 +1602,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'short-links';
         value: number | ShortLink;
-      } | null)
-    | ({
-        relationTo: 'secrets';
-        value: number | Secret;
       } | null)
     | ({
         relationTo: 'plan-responses';
@@ -2454,19 +2429,6 @@ export interface ShortLinksSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "secrets_select".
- */
-export interface SecretsSelect<T extends boolean = true> {
-  secretId?: T;
-  ciphertext?: T;
-  iv?: T;
-  salt?: T;
-  expiresAt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "plan-responses_select".
  */
 export interface PlanResponsesSelect<T extends boolean = true> {
@@ -2552,7 +2514,6 @@ export interface SiteAccess {
     hobbies: 'public' | 'passcode' | 'owner';
     foodTour: 'public' | 'passcode' | 'owner';
     tools: 'public' | 'passcode' | 'owner';
-    callTimes: 'public' | 'passcode' | 'owner';
     /**
      * Always hidden: only you, logged in. Share links still open for anyone who has them.
      */
@@ -2646,33 +2607,6 @@ export interface VaultSetting {
   createdAt?: string | null;
 }
 /**
- * People shown on /tools/call-times with their local time and overlapping waking hours. Who can open the page is set in Settings → Access (Call times).
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "call-planner".
- */
-export interface CallPlanner {
-  id: number;
-  wakeStart: number;
-  /**
-   * 22 means awake until 22:00.
-   */
-  wakeEnd: number;
-  people?:
-    | {
-        name: string;
-        city?: string | null;
-        /**
-         * IANA name, e.g. America/New_York, Asia/Karachi.
-         */
-        timeZone: string;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "food-tour".
  */
@@ -2736,7 +2670,6 @@ export interface SiteAccessSelect<T extends boolean = true> {
         hobbies?: T;
         foodTour?: T;
         tools?: T;
-        callTimes?: T;
         lists?: T;
         vault?: T;
       };
@@ -2788,25 +2721,6 @@ export interface SiteSettingsSelect<T extends boolean = true> {
 export interface VaultSettingsSelect<T extends boolean = true> {
   calendarToken?: T;
   regenerateCalendarToken?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "call-planner_select".
- */
-export interface CallPlannerSelect<T extends boolean = true> {
-  wakeStart?: T;
-  wakeEnd?: T;
-  people?:
-    | T
-    | {
-        name?: T;
-        city?: T;
-        timeZone?: T;
-        id?: T;
-      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
