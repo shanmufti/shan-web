@@ -80,6 +80,32 @@ export const Travel: CollectionConfig = {
       admin: { hidden: true },
     },
     {
+      name: "photos",
+      type: "array",
+      admin: {
+        description:
+          "Photo gallery, in display order. Set Stop to a stop's name to group photos under it. The cover stays in Cover.",
+        initCollapsed: true,
+      },
+      fields: [
+        {
+          type: "row",
+          fields: [
+            {
+              name: "image",
+              type: "upload",
+              relationTo: "media",
+            },
+            {
+              name: "stop",
+              type: "text",
+              admin: { description: "Matches a stop's name, e.g. Oaxaca." },
+            },
+          ],
+        },
+      ],
+    },
+    {
       name: "relatedDiveLogs",
       type: "relationship",
       relationTo: "diving",

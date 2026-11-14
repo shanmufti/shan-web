@@ -47,6 +47,7 @@ import {
   withCollectionRevalidation,
   withGlobalRevalidation,
 } from "./lib/revalidate";
+import { mediaUploadNames } from "./lib/media-upload";
 import { VAULT_R2_PREFIX } from "./lib/vault";
 import { vaultUploadNames } from "./lib/vault-upload-names";
 
@@ -189,5 +190,7 @@ export default buildConfig({
     // Must come after s3Storage: gives vault-files client uploads a random
     // R2 key (see lib/vault-upload-names.ts).
     vaultUploadNames(),
+    // Same idea for public photos: unique R2 names (lib/media-upload.ts).
+    mediaUploadNames(),
   ],
 });

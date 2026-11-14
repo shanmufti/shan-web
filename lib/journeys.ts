@@ -84,6 +84,8 @@ export async function journeyDocs(): Promise<JourneyDoc[]> {
     sort: "-startDate",
     limit: 500,
     depth: 1,
+    // Galleries are only shown on a journey's own page (journeyDoc).
+    select: { photos: false },
     joins: { stories: { limit: 100, where: { draft: { equals: false } } } },
     overrideAccess: true,
   });

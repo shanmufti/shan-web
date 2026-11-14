@@ -226,10 +226,13 @@ export interface User {
 export interface Media {
   id: number;
   /**
-   * Describe the photo for screen readers. Defaults to the file name if left blank (handy for bulk uploads).
+   * Describe the photo for screen readers. Falls back to the file name if left blank (handy for bulk uploads).
    */
   alt?: string | null;
   caption?: string | null;
+  /**
+   * When the photo was taken (date only shown).
+   */
   takenAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -398,6 +401,19 @@ export interface Travel {
     | string
     | number
     | boolean
+    | null;
+  /**
+   * Photo gallery, in display order. Set Stop to a stop's name to group photos under it. The cover stays in Cover.
+   */
+  photos?:
+    | {
+        image?: (number | null) | Media;
+        /**
+         * Matches a stop's name, e.g. Oaxaca.
+         */
+        stop?: string | null;
+        id?: string | null;
+      }[]
     | null;
   relatedDiveLogs?: (number | Diving)[] | null;
   /**
@@ -1059,7 +1075,6 @@ export interface VaultFile {
    */
   title?: string | null;
   notes?: string | null;
-  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1358,7 +1373,6 @@ export interface FoodTourPhoto {
   participantId?: string | null;
   name?: string | null;
   caption?: string | null;
-  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1964,6 +1978,13 @@ export interface TravelSelect<T extends boolean = true> {
         id?: T;
       };
   track?: T;
+  photos?:
+    | T
+    | {
+        image?: T;
+        stop?: T;
+        id?: T;
+      };
   relatedDiveLogs?: T;
   stories?: T;
   updatedAt?: T;
@@ -2180,7 +2201,6 @@ export interface VaultFilesSelect<T extends boolean = true> {
   originalFilename?: T;
   title?: T;
   notes?: T;
-  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -2386,7 +2406,6 @@ export interface FoodTourPhotosSelect<T extends boolean = true> {
   participantId?: T;
   name?: T;
   caption?: T;
-  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
