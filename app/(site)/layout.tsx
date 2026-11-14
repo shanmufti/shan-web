@@ -35,7 +35,8 @@ export const metadata: Metadata = {
     description,
     images: ["/opengraph-image"],
   },
-  twitter: { card: "summary_large_image", images: ["/opengraph-image"] },
+  // No twitter:image: X falls back to og:image, which is per page.
+  twitter: { card: "summary_large_image" },
   alternates: {
     types: { "application/rss+xml": "/blog/rss.xml" },
   },

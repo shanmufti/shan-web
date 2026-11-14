@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { Breadcrumbs, type Crumb } from "@/components/breadcrumbs";
 import { DetailPager, type PagerItem } from "@/components/detail-pager";
 import { LockedPage } from "@/components/locked-page";
+import { PageTransition, SharedCover } from "@/components/page-transition";
 import { Picture } from "@/components/picture";
 import { PostCard } from "@/components/post-card";
 import { ArticleBody } from "@/components/rich-text";
@@ -19,7 +20,6 @@ import {
   journeyDoc,
   listStories,
   mediaImage,
-  mediaUrl,
   readingMinutes,
   storyDoc,
   storyDocs,
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (isPrivate(story)) {
     return { title: story.title, robots: { index: false, follow: false } };
   }
-  const image = mediaUrl(story.cover);
+  // The share image is ./opengraph-image.tsx (site image when private).
   return {
     title: story.title,
     description: story.summary,
@@ -58,7 +58,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: story.title,
       description: story.summary,
       publishedTime: story.date,
-      images: [image ?? "/opengraph-image"],
     },
   };
 }
@@ -221,14 +220,16 @@ function StoryArticle({ story, ...footer }: Readonly<FooterData>) {
       <div className="reading-progress" aria-hidden="true" />
 
       {cover ? (
-        <figure className="relative">
-          <Picture
-            image={cover}
-            sizes="100vw"
-            priority
-            className="h-[min(56vh,44rem)] w-full object-cover sm:h-[min(70vh,44rem)]"
-          />
-        </figure>
+        <SharedCover href={`/blog/${story.slug}`}>
+          <figure className="relative">
+            <Picture
+              image={cover}
+              sizes="100vw"
+              priority
+              className="h-[min(56vh,44rem)] w-full object-cover sm:h-[min(70vh,44rem)]"
+            />
+          </figure>
+        </SharedCover>
       ) : null}
 
       <div className="px-4 sm:px-6">
@@ -294,10 +295,16 @@ export default async function StoryPage({ params }: Props) {
   const data: FooterData = { story, journey, docs };
   if (isPrivate(story)) {
     return (
-      <Suspense fallback={<div className="min-h-[60svh]" />}>
-        <PrivateStory {...data} />
-      </Suspense>
+      <PageTransition>
+        <Suspense fallback={<div className="min-h-[60svh]" />}>
+          <PrivateStory {...data} />
+        </Suspense>
+      </PageTransition>
     );
   }
-  return <StoryArticle {...data} />;
+  return (
+    <PageTransition>
+      <StoryArticle {...data} />
+    </PageTransition>
+  );
 }

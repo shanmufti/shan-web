@@ -10,6 +10,7 @@ import {
   JourneyStopList,
 } from "@/components/journey-route-view";
 import { LockedPage } from "@/components/locked-page";
+import { PageTransition, SharedCover } from "@/components/page-transition";
 import { Picture } from "@/components/picture";
 import { LockedCard, PostCard } from "@/components/post-card";
 import { ArticleBody } from "@/components/rich-text";
@@ -31,7 +32,6 @@ import {
   journeyDocs,
   journeyTrack,
   mediaImage,
-  mediaUrl,
   publicJourneys,
   readingMinutes,
   type JourneyDoc,
@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (isPrivate(journey)) {
     return { title: journey.title, robots: { index: false, follow: false } };
   }
-  const image = mediaUrl(journey.cover);
+  // The share image is ./opengraph-image.tsx (site image when private).
   return {
     title: journey.title,
     description: journey.summary,
@@ -65,7 +65,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "article",
       title: journey.title,
       description: journey.summary,
-      images: [image ?? "/opengraph-image"],
     },
   };
 }
@@ -231,12 +230,14 @@ function JourneyArticle({
           </p>
           <TripStats facts={facts} />
           {cover ? (
-            <Picture
-              image={cover}
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              priority
-              className="mt-8 aspect-[3/2] w-full rounded-2xl object-cover"
-            />
+            <SharedCover href={`/travel/${journey.slug}`}>
+              <Picture
+                image={cover}
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                priority
+                className="mt-8 aspect-[3/2] w-full rounded-2xl object-cover"
+              />
+            </SharedCover>
           ) : null}
         </header>
         <div className="mt-12">
@@ -309,7 +310,11 @@ async function PrivateJourney({
       />
     );
   }
-  return <JourneyArticle journey={journey} docs={docs} />;
+  return (
+    <PageTransition>
+      <JourneyArticle journey={journey} docs={docs} />
+    </PageTransition>
+  );
 }
 
 export default async function JourneyPage({ params }: Props) {
@@ -318,10 +323,16 @@ export default async function JourneyPage({ params }: Props) {
   if (!journey) notFound();
   if (isPrivate(journey)) {
     return (
-      <Suspense fallback={<div className="min-h-[60svh]" />}>
-        <PrivateJourney journey={journey} docs={docs} />
-      </Suspense>
+      <PageTransition>
+        <Suspense fallback={<div className="min-h-[60svh]" />}>
+          <PrivateJourney journey={journey} docs={docs} />
+        </Suspense>
+      </PageTransition>
     );
   }
-  return <JourneyArticle journey={journey} docs={docs} />;
+  return (
+    <PageTransition>
+      <JourneyArticle journey={journey} docs={docs} />
+    </PageTransition>
+  );
 }

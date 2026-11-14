@@ -5,6 +5,7 @@ import type { MediaImage } from "@/lib/media";
 import { unlockHref } from "@/lib/site-links";
 import { cn } from "@/lib/utils";
 
+import { SharedCover } from "./page-transition";
 import { Picture } from "./picture";
 
 interface PostCardProps {
@@ -55,28 +56,30 @@ export function PostCard({
 }: Readonly<PostCardProps>) {
   return (
     <Link href={href} className="group block outline-none">
-      <div
-        className={cn(
-          "bg-tint-water border-border group-focus-visible:ring-ring relative overflow-hidden rounded-2xl border group-focus-visible:ring-2 group-focus-visible:ring-offset-2",
-          aspectClass[aspect],
-        )}
-      >
-        {image ? (
-          <Picture
-            image={image}
-            sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw"
-            priority={priority}
-            className="size-full object-cover transition-transform duration-[600ms] ease-[cubic-bezier(.2,.7,.2,1)] group-hover:scale-[1.03]"
-          />
-        ) : (
-          <div className="flex size-full items-end p-4">
-            <span className="text-muted-foreground font-mono text-3xl tracking-tight uppercase">
-              {placeholder ?? title.slice(0, 2)}
-            </span>
-          </div>
-        )}
-        {isPrivate ? <PrivateBadge /> : null}
-      </div>
+      <SharedCover href={href}>
+        <div
+          className={cn(
+            "bg-tint-water border-border group-focus-visible:ring-ring relative overflow-hidden rounded-2xl border group-focus-visible:ring-2 group-focus-visible:ring-offset-2",
+            aspectClass[aspect],
+          )}
+        >
+          {image ? (
+            <Picture
+              image={image}
+              sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw"
+              priority={priority}
+              className="size-full object-cover transition-transform duration-[600ms] ease-[cubic-bezier(.2,.7,.2,1)] group-hover:scale-[1.03]"
+            />
+          ) : (
+            <div className="flex size-full items-end p-4">
+              <span className="text-muted-foreground font-mono text-3xl tracking-tight uppercase">
+                {placeholder ?? title.slice(0, 2)}
+              </span>
+            </div>
+          )}
+          {isPrivate ? <PrivateBadge /> : null}
+        </div>
+      </SharedCover>
       <p className="meta-label text-muted-foreground mt-4">{meta}</p>
       <h3 className="mt-1.5 text-xl leading-snug font-medium tracking-tight underline-offset-4 group-hover:underline">
         {title}
@@ -150,23 +153,25 @@ export function FeaturedCard({
       href={href}
       className="group bg-card border-border lift rounded-tile grid overflow-hidden border outline-none focus-visible:outline-2 focus-visible:outline-offset-2 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
     >
-      <div className="bg-tint-water relative aspect-[16/10] overflow-hidden md:aspect-auto md:min-h-80">
-        {image ? (
-          <Picture
-            image={image}
-            sizes="(min-width: 768px) 60vw, 100vw"
-            priority={priority}
-            className="absolute inset-0 size-full object-cover transition-transform duration-[600ms] ease-[cubic-bezier(.2,.7,.2,1)] group-hover:scale-[1.02]"
-          />
-        ) : (
-          <div className="flex size-full items-end p-6">
-            <span className="text-muted-foreground font-mono text-5xl tracking-tight uppercase">
-              {placeholder ?? title.slice(0, 2)}
-            </span>
-          </div>
-        )}
-        {isPrivate ? <PrivateBadge /> : null}
-      </div>
+      <SharedCover href={href}>
+        <div className="bg-tint-water relative aspect-[16/10] overflow-hidden md:aspect-auto md:min-h-80">
+          {image ? (
+            <Picture
+              image={image}
+              sizes="(min-width: 768px) 60vw, 100vw"
+              priority={priority}
+              className="absolute inset-0 size-full object-cover transition-transform duration-[600ms] ease-[cubic-bezier(.2,.7,.2,1)] group-hover:scale-[1.02]"
+            />
+          ) : (
+            <div className="flex size-full items-end p-6">
+              <span className="text-muted-foreground font-mono text-5xl tracking-tight uppercase">
+                {placeholder ?? title.slice(0, 2)}
+              </span>
+            </div>
+          )}
+          {isPrivate ? <PrivateBadge /> : null}
+        </div>
+      </SharedCover>
       <div className="flex flex-col justify-end gap-2 p-6 sm:p-8">
         <p className="eyebrow text-coral-ink">{label}</p>
         <p className="meta-label text-muted-foreground">{meta}</p>

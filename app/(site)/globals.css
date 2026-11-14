@@ -495,6 +495,43 @@
   }
 }
 
+/*
+ * View transitions (components/page-transition.tsx). Hubs and detail pages
+ * cross-fade; a card's cover morphs into the detail hero.
+ * Header and footer stay put: only the wrapped page content animates.
+ */
+::view-transition {
+  /* Clicks during the short animation reach the live page. */
+  pointer-events: none;
+}
+::view-transition-old(.page-exit) {
+  animation: 120ms ease-in both vt-fade-out;
+}
+::view-transition-new(.page-enter) {
+  animation: 200ms ease-out 60ms both vt-fade-in;
+}
+::view-transition-group(.cover-morph) {
+  animation-duration: 320ms;
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
 /* Native <dialog> backdrops (command palette, mobile menu). */
 .dialog-backdrop::backdrop {
   background: oklch(0.16 0.03 256 / 40%);

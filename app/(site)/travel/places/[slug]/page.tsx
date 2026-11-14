@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 
 import { LockedPage } from "@/components/locked-page";
+import { PageTransition } from "@/components/page-transition";
 import { PlacesMapLoader } from "@/components/places-map-loader";
 import { ArticleBody } from "@/components/rich-text";
 import { Badge } from "@/components/ui/badge";
@@ -325,52 +326,54 @@ export default async function DestinationPage({ params }: Props) {
     .join(" · ");
 
   return (
-    <article className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-10">
-      <header className="pt-12 sm:pt-20">
-        <Link
-          href="/travel/places"
-          className="meta-label text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5"
-        >
-          <ArrowLeft className="size-3.5" aria-hidden="true" />
-          Places
-        </Link>
-        <p className="meta-label text-muted-foreground mt-8 flex flex-wrap items-center gap-2">
-          {eyebrow}
-          {doc.draft ? <Badge variant="outline">Draft</Badge> : null}
-          {doc.visibility === "private" ? (
-            <Badge variant="outline">Private</Badge>
-          ) : null}
-        </p>
-        <h1 className="font-heading mt-3 max-w-4xl text-[clamp(2.5rem,6vw,5rem)] leading-[0.98] tracking-[-0.04em]">
-          {doc.title}
-        </h1>
-        <JourneyLinks journeys={journeys} />
-      </header>
-
-      {cover ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={cover}
-          alt={mediaAlt(doc.cover) ?? ""}
-          className="mt-12 aspect-[21/9] w-full rounded-md object-cover"
-        />
-      ) : null}
-
-      <Facts doc={doc} places={places.length} />
-
-      <div className="mt-14">
-        {hasText(doc.writeUp) && doc.writeUp ? (
-          <ArticleBody data={doc.writeUp} />
-        ) : (
-          <p className="border-border text-muted-foreground max-w-[680px] rounded-md border border-dashed p-6 font-mono text-sm">
-            [Write-up: Shan to write]
+    <PageTransition>
+      <article className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-10">
+        <header className="pt-12 sm:pt-20">
+          <Link
+            href="/travel/places"
+            className="meta-label text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5"
+          >
+            <ArrowLeft className="size-3.5" aria-hidden="true" />
+            Places
+          </Link>
+          <p className="meta-label text-muted-foreground mt-8 flex flex-wrap items-center gap-2">
+            {eyebrow}
+            {doc.draft ? <Badge variant="outline">Draft</Badge> : null}
+            {doc.visibility === "private" ? (
+              <Badge variant="outline">Private</Badge>
+            ) : null}
           </p>
-        )}
-      </div>
+          <h1 className="font-heading mt-3 max-w-4xl text-[clamp(2.5rem,6vw,5rem)] leading-[0.98] tracking-[-0.04em]">
+            {doc.title}
+          </h1>
+          <JourneyLinks journeys={journeys} />
+        </header>
 
-      <Recommendations places={places} center={center} />
+        {cover ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={cover}
+            alt={mediaAlt(doc.cover) ?? ""}
+            className="mt-12 aspect-[21/9] w-full rounded-md object-cover"
+          />
+        ) : null}
 
-      <Pager previous={previous} next={next} />
-    </article>
+        <Facts doc={doc} places={places.length} />
+
+        <div className="mt-14">
+          {hasText(doc.writeUp) && doc.writeUp ? (
+            <ArticleBody data={doc.writeUp} />
+          ) : (
+            <p className="border-border text-muted-foreground max-w-[680px] rounded-md border border-dashed p-6 font-mono text-sm">
+              [Write-up: Shan to write]
+            </p>
+          )}
+        </div>
+
+        <Recommendations places={places} center={center} />
+
+        <Pager previous={previous} next={next} />
+      </article>
+    </PageTransition>
   );
 }

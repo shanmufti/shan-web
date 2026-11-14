@@ -8,6 +8,7 @@ import { HobbyFilters, type FilterField } from "@/components/hobby-filters";
 import { AddReferenceForm, AddSessionForm } from "@/components/hobby-forms";
 import { HobbyIcon } from "@/components/hobby-icon";
 import { HobbyReferenceCard } from "@/components/hobby-reference-card";
+import { PageTransition } from "@/components/page-transition";
 import { formatDate } from "@/lib/format-date";
 import { getHobbyPage, type HobbyReference } from "@/lib/hobbies";
 import {
@@ -171,73 +172,75 @@ export default async function HobbyPage({ params, searchParams }: Props) {
   const href = `/hobbies/${hobby.slug}`;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-16 sm:px-6 lg:px-10">
-      <header className="pt-10 pb-8 sm:pt-16">
-        <Link
-          href="/hobbies"
-          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm"
-        >
-          <ArrowLeft aria-hidden="true" className="size-4" />
-          All hobbies
-        </Link>
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <span className="bg-accent text-accent-foreground grid size-12 shrink-0 place-items-center rounded-xl">
-            <HobbyIcon name={hobby.icon} className="size-6" />
-          </span>
-          <h1 className="font-heading text-[clamp(2.25rem,4vw,3.5rem)] leading-none">
-            {hobby.name}
-          </h1>
-          {hobby.public === false ? (
-            <span className="border-border text-muted-foreground inline-flex h-6 items-center gap-1 rounded-full border px-2 text-xs">
-              <Lock aria-hidden="true" className="size-3" />
-              Private
-            </span>
-          ) : null}
-        </div>
-        <p className="text-muted-foreground mt-4 max-w-2xl text-lg">
-          {hobbyDescription(hobby.description)}
-        </p>
-        {showSectionLink && hobby.sectionHref ? (
+    <PageTransition>
+      <div className="mx-auto max-w-5xl px-4 pb-16 sm:px-6 lg:px-10">
+        <header className="pt-10 pb-8 sm:pt-16">
           <Link
-            href={hobby.sectionHref}
-            className="text-primary mt-4 inline-flex items-center gap-1 text-sm font-medium underline-offset-4 hover:underline"
+            href="/hobbies"
+            className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm"
           >
-            More in {hobby.name}
-            <ArrowRight aria-hidden="true" className="size-4" />
+            <ArrowLeft aria-hidden="true" className="size-4" />
+            All hobbies
           </Link>
-        ) : null}
-      </header>
-
-      {isOwner ? (
-        <Disclosure
-          summary="Add a reference"
-          defaultOpen={references.length === 0}
-          className="mb-10"
-        >
-          <p className="text-muted-foreground mb-4 text-sm">
-            Paste a link. Title, thumbnail and source are filled in from
-            YouTube, Vimeo or the page’s preview tags when available.
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <span className="bg-accent text-accent-foreground grid size-12 shrink-0 place-items-center rounded-xl">
+              <HobbyIcon name={hobby.icon} className="size-6" />
+            </span>
+            <h1 className="font-heading text-[clamp(2.25rem,4vw,3.5rem)] leading-none">
+              {hobby.name}
+            </h1>
+            {hobby.public === false ? (
+              <span className="border-border text-muted-foreground inline-flex h-6 items-center gap-1 rounded-full border px-2 text-xs">
+                <Lock aria-hidden="true" className="size-3" />
+                Private
+              </span>
+            ) : null}
+          </div>
+          <p className="text-muted-foreground mt-4 max-w-2xl text-lg">
+            {hobbyDescription(hobby.description)}
           </p>
-          <AddReferenceForm hobbyId={hobby.id} topics={topics} />
-        </Disclosure>
-      ) : null}
+          {showSectionLink && hobby.sectionHref ? (
+            <Link
+              href={hobby.sectionHref}
+              className="text-primary mt-4 inline-flex items-center gap-1 text-sm font-medium underline-offset-4 hover:underline"
+            >
+              More in {hobby.name}
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </Link>
+          ) : null}
+        </header>
 
-      <ReferencesSection
-        href={href}
-        references={references}
-        filters={filters}
-        topics={topics}
-        isOwner={isOwner}
-      />
+        {isOwner ? (
+          <Disclosure
+            summary="Add a reference"
+            defaultOpen={references.length === 0}
+            className="mb-10"
+          >
+            <p className="text-muted-foreground mb-4 text-sm">
+              Paste a link. Title, thumbnail and source are filled in from
+              YouTube, Vimeo or the page’s preview tags when available.
+            </p>
+            <AddReferenceForm hobbyId={hobby.id} topics={topics} />
+          </Disclosure>
+        ) : null}
 
-      {isOwner && sessions ? (
-        <PracticeLog
-          hobbyId={hobby.id}
-          sessions={sessions}
+        <ReferencesSection
+          href={href}
           references={references}
+          filters={filters}
+          topics={topics}
+          isOwner={isOwner}
         />
-      ) : null}
-    </div>
+
+        {isOwner && sessions ? (
+          <PracticeLog
+            hobbyId={hobby.id}
+            sessions={sessions}
+            references={references}
+          />
+        ) : null}
+      </div>
+    </PageTransition>
   );
 }
 

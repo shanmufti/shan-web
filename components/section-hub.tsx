@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
+import { PageTransition } from "./page-transition";
+
 export type HubTone = "water" | "coral" | "kelp" | "sand";
 
 const toneClass: Record<HubTone, string> = {
@@ -57,34 +59,36 @@ export function SectionHub({
   children?: ReactNode;
 }>) {
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-10">
-      <header
-        className={cn(
-          "border-border texture-grain rounded-tile mt-6 border px-6 pt-10 pb-8 sm:mt-10 sm:px-10 sm:pt-14 sm:pb-10",
-          toneClass[tone],
-        )}
-      >
-        {eyebrow ? (
-          <p className="eyebrow text-muted-foreground">{eyebrow}</p>
-        ) : null}
-        <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-          <h1 className="font-heading mt-2 text-[clamp(2.75rem,7vw,5rem)] leading-[0.95] tracking-[-0.045em]">
-            {title}
-          </h1>
-          {actions ? (
-            <div className="flex flex-wrap items-center gap-3">{actions}</div>
+    <PageTransition>
+      <div className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-10">
+        <header
+          className={cn(
+            "border-border texture-grain rounded-tile mt-6 border px-6 pt-10 pb-8 sm:mt-10 sm:px-10 sm:pt-14 sm:pb-10",
+            toneClass[tone],
+          )}
+        >
+          {eyebrow ? (
+            <p className="eyebrow text-muted-foreground">{eyebrow}</p>
           ) : null}
-        </div>
-        {intro ? (
-          <p className="text-muted-foreground mt-4 max-w-2xl text-lg">
-            {intro}
-          </p>
-        ) : null}
-        {Array.isArray(stats) ? <HubStats stats={stats} /> : stats}
-        {nav}
-      </header>
-      {children}
-    </div>
+          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+            <h1 className="font-heading mt-2 text-[clamp(2.75rem,7vw,5rem)] leading-[0.95] tracking-[-0.045em]">
+              {title}
+            </h1>
+            {actions ? (
+              <div className="flex flex-wrap items-center gap-3">{actions}</div>
+            ) : null}
+          </div>
+          {intro ? (
+            <p className="text-muted-foreground mt-4 max-w-2xl text-lg">
+              {intro}
+            </p>
+          ) : null}
+          {Array.isArray(stats) ? <HubStats stats={stats} /> : stats}
+          {nav}
+        </header>
+        {children}
+      </div>
+    </PageTransition>
   );
 }
 
