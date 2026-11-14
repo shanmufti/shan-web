@@ -17,6 +17,8 @@ const SIGNED_URL_SECONDS = 60;
 
 interface StoredFile {
   filename?: string | null;
+  /** Name it was uploaded with; used for the download's file name. */
+  originalFilename?: string | null;
   mimeType?: string | null;
   prefix?: string | null;
 }
@@ -49,6 +51,9 @@ export async function vaultFileDownload(
 ): Promise<Response | null> {
   const filename = file.filename ? path.basename(file.filename) : null;
   if (!filename) return null;
+  const downloadName = file.originalFilename
+    ? path.basename(file.originalFilename)
+    : filename;
 
   const s3 = r2Client();
   if (s3) {
@@ -58,7 +63,7 @@ export async function vaultFileDownload(
       new GetObjectCommand({
         Bucket: env("R2_BUCKET"),
         Key: prefix ? `${prefix}/${filename}` : filename,
-        ResponseContentDisposition: contentDisposition(filename),
+        ResponseContentDisposition: contentDisposition(downloadName),
       }),
       { expiresIn: SIGNED_URL_SECONDS },
     );
@@ -75,7 +80,7 @@ export async function vaultFileDownload(
     return new Response(new Uint8Array(data), {
       headers: {
         "Content-Type": file.mimeType ?? "application/octet-stream",
-        "Content-Disposition": contentDisposition(filename),
+        "Content-Disposition": contentDisposition(downloadName),
         "Content-Length": String(data.byteLength),
         "Cache-Control": "no-store",
         "X-Content-Type-Options": "nosniff",

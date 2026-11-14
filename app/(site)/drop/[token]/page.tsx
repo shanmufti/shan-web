@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { findOpenDrop } from "@/lib/file-drops";
 import { formatBytes } from "@/lib/format-bytes";
+import { vaultFileName } from "@/lib/vault";
 
 export const metadata: Metadata = {
   title: "File",
@@ -27,7 +28,7 @@ export default async function DropPage({
   const drop = await findOpenDrop(token);
   if (!drop) notFound();
 
-  const name = drop.file.filename ?? "file";
+  const name = vaultFileName(drop.file);
 
   return (
     <div className="mx-auto max-w-xl px-6 pt-16 pb-8 sm:pt-24 lg:px-10">

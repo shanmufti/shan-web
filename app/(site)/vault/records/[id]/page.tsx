@@ -14,6 +14,8 @@ import {
   recordEvents,
   relativeDays,
   VAULT_CATEGORY_LABELS,
+  vaultFileHref,
+  vaultFileLabel,
 } from "@/lib/vault";
 import { getVaultRecord, type VaultRecord } from "@/lib/vault-data";
 
@@ -153,17 +155,12 @@ export default async function VaultRecordPage({
             <ul className="space-y-1">
               {files.map((file) => (
                 <li key={file.id}>
-                  {file.url ? (
-                    <a
-                      href={file.url}
-                      className="underline underline-offset-4"
-                      download
-                    >
-                      {file.title ?? file.filename}
-                    </a>
-                  ) : (
-                    (file.title ?? file.filename)
-                  )}
+                  <a
+                    href={vaultFileHref(file)}
+                    className="underline underline-offset-4"
+                  >
+                    {vaultFileLabel(file)}
+                  </a>
                   {typeof file.filesize === "number" ? (
                     <span className="text-muted-foreground ml-2">
                       {formatBytes(file.filesize)}

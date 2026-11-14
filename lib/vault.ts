@@ -66,6 +66,28 @@ export interface VaultEvent {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 export const DEFAULT_LEAD_DAYS = 30;
+interface VaultFileNames {
+  id: number | string;
+  filename?: string | null;
+  originalFilename?: string | null;
+  title?: string | null;
+}
+
+/** The name a vault file was uploaded with (stored names are random). */
+export function vaultFileName(file: VaultFileNames): string {
+  return file.originalFilename ?? file.filename ?? `File ${String(file.id)}`;
+}
+
+/** Title if set, otherwise the original name. */
+export function vaultFileLabel(file: VaultFileNames): string {
+  return file.title ?? vaultFileName(file);
+}
+
+/** Owner-only download with the original file name. */
+export function vaultFileHref(file: VaultFileNames): string {
+  return `/vault/files/${String(file.id)}/download`;
+}
+
 /** Key prefix for vault files in the R2 bucket. */
 export const VAULT_R2_PREFIX = "vault";
 export const UPCOMING_WINDOW_DAYS = 60;

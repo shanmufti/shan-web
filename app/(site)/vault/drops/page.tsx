@@ -9,6 +9,7 @@ import { expireFileDrop } from "@/lib/actions/file-drops";
 import { isDropOpen } from "@/lib/file-drops";
 import { siteUrl } from "@/lib/site-url";
 import { cn } from "@/lib/utils";
+import { vaultFileLabel, vaultFileName } from "@/lib/vault";
 import { listFileDrops, listVaultFiles } from "@/lib/vault-data";
 
 export const metadata: Metadata = { title: "File drops" };
@@ -55,8 +56,8 @@ export default async function VaultDropsPage({
           files={files.map((f) => ({
             id: f.id,
             label: f.title
-              ? `${f.title} (${f.filename ?? ""})`
-              : (f.filename ?? `File ${String(f.id)}`),
+              ? `${f.title} (${vaultFileName(f)})`
+              : vaultFileName(f),
           }))}
           selectedFileId={
             selected && Number.isInteger(selected) ? selected : undefined
@@ -83,7 +84,7 @@ export default async function VaultDropsPage({
               const link = `${origin}/drop/${drop.token ?? ""}`;
               const fileName =
                 typeof drop.file === "object"
-                  ? (drop.file.title ?? drop.file.filename)
+                  ? vaultFileLabel(drop.file)
                   : `File ${String(drop.file)}`;
               return (
                 <li
@@ -112,10 +113,7 @@ export default async function VaultDropsPage({
                   </div>
                   {open ? (
                     <div className="flex items-center gap-3">
-                      <CopyButton
-                        text={link}
-                        label={`link for ${fileName ?? "file"}`}
-                      >
+                      <CopyButton text={link} label={`link for ${fileName}`}>
                         Copy link
                       </CopyButton>
                       <form action={expireFileDrop}>

@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/page-header";
 import { adminLinkClass, VaultSubnav } from "@/components/vault-subnav";
 import { formatBytes } from "@/lib/format-bytes";
 import { formatDate } from "@/lib/format-date";
+import { vaultFileHref, vaultFileLabel, vaultFileName } from "@/lib/vault";
 import { listVaultFiles } from "@/lib/vault-data";
 
 export const metadata: Metadata = { title: "Files" };
@@ -39,22 +40,15 @@ export default async function VaultFilesPage() {
               className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-2 py-3"
             >
               <span className="min-w-0 break-all">
-                {file.url ? (
-                  <a
-                    href={file.url}
-                    download
-                    className="font-medium underline-offset-4 hover:underline"
-                  >
-                    {file.title ?? file.filename}
-                  </a>
-                ) : (
-                  <span className="font-medium">
-                    {file.title ?? file.filename}
-                  </span>
-                )}
+                <a
+                  href={vaultFileHref(file)}
+                  className="font-medium underline-offset-4 hover:underline"
+                >
+                  {vaultFileLabel(file)}
+                </a>
                 {file.title ? (
                   <span className="text-muted-foreground ml-2 text-sm">
-                    {file.filename}
+                    {vaultFileName(file)}
                   </span>
                 ) : null}
               </span>

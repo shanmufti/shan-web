@@ -847,6 +847,10 @@ export interface VaultRecord {
 export interface VaultFile {
   id: number;
   /**
+   * Name the file was uploaded with. It's stored under a random name.
+   */
+  originalFilename?: string | null;
+  /**
    * Optional label shown instead of the filename.
    */
   title?: string | null;
@@ -1546,6 +1550,7 @@ export interface VaultRecordsSelect<T extends boolean = true> {
  * via the `definition` "vault-files_select".
  */
 export interface VaultFilesSelect<T extends boolean = true> {
+  originalFilename?: T;
   title?: T;
   notes?: T;
   prefix?: T;

@@ -33,6 +33,7 @@ import { VaultSettings } from "./collections/VaultSettings";
 import { VisitedCountries } from "./collections/VisitedCountries";
 import { env, envOr, requireEnv } from "./lib/env";
 import { VAULT_R2_PREFIX } from "./lib/vault";
+import { vaultUploadNames } from "./lib/vault-upload-names";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -148,5 +149,8 @@ export default buildConfig({
         forcePathStyle: true,
       },
     }),
+    // Must come after s3Storage: gives vault-files client uploads a random
+    // R2 key (see lib/vault-upload-names.ts).
+    vaultUploadNames(),
   ],
 });
