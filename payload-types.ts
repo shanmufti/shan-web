@@ -83,6 +83,7 @@ export interface Config {
     'unlock-attempts': UnlockAttempt;
     'food-ratings': FoodRating;
     'food-tour-photos': FoodTourPhoto;
+    'short-links': ShortLink;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -110,6 +111,7 @@ export interface Config {
     'unlock-attempts': UnlockAttemptsSelect<false> | UnlockAttemptsSelect<true>;
     'food-ratings': FoodRatingsSelect<false> | FoodRatingsSelect<true>;
     'food-tour-photos': FoodTourPhotosSelect<false> | FoodTourPhotosSelect<true>;
+    'short-links': ShortLinksSelect<false> | ShortLinksSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -785,6 +787,32 @@ export interface FoodTourPhoto {
   };
 }
 /**
+ * Each link redirects from /go/<slug>. Inactive or unknown slugs show the 404 page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "short-links".
+ */
+export interface ShortLink {
+  id: number;
+  /**
+   * Lowercase letters, digits and hyphens. The link is /go/<slug>.
+   */
+  slug: string;
+  /**
+   * Full http:// or https:// URL.
+   */
+  destination: string;
+  /**
+   * Private note, shown only here.
+   */
+  note?: string | null;
+  active?: boolean | null;
+  clicks?: number | null;
+  lastClickedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -871,6 +899,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'food-tour-photos';
         value: number | FoodTourPhoto;
+      } | null)
+    | ({
+        relationTo: 'short-links';
+        value: number | ShortLink;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1367,6 +1399,20 @@ export interface FoodTourPhotosSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "short-links_select".
+ */
+export interface ShortLinksSelect<T extends boolean = true> {
+  slug?: T;
+  destination?: T;
+  note?: T;
+  active?: T;
+  clicks?: T;
+  lastClickedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

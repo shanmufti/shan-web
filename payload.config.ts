@@ -20,6 +20,7 @@ import { Media } from "./collections/Media";
 import { PackingListTemplates } from "./collections/PackingListTemplates";
 import { PackingLists } from "./collections/PackingLists";
 import { SiteAccess } from "./collections/SiteAccess";
+import { ShortLinks } from "./collections/ShortLinks";
 import { SiteSettings } from "./collections/SiteSettings";
 import { Tech } from "./collections/Tech";
 import { Travel } from "./collections/Travel";
@@ -75,6 +76,7 @@ export default buildConfig({
     UnlockAttempts,
     FoodRatings,
     FoodTourPhotos,
+    ShortLinks,
   ],
   globals: [SiteAccess, LandingPage, SiteSettings, FoodTour],
   editor: lexicalEditor(),
