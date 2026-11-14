@@ -19,6 +19,8 @@ import { Hobbies } from "./collections/Hobbies";
 import { HobbyReferences } from "./collections/HobbyReferences";
 import { LandingPage } from "./collections/LandingPage";
 import { Media } from "./collections/Media";
+import { PlanResponses } from "./collections/PlanResponses";
+import { Plans } from "./collections/Plans";
 import { PackingListTemplates } from "./collections/PackingListTemplates";
 import { PackingLists } from "./collections/PackingLists";
 import { PracticeSessions } from "./collections/PracticeSessions";
@@ -30,6 +32,8 @@ import { UnlockAttempts } from "./collections/UnlockAttempts";
 import { Users } from "./collections/Users";
 import { FileDrops } from "./collections/FileDrops";
 import { Snippets } from "./collections/Snippets";
+import { SplitExpenses } from "./collections/SplitExpenses";
+import { SplitGroups } from "./collections/SplitGroups";
 import { VaultFiles } from "./collections/VaultFiles";
 import { VaultRecords } from "./collections/VaultRecords";
 import { VaultSettings } from "./collections/VaultSettings";
@@ -92,6 +96,10 @@ export default buildConfig({
     VaultFiles,
     FileDrops,
     Snippets,
+    Plans,
+    PlanResponses,
+    SplitGroups,
+    SplitExpenses,
   ],
   globals: [SiteAccess, LandingPage, SiteSettings, FoodTour, VaultSettings],
   editor: lexicalEditor(),
