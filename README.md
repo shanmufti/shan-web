@@ -46,6 +46,15 @@ Two different Cloudflare URLs (easy to mix up):
 
 Also set **CORS** on the bucket so browser PUTs from `http://localhost:3000` and `https://smufti.com` are allowed (needed because of client uploads).
 
+### Vault (`/vault`, owner only)
+
+Records (renewals, expiries, costs), private files, file drops, snippets and a calendar feed. Everything under `/vault` and the `vault-records`, `vault-files`, `file-drops`, `snippets` and `vault-settings` REST endpoints is a 404 unless you're logged in; the section is always Hidden. Never store passwords or other secrets in the vault.
+
+- **Files** (`vault-files`) go to R2 under `vault/` and are served only through `/api/vault-files/file/<name>`, which checks login and then redirects to a signed R2 URL that expires after 60 seconds. Locally (no R2 env) they're stored in `./vault-files` (gitignored).
+- **Required once in Cloudflare:** the bucket's public domain (`R2_PUBLIC_URL`) serves every key in the bucket, so block the vault prefix there. Cloudflare → `smufti.com` → Security → WAF → Custom rules → Block when `http.host eq "media.smufti.com" and starts_with(http.request.uri.path, "/vault/")`. Signed URLs use the S3 endpoint, not the public domain, so they keep working.
+- **File drops:** `/drop/<token>` is a public download page for one file until the drop expires or runs out of downloads; then it's a 404. Create them on `/vault/drops` or in admin.
+- **Calendar feed:** `/vault/calendar.ics?token=…` (link on `/vault`). The proxy lets this one path through because phone calendars can't log in; the route 404s on a wrong token. Regenerate the token in admin → Vault → Vault settings.
+
 ### Code quality / commit safeguards
 
 No CI or PR flow — protection is local Husky hooks (can still be skipped with `--no-verify`; don’t).

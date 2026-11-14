@@ -73,3 +73,10 @@ See `docs/site-redesign-plan.md` for the full plan and decisions.
 - /admin → Settings → **Access & permissions** sets each section (Journal, Journeys, Packing lists, Stories, Diving, Tech, Food tour) to Public, Passcode, or Hidden. No deploy needed; changes apply within about 10 seconds.
 - Enforced in `proxy.ts` for pages, server actions and the matching Payload REST collections. Sections are defined in `lib/site-sections.ts`; add new top-level routes there and to the proxy `matcher`.
 - Until the global is saved, every section is Hidden except Food tour (Public). Logged-in admins always see everything.
+
+## Tools, vault and installable app (2026-11-14)
+
+- `/tools` (section `tools`, default Public, in nav) lists entries from `lib/tools-registry.ts` that the visitor can open (by each entry's `sectionKey`), filterable by category. `/tools/snippets` lists snippets marked public.
+- `/vault` (section `vault`, `ownerOnly`: always Hidden, can't be changed in admin). Records, files, file drops, snippets, calendar feed; see README → Vault. Daily notes and tracking stay in Notion.
+- Sections can list `tokenPaths` that the proxy lets through because the route checks its own token (`/vault/calendar.ics`). `sectionForApiPath` also maps `/api/globals/<slug>`.
+- `app/manifest.ts` + icons in `public/icons` and `app/(site)/apple-icon.png` (regenerate with `node scripts/generate-icons.mjs`). No service worker.

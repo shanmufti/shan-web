@@ -83,6 +83,10 @@ export interface Config {
     'unlock-attempts': UnlockAttempt;
     'food-ratings': FoodRating;
     'food-tour-photos': FoodTourPhoto;
+    'vault-records': VaultRecord;
+    'vault-files': VaultFile;
+    'file-drops': FileDrop;
+    snippets: Snippet;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -110,6 +114,10 @@ export interface Config {
     'unlock-attempts': UnlockAttemptsSelect<false> | UnlockAttemptsSelect<true>;
     'food-ratings': FoodRatingsSelect<false> | FoodRatingsSelect<true>;
     'food-tour-photos': FoodTourPhotosSelect<false> | FoodTourPhotosSelect<true>;
+    'vault-records': VaultRecordsSelect<false> | VaultRecordsSelect<true>;
+    'vault-files': VaultFilesSelect<false> | VaultFilesSelect<true>;
+    'file-drops': FileDropsSelect<false> | FileDropsSelect<true>;
+    snippets: SnippetsSelect<false> | SnippetsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -124,12 +132,14 @@ export interface Config {
     'landing-page': LandingPage;
     'site-settings': SiteSetting;
     'food-tour': FoodTour;
+    'vault-settings': VaultSetting;
   };
   globalsSelect: {
     'site-access': SiteAccessSelect<false> | SiteAccessSelect<true>;
     'landing-page': LandingPageSelect<false> | LandingPageSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'food-tour': FoodTourSelect<false> | FoodTourSelect<true>;
+    'vault-settings': VaultSettingsSelect<false> | VaultSettingsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -785,6 +795,130 @@ export interface FoodTourPhoto {
   };
 }
 /**
+ * Owner only. Never store passwords, PINs, recovery codes or other secrets here. Reference numbers and dates only.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vault-records".
+ */
+export interface VaultRecord {
+  id: number;
+  title: string;
+  category: 'document' | 'subscription' | 'insurance' | 'domain' | 'certification' | 'membership' | 'other';
+  /**
+   * Issuer, company or registrar.
+   */
+  provider?: string | null;
+  /**
+   * Policy, account, membership or document number. Never store passwords, PINs, recovery codes or other secrets here. Reference numbers and dates only.
+   */
+  referenceNumber?: string | null;
+  cost?: number | null;
+  /**
+   * Three-letter code, e.g. USD, GBP, EUR.
+   */
+  currency?: string | null;
+  billingPeriod?: ('monthly' | 'yearly' | 'one-off') | null;
+  startDate?: string | null;
+  renewalDate?: string | null;
+  expiryDate?: string | null;
+  /**
+   * With a monthly or yearly period, the next renewal rolls forward on its own.
+   */
+  autoRenews?: boolean | null;
+  /**
+   * Calendar feed reminder, this many days before.
+   */
+  reminderLeadDays?: number | null;
+  /**
+   * No longer active. Hidden from reminders and the calendar.
+   */
+  archived?: boolean | null;
+  notes?: string | null;
+  attachments?: (number | VaultFile)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Owner only. Don't upload files that contain passwords or other secrets.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vault-files".
+ */
+export interface VaultFile {
+  id: number;
+  /**
+   * Optional label shown instead of the filename.
+   */
+  title?: string | null;
+  notes?: string | null;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * Share one vault file through a link that expires. Anyone with the link can download it until then.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "file-drops".
+ */
+export interface FileDrop {
+  id: number;
+  file: number | VaultFile;
+  expiresAt: string;
+  /**
+   * Leave empty for no limit.
+   */
+  maxDownloads?: number | null;
+  downloadCount?: number | null;
+  /**
+   * Shown on the public download page.
+   */
+  note?: string | null;
+  /**
+   * Set automatically when the drop is created.
+   */
+  token?: string | null;
+  /**
+   * Send this link.
+   */
+  link?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Public snippets show on /tools/snippets. Never put API keys, tokens or passwords in a snippet.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "snippets".
+ */
+export interface Snippet {
+  id: number;
+  title: string;
+  language:
+    'bash' | 'typescript' | 'javascript' | 'python' | 'sql' | 'go' | 'rust' | 'json' | 'yaml' | 'css' | 'html' | 'text';
+  /**
+   * List on /tools/snippets for anyone.
+   */
+  public?: boolean | null;
+  code: string;
+  /**
+   * Press Enter after each tag.
+   */
+  tags?: string[] | null;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -871,6 +1005,22 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'food-tour-photos';
         value: number | FoodTourPhoto;
+      } | null)
+    | ({
+        relationTo: 'vault-records';
+        value: number | VaultRecord;
+      } | null)
+    | ({
+        relationTo: 'vault-files';
+        value: number | VaultFile;
+      } | null)
+    | ({
+        relationTo: 'file-drops';
+        value: number | FileDrop;
+      } | null)
+    | ({
+        relationTo: 'snippets';
+        value: number | Snippet;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1370,6 +1520,78 @@ export interface FoodTourPhotosSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vault-records_select".
+ */
+export interface VaultRecordsSelect<T extends boolean = true> {
+  title?: T;
+  category?: T;
+  provider?: T;
+  referenceNumber?: T;
+  cost?: T;
+  currency?: T;
+  billingPeriod?: T;
+  startDate?: T;
+  renewalDate?: T;
+  expiryDate?: T;
+  autoRenews?: T;
+  reminderLeadDays?: T;
+  archived?: T;
+  notes?: T;
+  attachments?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vault-files_select".
+ */
+export interface VaultFilesSelect<T extends boolean = true> {
+  title?: T;
+  notes?: T;
+  prefix?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "file-drops_select".
+ */
+export interface FileDropsSelect<T extends boolean = true> {
+  file?: T;
+  expiresAt?: T;
+  maxDownloads?: T;
+  downloadCount?: T;
+  note?: T;
+  token?: T;
+  link?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "snippets_select".
+ */
+export interface SnippetsSelect<T extends boolean = true> {
+  title?: T;
+  language?: T;
+  public?: T;
+  code?: T;
+  tags?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -1423,6 +1645,11 @@ export interface SiteAccess {
     diving: 'public' | 'passcode' | 'owner';
     tech: 'public' | 'passcode' | 'owner';
     foodTour: 'public' | 'passcode' | 'owner';
+    tools: 'public' | 'passcode' | 'owner';
+    /**
+     * Always hidden: only you, logged in.
+     */
+    vault: 'owner';
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -1520,6 +1747,25 @@ export interface FoodTour {
   createdAt?: string | null;
 }
 /**
+ * The calendar feed at /vault/calendar.ics?token=… lists renewals and expiries with reminders. Anyone with the full link can read titles and dates, so keep it private.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vault-settings".
+ */
+export interface VaultSetting {
+  id: number;
+  /**
+   * Set automatically. The full feed link is shown on /vault.
+   */
+  calendarToken?: string | null;
+  /**
+   * Tick and save to make a new token. The old feed link stops working, so re-subscribe on your devices.
+   */
+  regenerateCalendarToken?: boolean | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-access_select".
  */
@@ -1533,6 +1779,8 @@ export interface SiteAccessSelect<T extends boolean = true> {
         diving?: T;
         tech?: T;
         foodTour?: T;
+        tools?: T;
+        vault?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1594,6 +1842,17 @@ export interface FoodTourSelect<T extends boolean = true> {
         visitedOn?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vault-settings_select".
+ */
+export interface VaultSettingsSelect<T extends boolean = true> {
+  calendarToken?: T;
+  regenerateCalendarToken?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
