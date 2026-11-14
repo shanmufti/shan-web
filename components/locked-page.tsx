@@ -7,7 +7,11 @@ export function LockedPage({
   kind,
   title,
   next,
-}: Readonly<{ kind: "Journey" | "Story"; title: string; next: string }>) {
+}: Readonly<{
+  kind: "Journey" | "Story" | "Destination";
+  title: string;
+  next: string;
+}>) {
   return (
     <div className="mx-auto max-w-7xl px-6 pt-16 sm:pt-24 lg:px-10">
       <p className="meta-label text-muted-foreground inline-flex items-center gap-2">

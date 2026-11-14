@@ -76,6 +76,8 @@ export interface Config {
     'dive-skills': DiveSkill;
     'dive-resources': DiveResource;
     travel: Travel;
+    destinations: Destination;
+    places: Place;
     tech: Tech;
     'visited-countries': VisitedCountry;
     'packing-list-templates': PackingListTemplate;
@@ -106,6 +108,9 @@ export interface Config {
     travel: {
       stories: 'blog';
     };
+    destinations: {
+      places: 'places';
+    };
   };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
@@ -117,6 +122,8 @@ export interface Config {
     'dive-skills': DiveSkillsSelect<false> | DiveSkillsSelect<true>;
     'dive-resources': DiveResourcesSelect<false> | DiveResourcesSelect<true>;
     travel: TravelSelect<false> | TravelSelect<true>;
+    destinations: DestinationsSelect<false> | DestinationsSelect<true>;
+    places: PlacesSelect<false> | PlacesSelect<true>;
     tech: TechSelect<false> | TechSelect<true>;
     'visited-countries': VisitedCountriesSelect<false> | VisitedCountriesSelect<true>;
     'packing-list-templates': PackingListTemplatesSelect<false> | PackingListTemplatesSelect<true>;
@@ -222,7 +229,12 @@ export interface User {
  */
 export interface Media {
   id: number;
-  alt: string;
+  /**
+   * Describe the photo for screen readers. Defaults to the file name if left blank (handy for bulk uploads).
+   */
+  alt?: string | null;
+  caption?: string | null;
+  takenAt?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -234,6 +246,32 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    thumb?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    large?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -616,6 +654,135 @@ export interface DiveResource {
   createdAt: string;
 }
 /**
+ * One page per place, at /travel/places/<slug>. Usually created by the Google Maps importer (see README). The whole section is gated by Settings → Access → Places.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "destinations".
+ */
+export interface Destination {
+  id: number;
+  title: string;
+  /**
+   * Auto-generated from the title if left blank. Only lowercase letters, numbers, and hyphens are kept.
+   */
+  slug: string;
+  /**
+   * Drafts are visible only to you while logged in. The importer creates new destinations as drafts.
+   */
+  draft?: boolean | null;
+  /**
+   * Private needs the site passcode (Settings → Site settings). Use only private photos inside private posts.
+   */
+  visibility: 'public' | 'private';
+  /**
+   * Off: visitors see a locked card with title and date. On: the item is invisible until unlocked.
+   */
+  hideWhenLocked?: boolean | null;
+  /**
+   * ISO 3166-1 alpha-3, e.g. MEX, PER. Same codes as journey stops and visited countries.
+   */
+  country?: string | null;
+  /**
+   * Centre of the map. The importer fills this with the middle of the saved places when empty.
+   */
+  coordinates?: {
+    lat?: number | null;
+    lng?: number | null;
+  };
+  /**
+   * One row per stay. scripts/ics-trip-dates.ts can suggest these from a calendar export.
+   */
+  datesVisited?:
+    | {
+        from: string;
+        to?: string | null;
+        note?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  cover?: (number | null) | Media;
+  /**
+   * Main text of the page. While empty, the page shows a placeholder (to you only, as long as the destination is a draft).
+   */
+  writeUp?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Journeys that passed through this place.
+   */
+  journeys?: (number | Travel)[] | null;
+  /**
+   * Google Maps list names that feed this destination. The importer matches lists to destinations by these names.
+   */
+  sourceLists?: string[] | null;
+  /**
+   * Raw Google Maps list description from the import. Never shown on the site: copy what you want into Write-up after editing out anything personal.
+   */
+  importedNotes?: string | null;
+  /**
+   * Saved places on this destination's page.
+   */
+  places?: {
+    docs?: (number | Place)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "places".
+ */
+export interface Place {
+  id: number;
+  name: string;
+  destination: number | Destination;
+  /**
+   * The importer guesses from the name on first import and never changes it after.
+   */
+  category: 'restaurant' | 'cafe' | 'bar' | 'viewpoint' | 'hotel' | 'dive-shop' | 'activity' | 'shop' | 'other';
+  /**
+   * Your recommendation, shown on the page. Re-imports only fill this when it's empty.
+   */
+  note?: string | null;
+  /**
+   * Places without coordinates show in the list only.
+   */
+  coordinates?: {
+    lat?: number | null;
+    lng?: number | null;
+  };
+  address?: string | null;
+  googleMapsUrl?: string | null;
+  /**
+   * Who sees this place on the destination page. Use Only me for anything personal, like a friend's home.
+   */
+  visibility: 'public' | 'private' | 'owner';
+  /**
+   * Google Maps list(s) this came from. Not shown on the site.
+   */
+  sourceList?: string | null;
+  /**
+   * Set by the importer (Google place id, or name + coordinates) so re-runs update instead of duplicating.
+   */
+  importKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tech".
  */
@@ -896,6 +1063,7 @@ export interface VaultFile {
    */
   title?: string | null;
   notes?: string | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1194,6 +1362,7 @@ export interface FoodTourPhoto {
   participantId?: string | null;
   name?: string | null;
   caption?: string | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1376,6 +1545,14 @@ export interface PayloadLockedDocument {
         value: number | Travel;
       } | null)
     | ({
+        relationTo: 'destinations';
+        value: number | Destination;
+      } | null)
+    | ({
+        relationTo: 'places';
+        value: number | Place;
+      } | null)
+    | ({
         relationTo: 'tech';
         value: number | Tech;
       } | null)
@@ -1529,6 +1706,8 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  caption?: T;
+  takenAt?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1540,6 +1719,40 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumb?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        large?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1783,6 +1996,63 @@ export interface TravelSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "destinations_select".
+ */
+export interface DestinationsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  draft?: T;
+  visibility?: T;
+  hideWhenLocked?: T;
+  country?: T;
+  coordinates?:
+    | T
+    | {
+        lat?: T;
+        lng?: T;
+      };
+  datesVisited?:
+    | T
+    | {
+        from?: T;
+        to?: T;
+        note?: T;
+        id?: T;
+      };
+  cover?: T;
+  writeUp?: T;
+  journeys?: T;
+  sourceLists?: T;
+  importedNotes?: T;
+  places?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "places_select".
+ */
+export interface PlacesSelect<T extends boolean = true> {
+  name?: T;
+  destination?: T;
+  category?: T;
+  note?: T;
+  coordinates?:
+    | T
+    | {
+        lat?: T;
+        lng?: T;
+      };
+  address?: T;
+  googleMapsUrl?: T;
+  visibility?: T;
+  sourceList?: T;
+  importKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tech_select".
  */
 export interface TechSelect<T extends boolean = true> {
@@ -1935,6 +2205,7 @@ export interface VaultFilesSelect<T extends boolean = true> {
   originalFilename?: T;
   title?: T;
   notes?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -2140,6 +2411,7 @@ export interface FoodTourPhotosSelect<T extends boolean = true> {
   participantId?: T;
   name?: T;
   caption?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -2273,6 +2545,7 @@ export interface SiteAccess {
   sections: {
     journeys: 'public' | 'passcode' | 'owner';
     packing: 'public' | 'passcode' | 'owner';
+    places: 'public' | 'passcode' | 'owner';
     stories: 'public' | 'passcode' | 'owner';
     diving: 'public' | 'passcode' | 'owner';
     tech: 'public' | 'passcode' | 'owner';
@@ -2456,6 +2729,7 @@ export interface SiteAccessSelect<T extends boolean = true> {
     | {
         journeys?: T;
         packing?: T;
+        places?: T;
         stories?: T;
         diving?: T;
         tech?: T;
