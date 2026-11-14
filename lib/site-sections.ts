@@ -63,6 +63,18 @@ export const SITE_SECTIONS = [
     onLanding: false,
   },
   {
+    key: "places",
+    label: "Places",
+    href: "/travel/places",
+    blurb: "Destination pages with saved places on a map.",
+    paths: ["/travel/places"],
+    collections: ["destinations", "places"],
+    // Hidden until there's imported content worth showing.
+    defaultMode: "owner",
+    inNav: false,
+    onLanding: false,
+  },
+  {
     key: "stories",
     label: "Stories",
     href: "/blog",

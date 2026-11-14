@@ -13,6 +13,7 @@ import { DiveSkills } from "./collections/DiveSkills";
 import { FoodRatings } from "./collections/FoodRatings";
 import { FoodTour } from "./collections/FoodTour";
 import { FoodTourPhotos } from "./collections/FoodTourPhotos";
+import { Destinations } from "./collections/Destinations";
 import { Diving } from "./collections/Diving";
 import { GearConfigs } from "./collections/GearConfigs";
 import { Hobbies } from "./collections/Hobbies";
@@ -21,6 +22,7 @@ import { LandingPage } from "./collections/LandingPage";
 import { Media } from "./collections/Media";
 import { PackingListTemplates } from "./collections/PackingListTemplates";
 import { PackingLists } from "./collections/PackingLists";
+import { Places } from "./collections/Places";
 import { PracticeSessions } from "./collections/PracticeSessions";
 import { SiteAccess } from "./collections/SiteAccess";
 import { SiteSettings } from "./collections/SiteSettings";
@@ -78,6 +80,8 @@ export default buildConfig({
     DiveSkills,
     DiveResources,
     Travel,
+    Destinations,
+    Places,
     Tech,
     VisitedCountries,
     PackingListTemplates,
