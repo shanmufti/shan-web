@@ -14,17 +14,12 @@ import { JourneyPlaces } from "@/components/journey-places";
 import { LockedPage } from "@/components/locked-page";
 import { PageTransition, SharedCover } from "@/components/page-transition";
 import { Picture } from "@/components/picture";
-import { LockedCard, PostCard } from "@/components/post-card";
 import { ArticleBody } from "@/components/rich-text";
 import { staticSlugParams } from "@/lib/content";
 import { diveSite } from "@/lib/dive-logbook";
 import { formatDate, formatDateRange } from "@/lib/format-date";
-import { plural, yearOf } from "@/lib/hub-filters";
+import { yearOf } from "@/lib/hub-filters";
 import { routeStops, trackDistanceKm } from "@/lib/journey-route";
-import {
-  hasPrivateJoinedStory,
-  journeyStoriesFor,
-} from "@/lib/journey-stories";
 import {
   adjacentJourneys,
   isPrivate,
@@ -35,7 +30,6 @@ import {
   journeyTrack,
   mediaImage,
   publicJourneys,
-  readingMinutes,
   type JourneyDoc,
 } from "@/lib/journeys";
 import {
@@ -106,55 +100,6 @@ function journeyLink(doc: JourneyDoc | undefined) {
         meta: formatDateRange(doc.startDate, doc.endDate),
       }
     : undefined;
-}
-
-/**
- * The journey's stories as a visitor with (`unlocked`) or without private
- * access sees them: a locked-out visitor gets a teaser for a private story,
- * never its summary or cover.
- */
-function JourneyStories({
-  journey,
-  unlocked,
-}: Readonly<{ journey: JourneyDoc; unlocked: boolean }>) {
-  const stories = journeyStoriesFor(journey.stories, unlocked);
-  if (stories.length === 0) return null;
-  return (
-    <section aria-labelledby="stories" className="mt-16">
-      <h2 id="stories" className="text-2xl font-medium tracking-[-0.03em]">
-        {plural(stories.length, "story", "stories")} from this journey
-      </h2>
-      <div className="mt-6 grid gap-x-6 gap-y-10 sm:grid-cols-2">
-        {stories.map((item) =>
-          item.locked ? (
-            <LockedCard
-              key={item.id}
-              title={item.title}
-              meta={formatDate(item.date)}
-              next={`/blog/${item.slug}`}
-            />
-          ) : (
-            <PostCard
-              key={item.doc.id}
-              href={`/blog/${item.doc.slug}`}
-              title={item.doc.title}
-              summary={item.doc.summary}
-              meta={`${formatDate(item.doc.date)} · ${String(readingMinutes(item.doc.body))} min`}
-              image={mediaImage(item.doc.cover, "card")}
-              isPrivate={isPrivate(item.doc)}
-            />
-          ),
-        )}
-      </div>
-    </section>
-  );
-}
-
-async function ViewerStories({ journey }: Readonly<{ journey: JourneyDoc }>) {
-  const unlocked = hasPrivateJoinedStory(journey.stories)
-    ? await hasPrivateAccess()
-    : false;
-  return <JourneyStories journey={journey} unlocked={unlocked} />;
 }
 
 /**
@@ -269,13 +214,6 @@ function JourneyArticle({ journey, docs, places }: ArticleProps) {
         </div>
         <JourneyStopList />
         <JourneyPhotos photos={journey.photos} />
-
-        {/* Private stories differ per visitor: the shell has the anonymous view. */}
-        <Suspense
-          fallback={<JourneyStories journey={journey} unlocked={false} />}
-        >
-          <ViewerStories journey={journey} />
-        </Suspense>
 
         {dives.length > 0 ? (
           <section aria-labelledby="dives" className="mt-16">

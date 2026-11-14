@@ -33,7 +33,6 @@ export const HOME_CACHE_LIFE = CONTENT_CACHE_LIFE;
 /** Tags each cached reader depends on (`collection:<slug>`, `global:<slug>`). */
 export const HOME_CACHE_TAGS = {
   data: [
-    "collection:blog",
     "collection:tech",
     "collection:travel",
     "collection:diving",
@@ -44,7 +43,7 @@ export const HOME_CACHE_TAGS = {
   modes: ["global:site-access"],
 } as const;
 
-export type HomeItemKind = "story" | "tech" | "journey" | "dive";
+export type HomeItemKind = "tech" | "journey" | "dive";
 
 export interface HomeItem {
   kind: HomeItemKind;
@@ -71,19 +70,17 @@ export interface HomeHobby {
 export interface HomeData {
   hobbies: HomeHobby[];
   latest: Record<HomeItemKind, HomeItem[]>;
-  counts: { journeys: number; stories: number; tech: number };
+  counts: { journeys: number; tech: number };
 }
 
 /** Which section gates each kind of post. */
 export const ITEM_SECTION: Record<HomeItemKind, SectionKey> = {
-  story: "stories",
   tech: "tech",
   journey: "journeys",
   dive: "diving",
 };
 
 export const ITEM_LABEL: Record<HomeItemKind, string> = {
-  story: "Story",
   tech: "Tech note",
   journey: "Journey",
   dive: "Dive",
@@ -157,16 +154,7 @@ async function loadHomeData(options: {
     visibility: true,
   } as const;
 
-  const [stories, tech, journeys, dives, hobbies, refs] = await Promise.all([
-    payload.find({
-      collection: "blog",
-      where: postWhere,
-      sort: "-date",
-      limit: LATEST_PER_KIND,
-      depth: 0,
-      select: postSelect,
-      overrideAccess: true,
-    }),
+  const [tech, journeys, dives, hobbies, refs] = await Promise.all([
     payload.find({
       collection: "tech",
       where: published,
@@ -236,7 +224,6 @@ async function loadHomeData(options: {
       isPrivate: h.public === false,
     })),
     latest: {
-      story: stories.docs.map((d) => toItem("story", d as PostRow, "/blog")),
       tech: tech.docs.map((d) => toItem("tech", d as PostRow, "/tech")),
       journey: journeys.docs.map((d) =>
         toItem("journey", d as PostRow, "/travel"),
@@ -245,7 +232,6 @@ async function loadHomeData(options: {
     },
     counts: {
       journeys: journeys.totalDocs,
-      stories: stories.totalDocs,
       tech: tech.totalDocs,
     },
   };
@@ -343,9 +329,6 @@ export function buildHomeView(
       value: data.counts.journeys,
       href: "/travel",
     });
-  }
-  if (open("stories") && data.counts.stories > 0) {
-    stats.push({ label: "Stories", value: data.counts.stories, href: "/blog" });
   }
   if (open("tech") && data.counts.tech > 0) {
     stats.push({ label: "Tech notes", value: data.counts.tech, href: "/tech" });

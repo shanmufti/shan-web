@@ -6,10 +6,9 @@ import { collectionTag, CONTENT_CACHE_LIFE } from "@/lib/cache-tags";
 import { countryName } from "@/lib/country-names";
 
 export type JourneyDoc = DataFromCollectionSlug<"travel">;
-export type StoryDoc = DataFromCollectionSlug<"blog">;
 
 /**
- * Journeys and stories are read with overrideAccess: true and filtered here,
+ * Journeys are read with overrideAccess: true and filtered here,
  * because Local API calls don't carry the visitor's passcode cookie. Rules:
  * - drafts never leave the server (except to the logged-in owner, via /admin)
  * - private items: full doc only when unlocked; otherwise a locked teaser
@@ -52,23 +51,12 @@ export function journeyDays(journey: JourneyDoc): number | null {
 // ---------------------------------------------------------------------------
 // Cached reads (published docs, private ones included; filter before use)
 
-/** Journeys populate covers, dive logs and (via join) stories. */
+/** Journeys populate covers and dive logs. */
 function tagJourneys() {
   cacheLife(CONTENT_CACHE_LIFE);
   cacheTag(
     collectionTag("travel"),
-    collectionTag("blog"),
     collectionTag("diving"),
-    collectionTag("media"),
-  );
-}
-
-/** Stories populate their cover and parent journey. */
-function tagStories() {
-  cacheLife(CONTENT_CACHE_LIFE);
-  cacheTag(
-    collectionTag("blog"),
-    collectionTag("travel"),
     collectionTag("media"),
   );
 }
@@ -86,23 +74,6 @@ export async function journeyDocs(): Promise<JourneyDoc[]> {
     depth: 1,
     // Galleries are only shown on a journey's own page (journeyDoc).
     select: { photos: false },
-    joins: { stories: { limit: 100, where: { draft: { equals: false } } } },
-    overrideAccess: true,
-  });
-  return docs;
-}
-
-/** Every published story, newest first. Includes private ones. */
-export async function storyDocs(): Promise<StoryDoc[]> {
-  "use cache";
-  tagStories();
-  const payload = await getPayload({ config });
-  const { docs } = await payload.find({
-    collection: "blog",
-    where: { draft: { equals: false } },
-    sort: "-date",
-    limit: 500,
-    depth: 1,
     overrideAccess: true,
   });
   return docs;
@@ -118,28 +89,6 @@ export async function journeyDoc(slug: string): Promise<JourneyDoc | null> {
     where: { and: [{ slug: { equals: slug } }, { draft: { equals: false } }] },
     limit: 1,
     depth: 2,
-    joins: {
-      stories: {
-        limit: 100,
-        sort: "date",
-        where: { draft: { equals: false } },
-      },
-    },
-    overrideAccess: true,
-  });
-  return docs[0] ?? null;
-}
-
-/** One published story by slug, or null. May be private. */
-export async function storyDoc(slug: string): Promise<StoryDoc | null> {
-  "use cache";
-  tagStories();
-  const payload = await getPayload({ config });
-  const { docs } = await payload.find({
-    collection: "blog",
-    where: { and: [{ slug: { equals: slug } }, { draft: { equals: false } }] },
-    limit: 1,
-    depth: 1,
     overrideAccess: true,
   });
   return docs[0] ?? null;
@@ -198,23 +147,6 @@ export function listJourneys(
     date: doc.startDate,
     endDate: doc.endDate,
   }));
-}
-
-/** Stories as this visitor sees them (`unlocked`: has private access). */
-export function listStories(
-  docs: StoryDoc[],
-  unlocked: boolean,
-): Listed<StoryDoc>[] {
-  return toListed(docs, unlocked, (doc) => ({ date: doc.date }));
-}
-
-/** Story's parent journey, if populated. */
-export function storyJourney(
-  story: StoryDoc,
-): { slug: string; title: string } | null {
-  const journey = story.journey;
-  if (!journey || typeof journey !== "object") return null;
-  return { slug: journey.slug, title: journey.title };
 }
 
 /** Journeys before/after this one, by start date, among `docs`. */

@@ -2622,7 +2622,10 @@ export interface SiteAccess {
     journeys: 'public' | 'passcode' | 'owner';
     packing: 'public' | 'passcode' | 'owner';
     places: 'public' | 'passcode' | 'owner';
-    stories: 'public' | 'passcode' | 'owner';
+    /**
+     * Always hidden: only you, logged in.
+     */
+    stories: 'owner';
     diving: 'public' | 'passcode' | 'owner';
     tech: 'public' | 'passcode' | 'owner';
     hobbies: 'public' | 'passcode' | 'owner';

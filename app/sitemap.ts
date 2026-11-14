@@ -8,7 +8,7 @@ import { TOOLS } from "@/lib/tools-registry";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
-  const [open, { journeys, stories, dives }, hobbies] = await Promise.all([
+  const [open, { journeys, dives }, hobbies] = await Promise.all([
     publicSectionKeys(),
     listPublicForFeeds(),
     listPublicHobbySlugs(),
@@ -25,15 +25,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           ...journeys.map((j) => ({
             url: `${base}/travel/${j.slug}`,
             lastModified: j.updatedAt,
-          })),
-        ]
-      : []),
-    ...(open.has("stories")
-      ? [
-          url("/blog"),
-          ...stories.map((s) => ({
-            url: `${base}/blog/${s.slug}`,
-            lastModified: s.updatedAt,
           })),
         ]
       : []),
