@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import sharp from "sharp";
 
 import { Blog } from "./collections/Blog";
+import { CallPlanner } from "./collections/CallPlanner";
 import { DiveGear } from "./collections/DiveGear";
 import { DiveResources } from "./collections/DiveResources";
 import { DiveSkills } from "./collections/DiveSkills";
@@ -22,6 +23,8 @@ import { Media } from "./collections/Media";
 import { PackingListTemplates } from "./collections/PackingListTemplates";
 import { PackingLists } from "./collections/PackingLists";
 import { PracticeSessions } from "./collections/PracticeSessions";
+import { Secrets } from "./collections/Secrets";
+import { SharedLists } from "./collections/SharedLists";
 import { SiteAccess } from "./collections/SiteAccess";
 import { SiteSettings } from "./collections/SiteSettings";
 import { Tech } from "./collections/Tech";
@@ -92,8 +95,17 @@ export default buildConfig({
     VaultFiles,
     FileDrops,
     Snippets,
+    SharedLists,
+    Secrets,
   ],
-  globals: [SiteAccess, LandingPage, SiteSettings, FoodTour, VaultSettings],
+  globals: [
+    SiteAccess,
+    LandingPage,
+    SiteSettings,
+    FoodTour,
+    VaultSettings,
+    CallPlanner,
+  ],
   editor: lexicalEditor(),
   secret: payloadSecret,
   // Site uses the Local API; no need to expose GraphQL publicly.

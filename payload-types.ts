@@ -90,6 +90,8 @@ export interface Config {
     'vault-files': VaultFile;
     'file-drops': FileDrop;
     snippets: Snippet;
+    'shared-lists': SharedList;
+    secrets: Secret;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -124,6 +126,8 @@ export interface Config {
     'vault-files': VaultFilesSelect<false> | VaultFilesSelect<true>;
     'file-drops': FileDropsSelect<false> | FileDropsSelect<true>;
     snippets: SnippetsSelect<false> | SnippetsSelect<true>;
+    'shared-lists': SharedListsSelect<false> | SharedListsSelect<true>;
+    secrets: SecretsSelect<false> | SecretsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -139,6 +143,7 @@ export interface Config {
     'site-settings': SiteSetting;
     'food-tour': FoodTour;
     'vault-settings': VaultSetting;
+    'call-planner': CallPlanner;
   };
   globalsSelect: {
     'site-access': SiteAccessSelect<false> | SiteAccessSelect<true>;
@@ -146,6 +151,7 @@ export interface Config {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'food-tour': FoodTourSelect<false> | FoodTourSelect<true>;
     'vault-settings': VaultSettingsSelect<false> | VaultSettingsSelect<true>;
+    'call-planner': CallPlannerSelect<false> | CallPlannerSelect<true>;
   };
   locale: null;
   widgets: {
@@ -1048,6 +1054,50 @@ export interface Snippet {
   createdAt: string;
 }
 /**
+ * Checklists anyone with the link can tick and add to. Also managed at /lists.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shared-lists".
+ */
+export interface SharedList {
+  id: number;
+  title: string;
+  /**
+   * Unguessable part of the share link, set automatically. The link itself is the access control.
+   */
+  shareSlug?: string | null;
+  /**
+   * Send this link.
+   */
+  link?: string | null;
+  items?:
+    | {
+        label: string;
+        checked?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "secrets".
+ */
+export interface Secret {
+  id: number;
+  secretId: string;
+  ciphertext: string;
+  iv: string;
+  /**
+   * PBKDF2 salt when a passphrase was added.
+   */
+  salt?: string | null;
+  expiresAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -1162,6 +1212,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'snippets';
         value: number | Snippet;
+      } | null)
+    | ({
+        relationTo: 'shared-lists';
+        value: number | SharedList;
+      } | null)
+    | ({
+        relationTo: 'secrets';
+        value: number | Secret;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1786,6 +1844,37 @@ export interface SnippetsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shared-lists_select".
+ */
+export interface SharedListsSelect<T extends boolean = true> {
+  title?: T;
+  shareSlug?: T;
+  link?: T;
+  items?:
+    | T
+    | {
+        label?: T;
+        checked?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "secrets_select".
+ */
+export interface SecretsSelect<T extends boolean = true> {
+  secretId?: T;
+  ciphertext?: T;
+  iv?: T;
+  salt?: T;
+  expiresAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -1841,6 +1930,11 @@ export interface SiteAccess {
     hobbies: 'public' | 'passcode' | 'owner';
     foodTour: 'public' | 'passcode' | 'owner';
     tools: 'public' | 'passcode' | 'owner';
+    callTimes: 'public' | 'passcode' | 'owner';
+    /**
+     * Always hidden: only you, logged in. Share links still open for anyone who has them.
+     */
+    lists: 'owner';
     /**
      * Always hidden: only you, logged in.
      */
@@ -1961,6 +2055,33 @@ export interface VaultSetting {
   createdAt?: string | null;
 }
 /**
+ * People shown on /tools/call-times with their local time and overlapping waking hours. Who can open the page is set in Settings → Access (Call times).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "call-planner".
+ */
+export interface CallPlanner {
+  id: number;
+  wakeStart: number;
+  /**
+   * 22 means awake until 22:00.
+   */
+  wakeEnd: number;
+  people?:
+    | {
+        name: string;
+        city?: string | null;
+        /**
+         * IANA name, e.g. America/New_York, Asia/Karachi.
+         */
+        timeZone: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-access_select".
  */
@@ -1976,6 +2097,8 @@ export interface SiteAccessSelect<T extends boolean = true> {
         hobbies?: T;
         foodTour?: T;
         tools?: T;
+        callTimes?: T;
+        lists?: T;
         vault?: T;
       };
   updatedAt?: T;
@@ -2049,6 +2172,25 @@ export interface FoodTourSelect<T extends boolean = true> {
 export interface VaultSettingsSelect<T extends boolean = true> {
   calendarToken?: T;
   regenerateCalendarToken?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "call-planner_select".
+ */
+export interface CallPlannerSelect<T extends boolean = true> {
+  wakeStart?: T;
+  wakeEnd?: T;
+  people?:
+    | T
+    | {
+        name?: T;
+        city?: T;
+        timeZone?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
