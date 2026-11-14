@@ -13,6 +13,7 @@ import { canView, type Viewer } from "@/lib/site-access-rules";
 import {
   SITE_SECTIONS,
   type AccessMode,
+  type SectionKey,
   type SiteSection,
 } from "@/lib/site-sections";
 import { TOOLS, type ToolEntry } from "@/lib/tools-registry";
@@ -103,6 +104,16 @@ export async function visibleTools(): Promise<ToolEntry[]> {
     // Unknown key: only the owner sees it, rather than leaking a link.
     return canView(mode ?? "owner", viewer);
   });
+}
+
+/** Can this visitor open the section? A backup to the proxy's own check. */
+export async function canViewSection(key: SectionKey): Promise<boolean> {
+  const payload = await getPayload({ config });
+  const [modes, viewer] = await Promise.all([
+    getSectionModes(payload),
+    currentViewer(),
+  ]);
+  return canView(modes[key], viewer);
 }
 
 /** For owner-only pages: 404 for everyone else, even if the proxy let them in. */

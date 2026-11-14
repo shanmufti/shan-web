@@ -30,9 +30,10 @@ export interface SiteSection {
   /** List on the landing page when visible. */
   onLanding: boolean;
   /**
-   * Exact paths inside this section that the proxy lets through because the
-   * route checks its own secret token (for clients with no cookie, such as a
-   * phone calendar). The route must 404 on a wrong token.
+   * Paths inside this section that the proxy lets through because the route
+   * checks its own secret token (for clients with no cookie, such as a phone
+   * calendar, or share links). Exact paths, or a prefix ending in `/*` for
+   * every path below it. The route must 404 on a wrong token.
    */
   tokenPaths?: readonly string[];
   /** Always Hidden (owner only), whatever is saved in /admin. */
@@ -135,6 +136,32 @@ export const SITE_SECTIONS = [
     onLanding: true,
   },
   {
+    key: "callTimes",
+    label: "Call times",
+    href: "/tools/call-times",
+    blurb: "Local times and overlapping waking hours.",
+    paths: ["/tools/call-times"],
+    collections: ["call-planner"],
+    defaultMode: "passcode",
+    inNav: false,
+    onLanding: false,
+  },
+  {
+    key: "lists",
+    label: "Shared lists",
+    href: "/lists",
+    blurb: "Checklists shared by link.",
+    paths: ["/lists"],
+    // The list index is yours; each /lists/<share link> page checks its own
+    // unguessable slug, so anyone with a link can open that one list.
+    collections: ["shared-lists"],
+    defaultMode: "owner",
+    inNav: false,
+    onLanding: false,
+    tokenPaths: ["/lists/*"],
+    ownerOnly: true,
+  },
+  {
     key: "vault",
     label: "Vault",
     href: "/vault",
@@ -180,7 +207,13 @@ export function sectionForPath(pathname: string): SiteSection | null {
 
 /** True for a path the section's own route guards with a token. */
 export function isTokenPath(section: SiteSection, pathname: string): boolean {
-  return section.tokenPaths?.includes(pathname) ?? false;
+  return (
+    section.tokenPaths?.some((path) => {
+      if (!path.endsWith("/*")) return path === pathname;
+      const base = path.slice(0, -1);
+      return pathname.startsWith(base) && pathname.length > base.length;
+    }) ?? false
+  );
 }
 
 /**

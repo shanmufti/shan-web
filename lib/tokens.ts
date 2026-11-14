@@ -5,6 +5,11 @@ export function newToken(): string {
   return randomBytes(32).toString("base64url");
 }
 
+/** 16 random bytes as URL-safe text (22 characters): share links, secret ids. */
+export function newShortToken(): string {
+  return randomBytes(16).toString("base64url");
+}
+
 /** Constant-time string comparison for secret tokens. */
 export function tokensMatch(a: string, b: string): boolean {
   const left = Buffer.from(a);
