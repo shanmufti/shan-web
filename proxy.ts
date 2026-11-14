@@ -8,6 +8,7 @@ import {
   tokenMatchesHash,
 } from "@/lib/private-access";
 import { proxyPasscodeHash, proxySectionModes } from "@/lib/proxy-cache";
+import { resolveShortLink } from "@/lib/short-links-server";
 import { canView, type Viewer } from "@/lib/site-access-rules";
 import {
   isTokenPath,
@@ -50,8 +51,30 @@ async function viewerFor(
  * work here, and anonymous visitors never start Payload. Any error falls
  * back to each section's default mode (fail closed).
  */
+/**
+ * /go/<slug> short links: answered here, per request, so the redirect keeps
+ * a real 307 status and every hit is counted. Unknown or inactive slugs (or
+ * any error) fall through to app/(site)/go/[slug], which renders the 404.
+ */
+async function shortLinkRedirect(pathname: string): Promise<NextResponse> {
+  try {
+    const slug = decodeURIComponent(pathname.slice("/go/".length));
+    const destination = await resolveShortLink(slug.toLowerCase());
+    if (destination) {
+      const res = NextResponse.redirect(destination, 307);
+      res.headers.set("Cache-Control", "private, no-store");
+      res.headers.set("X-Robots-Tag", "noindex");
+      return res;
+    }
+  } catch {
+    // Fall through to the 404 page.
+  }
+  return NextResponse.next();
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
+  if (pathname.startsWith("/go/")) return shortLinkRedirect(pathname);
   const isApi = pathname.startsWith("/api/");
   const section = isApi
     ? sectionForApiPath(pathname)
@@ -98,5 +121,6 @@ export const config = {
     "/tools/:path*",
     "/vault/:path*",
     "/api/:path*",
+    "/go/:path*",
   ],
 };

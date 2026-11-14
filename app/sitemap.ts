@@ -4,6 +4,7 @@ import { listPublicHobbySlugs } from "@/lib/hobbies";
 import { listPublicForFeeds } from "@/lib/public-content";
 import { publicSectionKeys } from "@/lib/site-access";
 import { siteUrl } from "@/lib/site-url";
+import { TOOLS } from "@/lib/tools-registry";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
@@ -58,6 +59,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           })),
         ]
       : []),
-    ...(open.has("tools") ? [url("/tools"), url("/tools/snippets")] : []),
+    ...(open.has("tools")
+      ? [
+          url("/tools"),
+          // Ungated tools under /tools (snippets and the browser utilities).
+          ...TOOLS.filter(
+            (t) => !t.sectionKey && t.href.startsWith("/tools/"),
+          ).map((t) => url(t.href)),
+        ]
+      : []),
   ];
 }

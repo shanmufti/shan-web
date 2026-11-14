@@ -80,9 +80,6 @@ export interface Config {
     'visited-countries': VisitedCountry;
     'packing-list-templates': PackingListTemplate;
     'packing-lists': PackingList;
-    'unlock-attempts': UnlockAttempt;
-    'food-ratings': FoodRating;
-    'food-tour-photos': FoodTourPhoto;
     hobbies: Hobby;
     'hobby-references': HobbyReference;
     'practice-sessions': PracticeSession;
@@ -90,6 +87,10 @@ export interface Config {
     'vault-files': VaultFile;
     'file-drops': FileDrop;
     snippets: Snippet;
+    'unlock-attempts': UnlockAttempt;
+    'food-ratings': FoodRating;
+    'food-tour-photos': FoodTourPhoto;
+    'short-links': ShortLink;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -114,9 +115,6 @@ export interface Config {
     'visited-countries': VisitedCountriesSelect<false> | VisitedCountriesSelect<true>;
     'packing-list-templates': PackingListTemplatesSelect<false> | PackingListTemplatesSelect<true>;
     'packing-lists': PackingListsSelect<false> | PackingListsSelect<true>;
-    'unlock-attempts': UnlockAttemptsSelect<false> | UnlockAttemptsSelect<true>;
-    'food-ratings': FoodRatingsSelect<false> | FoodRatingsSelect<true>;
-    'food-tour-photos': FoodTourPhotosSelect<false> | FoodTourPhotosSelect<true>;
     hobbies: HobbiesSelect<false> | HobbiesSelect<true>;
     'hobby-references': HobbyReferencesSelect<false> | HobbyReferencesSelect<true>;
     'practice-sessions': PracticeSessionsSelect<false> | PracticeSessionsSelect<true>;
@@ -124,6 +122,10 @@ export interface Config {
     'vault-files': VaultFilesSelect<false> | VaultFilesSelect<true>;
     'file-drops': FileDropsSelect<false> | FileDropsSelect<true>;
     snippets: SnippetsSelect<false> | SnippetsSelect<true>;
+    'unlock-attempts': UnlockAttemptsSelect<false> | UnlockAttemptsSelect<true>;
+    'food-ratings': FoodRatingsSelect<false> | FoodRatingsSelect<true>;
+    'food-tour-photos': FoodTourPhotosSelect<false> | FoodTourPhotosSelect<true>;
+    'short-links': ShortLinksSelect<false> | ShortLinksSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -137,15 +139,15 @@ export interface Config {
     'site-access': SiteAccess;
     'landing-page': LandingPage;
     'site-settings': SiteSetting;
-    'food-tour': FoodTour;
     'vault-settings': VaultSetting;
+    'food-tour': FoodTour;
   };
   globalsSelect: {
     'site-access': SiteAccessSelect<false> | SiteAccessSelect<true>;
     'landing-page': LandingPageSelect<false> | LandingPageSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
-    'food-tour': FoodTourSelect<false> | FoodTourSelect<true>;
     'vault-settings': VaultSettingsSelect<false> | VaultSettingsSelect<true>;
+    'food-tour': FoodTourSelect<false> | FoodTourSelect<true>;
   };
   locale: null;
   widgets: {
@@ -206,12 +208,7 @@ export interface User {
  */
 export interface Media {
   id: number;
-  /**
-   * Describe the photo for screen readers. Defaults to the file name if left blank (handy for bulk uploads).
-   */
-  alt?: string | null;
-  caption?: string | null;
-  takenAt?: string | null;
+  alt: string;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -223,32 +220,6 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
-  sizes?: {
-    thumb?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    card?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    large?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -732,75 +703,6 @@ export interface PackingList {
   createdAt: string;
 }
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "unlock-attempts".
- */
-export interface UnlockAttempt {
-  id: number;
-  key: string;
-  count: number;
-  windowStart: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "food-ratings".
- */
-export interface FoodRating {
-  id: number;
-  key: string;
-  participantId: string;
-  name: string;
-  restaurantId: string;
-  restaurantName: string;
-  food: number;
-  ambiance: number;
-  price: number;
-  again: number;
-  total: number;
-  comment?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "food-tour-photos".
- */
-export interface FoodTourPhoto {
-  id: number;
-  /**
-   * Row id of the restaurant in Food tour settings.
-   */
-  restaurantId: string;
-  restaurantName: string;
-  participantId?: string | null;
-  name?: string | null;
-  caption?: string | null;
-  prefix?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-  sizes?: {
-    thumb?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
-}
-/**
  * One entry per hobby. Reference links and practice sessions hang off these.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -980,7 +882,6 @@ export interface VaultFile {
    */
   title?: string | null;
   notes?: string | null;
-  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1044,6 +945,100 @@ export interface Snippet {
    */
   tags?: string[] | null;
   notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "unlock-attempts".
+ */
+export interface UnlockAttempt {
+  id: number;
+  key: string;
+  count: number;
+  windowStart: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "food-ratings".
+ */
+export interface FoodRating {
+  id: number;
+  key: string;
+  participantId: string;
+  name: string;
+  restaurantId: string;
+  restaurantName: string;
+  food: number;
+  ambiance: number;
+  price: number;
+  again: number;
+  total: number;
+  comment?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "food-tour-photos".
+ */
+export interface FoodTourPhoto {
+  id: number;
+  /**
+   * Row id of the restaurant in Food tour settings.
+   */
+  restaurantId: string;
+  restaurantName: string;
+  participantId?: string | null;
+  name?: string | null;
+  caption?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumb?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * Each link redirects from /go/<slug>. Inactive or unknown slugs show the 404 page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "short-links".
+ */
+export interface ShortLink {
+  id: number;
+  /**
+   * Lowercase letters, digits and hyphens. The link is /go/<slug>.
+   */
+  slug: string;
+  /**
+   * Full http:// or https:// URL.
+   */
+  destination: string;
+  /**
+   * Private note, shown only here.
+   */
+  note?: string | null;
+  active?: boolean | null;
+  clicks?: number | null;
+  lastClickedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1124,18 +1119,6 @@ export interface PayloadLockedDocument {
         value: number | PackingList;
       } | null)
     | ({
-        relationTo: 'unlock-attempts';
-        value: number | UnlockAttempt;
-      } | null)
-    | ({
-        relationTo: 'food-ratings';
-        value: number | FoodRating;
-      } | null)
-    | ({
-        relationTo: 'food-tour-photos';
-        value: number | FoodTourPhoto;
-      } | null)
-    | ({
         relationTo: 'hobbies';
         value: number | Hobby;
       } | null)
@@ -1162,6 +1145,22 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'snippets';
         value: number | Snippet;
+      } | null)
+    | ({
+        relationTo: 'unlock-attempts';
+        value: number | UnlockAttempt;
+      } | null)
+    | ({
+        relationTo: 'food-ratings';
+        value: number | FoodRating;
+      } | null)
+    | ({
+        relationTo: 'food-tour-photos';
+        value: number | FoodTourPhoto;
+      } | null)
+    | ({
+        relationTo: 'short-links';
+        value: number | ShortLink;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1233,8 +1232,6 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
-  caption?: T;
-  takenAt?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1246,40 +1243,6 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
-  sizes?:
-    | T
-    | {
-        thumb?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        card?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        large?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1594,73 +1557,6 @@ export interface PackingListsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "unlock-attempts_select".
- */
-export interface UnlockAttemptsSelect<T extends boolean = true> {
-  key?: T;
-  count?: T;
-  windowStart?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "food-ratings_select".
- */
-export interface FoodRatingsSelect<T extends boolean = true> {
-  key?: T;
-  participantId?: T;
-  name?: T;
-  restaurantId?: T;
-  restaurantName?: T;
-  food?: T;
-  ambiance?: T;
-  price?: T;
-  again?: T;
-  total?: T;
-  comment?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "food-tour-photos_select".
- */
-export interface FoodTourPhotosSelect<T extends boolean = true> {
-  restaurantId?: T;
-  restaurantName?: T;
-  participantId?: T;
-  name?: T;
-  caption?: T;
-  prefix?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
-  sizes?:
-    | T
-    | {
-        thumb?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-      };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "hobbies_select".
  */
 export interface HobbiesSelect<T extends boolean = true> {
@@ -1742,7 +1638,6 @@ export interface VaultFilesSelect<T extends boolean = true> {
   originalFilename?: T;
   title?: T;
   notes?: T;
-  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1781,6 +1676,86 @@ export interface SnippetsSelect<T extends boolean = true> {
   code?: T;
   tags?: T;
   notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "unlock-attempts_select".
+ */
+export interface UnlockAttemptsSelect<T extends boolean = true> {
+  key?: T;
+  count?: T;
+  windowStart?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "food-ratings_select".
+ */
+export interface FoodRatingsSelect<T extends boolean = true> {
+  key?: T;
+  participantId?: T;
+  name?: T;
+  restaurantId?: T;
+  restaurantName?: T;
+  food?: T;
+  ambiance?: T;
+  price?: T;
+  again?: T;
+  total?: T;
+  comment?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "food-tour-photos_select".
+ */
+export interface FoodTourPhotosSelect<T extends boolean = true> {
+  restaurantId?: T;
+  restaurantName?: T;
+  participantId?: T;
+  name?: T;
+  caption?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumb?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "short-links_select".
+ */
+export interface ShortLinksSelect<T extends boolean = true> {
+  slug?: T;
+  destination?: T;
+  note?: T;
+  active?: T;
+  clicks?: T;
+  lastClickedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1895,6 +1870,25 @@ export interface SiteSetting {
   createdAt?: string | null;
 }
 /**
+ * The calendar feed at /vault/calendar.ics?token=… lists renewals and expiries with reminders. Anyone with the full link can read titles and dates, so keep it private.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vault-settings".
+ */
+export interface VaultSetting {
+  id: number;
+  /**
+   * Set automatically. The full feed link is shown on /vault.
+   */
+  calendarToken?: string | null;
+  /**
+   * Tick and save to make a new token. The old feed link stops working, so re-subscribe on your devices.
+   */
+  regenerateCalendarToken?: boolean | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "food-tour".
  */
@@ -1938,25 +1932,6 @@ export interface FoodTour {
         id?: string | null;
       }[]
     | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * The calendar feed at /vault/calendar.ics?token=… lists renewals and expiries with reminders. Anyone with the full link can read titles and dates, so keep it private.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "vault-settings".
- */
-export interface VaultSetting {
-  id: number;
-  /**
-   * Set automatically. The full feed link is shown on /vault.
-   */
-  calendarToken?: string | null;
-  /**
-   * Tick and save to make a new token. The old feed link stops working, so re-subscribe on your devices.
-   */
-  regenerateCalendarToken?: boolean | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2015,6 +1990,17 @@ export interface SiteSettingsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vault-settings_select".
+ */
+export interface VaultSettingsSelect<T extends boolean = true> {
+  calendarToken?: T;
+  regenerateCalendarToken?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "food-tour_select".
  */
 export interface FoodTourSelect<T extends boolean = true> {
@@ -2038,17 +2024,6 @@ export interface FoodTourSelect<T extends boolean = true> {
         visitedOn?: T;
         id?: T;
       };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "vault-settings_select".
- */
-export interface VaultSettingsSelect<T extends boolean = true> {
-  calendarToken?: T;
-  regenerateCalendarToken?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

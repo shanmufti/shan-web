@@ -23,6 +23,7 @@ import { PackingListTemplates } from "./collections/PackingListTemplates";
 import { PackingLists } from "./collections/PackingLists";
 import { PracticeSessions } from "./collections/PracticeSessions";
 import { SiteAccess } from "./collections/SiteAccess";
+import { ShortLinks } from "./collections/ShortLinks";
 import { SiteSettings } from "./collections/SiteSettings";
 import { Tech } from "./collections/Tech";
 import { Travel } from "./collections/Travel";
@@ -101,6 +102,7 @@ export default buildConfig({
     UnlockAttempts,
     FoodRatings,
     FoodTourPhotos,
+    ShortLinks,
   ],
   globals: [
     ...[SiteAccess, LandingPage, SiteSettings, VaultSettings].map(
