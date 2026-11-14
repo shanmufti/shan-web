@@ -662,11 +662,13 @@
   color: var(--foreground);
   border-color: var(--border);
 }
-.route-map .leaflet-control-attribution {
-  background: color-mix(in oklch, var(--card) 85%, transparent);
+/* Map credits on every Leaflet map: solid so the text stays AA readable
+   over any tile (or over the grey backdrop while tiles load). */
+.leaflet-container .leaflet-control.leaflet-control-attribution {
+  background: var(--card);
   color: var(--muted-foreground);
 }
-.route-map .leaflet-control-attribution a {
+.leaflet-container .leaflet-control.leaflet-control-attribution a {
   color: var(--foreground);
 }
 .route-map .leaflet-container {

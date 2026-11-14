@@ -49,4 +49,26 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withPayload(nextConfig, { devBundleServerPackages: false });
+const withPayloadConfig = withPayload(nextConfig, {
+  devBundleServerPackages: false,
+});
+const payloadHeaders = withPayloadConfig.headers;
+
+/**
+ * Payload adds a site-wide `Critical-CH: Sec-CH-Prefers-Color-Scheme` (plus
+ * Accept-CH and Vary) for the admin's theme. On public pages that makes a
+ * first visit fetch every page twice and splits caches by colour scheme; the
+ * site picks its theme in the browser (lib/theme.ts). Keep it on /admin only.
+ */
+export default {
+  ...withPayloadConfig,
+  async headers() {
+    const rules = (await payloadHeaders?.()) ?? [];
+    return rules.map((rule) =>
+      rule.source === "/:path*" &&
+      rule.headers.some((h) => h.key === "Critical-CH")
+        ? { ...rule, source: "/admin/:path*" }
+        : rule,
+    );
+  },
+} satisfies NextConfig;
