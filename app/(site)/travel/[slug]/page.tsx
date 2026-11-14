@@ -4,7 +4,10 @@ import { notFound } from "next/navigation";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { DetailPager } from "@/components/detail-pager";
-import { JourneyRouteView } from "@/components/journey-route-view";
+import {
+  JourneyRouteView,
+  JourneyStopList,
+} from "@/components/journey-route-view";
 import { LockedPage } from "@/components/locked-page";
 import { LockedCard, PostCard } from "@/components/post-card";
 import { ArticleBody } from "@/components/rich-text";
@@ -230,17 +233,14 @@ export default async function JourneyPage({ params }: Props) {
 
   return (
     <article>
-      <JourneyRouteView
-        stops={stops}
-        track={track}
-        header={header}
-        body={
-          <div className="mt-12">
-            <ArticleBody data={journey.body} />
-          </div>
-        }
-        after={after}
-      />
+      <JourneyRouteView stops={stops} track={track}>
+        {header}
+        <div className="mt-12">
+          <ArticleBody data={journey.body} />
+        </div>
+        <JourneyStopList />
+        {after}
+      </JourneyRouteView>
     </article>
   );
 }

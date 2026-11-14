@@ -296,6 +296,14 @@ export function RouteMap({
               title={`Stop ${String(index + 1)}: ${stop.name}`}
               eventHandlers={{
                 click: () => onSelect?.(index),
+                // Markers are role="button" divs: Enter and Space select.
+                keydown: (event) => {
+                  const { key } = event.originalEvent;
+                  if (key === "Enter" || key === " ") {
+                    event.originalEvent.preventDefault();
+                    onSelect?.(index);
+                  }
+                },
               }}
             >
               <Popup>
