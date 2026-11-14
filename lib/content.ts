@@ -7,16 +7,15 @@ import { cache } from "react";
 import { collectionTag, CONTENT_CACHE_LIFE } from "@/lib/cache-tags";
 import { mayHaveSession } from "@/lib/private-access";
 
-export type ContentCollection = "blog" | "diving" | "travel" | "tech";
+export type ContentCollection = "diving" | "travel" | "tech";
 
 /**
  * Collections each content collection's docs can pull in through
  * relationships (depth > 0), so cached reads expire when those change too.
  */
 const RELATED: Record<ContentCollection, string[]> = {
-  blog: ["travel", "media"],
   diving: ["media", "dive-skills", "gear-configs", "dive-gear"],
-  travel: ["blog", "diving", "media"],
+  travel: ["diving", "media"],
   tech: ["media"],
 };
 

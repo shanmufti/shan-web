@@ -20,7 +20,7 @@ export const publishedOrAuthenticated: Access = ({ req: { user } }) => {
 };
 
 /**
- * Journeys and stories: anonymous REST/Local API readers only get published,
+ * Journeys: anonymous REST/Local API readers only get published,
  * public docs. Passcode holders are served by lib/content.ts, which checks the
  * cookie itself (Local API calls don't carry request cookies).
  */
@@ -47,7 +47,7 @@ export const visibilityReadAccess = {
   delete: authenticated,
 } satisfies CollectionAccess;
 
-/** Blog / diving / travel / tech / resources — drafts hidden from the public. */
+/** Diving / travel / tech / resources — drafts hidden from the public. */
 export const publicContentAccess = {
   read: publishedOrAuthenticated,
   create: authenticated,

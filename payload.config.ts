@@ -6,7 +6,6 @@ import { buildConfig } from "payload";
 import { fileURLToPath } from "url";
 import sharp from "sharp";
 
-import { Blog } from "./collections/Blog";
 import { DiveGear } from "./collections/DiveGear";
 import { DiveResources } from "./collections/DiveResources";
 import { DiveSkills } from "./collections/DiveSkills";
@@ -25,7 +24,6 @@ import { Plans } from "./collections/Plans";
 import { PackingListTemplates } from "./collections/PackingListTemplates";
 import { PackingLists } from "./collections/PackingLists";
 import { Places } from "./collections/Places";
-import { PracticeSessions } from "./collections/PracticeSessions";
 import { SharedLists } from "./collections/SharedLists";
 import { SiteAccess } from "./collections/SiteAccess";
 import { ShortLinks } from "./collections/ShortLinks";
@@ -94,7 +92,6 @@ export default buildConfig({
     Users,
     ...[
       Media,
-      Blog,
       Diving,
       DiveGear,
       GearConfigs,
@@ -109,7 +106,6 @@ export default buildConfig({
       PackingLists,
       Hobbies,
       HobbyReferences,
-      PracticeSessions,
       VaultRecords,
       VaultFiles,
       FileDrops,

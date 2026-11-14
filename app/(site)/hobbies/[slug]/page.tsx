@@ -5,11 +5,10 @@ import { notFound } from "next/navigation";
 
 import { Disclosure } from "@/components/disclosure";
 import { HobbyFilters, type FilterField } from "@/components/hobby-filters";
-import { AddReferenceForm, AddSessionForm } from "@/components/hobby-forms";
+import { AddReferenceForm } from "@/components/hobby-forms";
 import { HobbyIcon } from "@/components/hobby-icon";
 import { HobbyReferenceCard } from "@/components/hobby-reference-card";
 import { HUB_DETAIL, PageTransition } from "@/components/page-transition";
-import { formatDate } from "@/lib/format-date";
 import { getHobbyPage, type HobbyReference } from "@/lib/hobbies";
 import {
   hobbyDescription,
@@ -17,14 +16,8 @@ import {
   REFERENCE_STATUSES,
   SKILL_LEVELS,
 } from "@/lib/hobby-options";
-import {
-  formatMinutes,
-  practiceStats,
-  type PracticeStats,
-} from "@/lib/hobby-stats";
 import { visibleSections } from "@/lib/site-access";
 import { sectionForPath } from "@/lib/site-sections";
-import type { PracticeSession } from "@/payload-types";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 type Props = Readonly<{
@@ -34,7 +27,7 @@ type Props = Readonly<{
 
 const NO_TOPIC = "General";
 
-// Filters (searchParams) and the owner's practice log are per request.
+// Filters (searchParams) and the owner's view are per request.
 // Anonymous visitors get the cached public read (lib/hobbies.ts); the
 // owner's private data is never cached.
 export const instant = false;
@@ -164,7 +157,7 @@ export default async function HobbyPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const data = await getHobbyPage(slug);
   if (!data) notFound();
-  const { hobby, references, sessions, isOwner } = data;
+  const { hobby, references, isOwner } = data;
 
   const filters = readFilters(await searchParams);
   const topics = topicsOf(references);
@@ -232,14 +225,6 @@ export default async function HobbyPage({ params, searchParams }: Props) {
           topics={topics}
           isOwner={isOwner}
         />
-
-        {isOwner && sessions ? (
-          <PracticeLog
-            hobbyId={hobby.id}
-            sessions={sessions}
-            references={references}
-          />
-        ) : null}
       </div>
     </PageTransition>
   );
@@ -351,150 +336,6 @@ function ReferencesSection({
           )}
         </>
       )}
-    </section>
-  );
-}
-
-function StatTile({
-  label,
-  value,
-}: Readonly<{ label: string; value: string }>) {
-  return (
-    <div className="bg-card ring-foreground/10 rounded-xl p-3 ring-1 sm:p-4">
-      <dt className="meta-label text-muted-foreground">{label}</dt>
-      <dd className="mt-1 text-lg font-semibold tabular-nums sm:text-2xl">
-        {value}
-      </dd>
-    </div>
-  );
-}
-
-function Stats({ stats }: Readonly<{ stats: PracticeStats }>) {
-  return (
-    <dl className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
-      <StatTile
-        label="Sessions this month"
-        value={String(stats.sessionsThisMonth)}
-      />
-      <StatTile
-        label="Time this month"
-        value={formatMinutes(stats.minutesThisMonth)}
-      />
-      <StatTile
-        label="Weekly streak"
-        value={
-          stats.weeklyStreak === 1
-            ? "1 week"
-            : `${String(stats.weeklyStreak)} weeks`
-        }
-      />
-    </dl>
-  );
-}
-
-function PracticeLog({
-  hobbyId,
-  sessions,
-  references,
-}: Readonly<{
-  hobbyId: number;
-  sessions: PracticeSession[];
-  references: HobbyReference[];
-}>) {
-  const stats = practiceStats(sessions);
-  const titles = new Map(references.map((r) => [r.id, r.title]));
-  const recent = sessions.slice(0, 12);
-  const today = new Date().toISOString().slice(0, 10);
-
-  return (
-    <section aria-labelledby="practice-heading" className="mt-16">
-      <div className="flex flex-wrap items-center gap-2">
-        <h2
-          id="practice-heading"
-          className="text-xl font-semibold tracking-tight"
-        >
-          Practice log
-        </h2>
-        <span className="border-border text-muted-foreground inline-flex h-6 items-center gap-1 rounded-full border px-2 text-xs">
-          <Lock aria-hidden="true" className="size-3" />
-          Only you
-        </span>
-      </div>
-      <Stats stats={stats} />
-
-      <Disclosure summary="Log a session" className="mt-6">
-        <AddSessionForm
-          hobbyId={hobbyId}
-          today={today}
-          references={references.map((r) => ({ id: r.id, title: r.title }))}
-        />
-      </Disclosure>
-
-      {recent.length === 0 ? (
-        <p className="text-muted-foreground mt-6 text-sm">
-          No sessions logged yet.
-        </p>
-      ) : (
-        <ol className="divide-border mt-6 divide-y">
-          {recent.map((session) => {
-            const used = (session.references ?? [])
-              .map((r) => titles.get(typeof r === "number" ? r : r.id))
-              .filter((t): t is string => Boolean(t));
-            const details = [
-              session.durationMinutes != null
-                ? formatMinutes(session.durationMinutes)
-                : null,
-              session.location,
-              session.feeling != null
-                ? `felt ${String(session.feeling)}/5`
-                : null,
-            ].filter(Boolean);
-            return (
-              <li
-                key={session.id}
-                className="grid gap-1 py-3 sm:grid-cols-[9rem_1fr]"
-              >
-                <time
-                  dateTime={session.date}
-                  className="text-muted-foreground font-mono text-xs sm:pt-0.5"
-                >
-                  {formatDate(session.date)}
-                </time>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium">{session.focus}</p>
-                  {details.length > 0 ? (
-                    <p className="text-muted-foreground text-xs">
-                      {details.join(" · ")}
-                    </p>
-                  ) : null}
-                  {used.length > 0 ? (
-                    <p className="text-muted-foreground mt-1 text-xs">
-                      Used: {used.join(", ")}
-                    </p>
-                  ) : null}
-                  {session.notes ? (
-                    <p className="mt-1 text-sm whitespace-pre-line">
-                      {session.notes}
-                    </p>
-                  ) : null}
-                </div>
-              </li>
-            );
-          })}
-        </ol>
-      )}
-      {sessions.length > recent.length ? (
-        <p className="mt-4 text-sm">
-          <Link
-            prefetch={false}
-
-            href="/admin/collections/practice-sessions"
-            className="text-muted-foreground hover:text-foreground underline underline-offset-4"
-          >
-            All {sessions.length} sessions in admin
-          </Link>
-        </p>
-      ) : null}
     </section>
   );
 }

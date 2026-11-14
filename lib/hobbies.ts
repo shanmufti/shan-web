@@ -4,23 +4,17 @@ import { getPayload } from "payload";
 
 import { collectionTag, CONTENT_CACHE_LIFE } from "@/lib/cache-tags";
 import { getCurrentUser } from "@/lib/content";
-import type {
-  Hobby,
-  HobbyReference,
-  Media,
-  PracticeSession,
-} from "@/payload-types";
+import type { Hobby, HobbyReference, Media } from "@/payload-types";
 
 /**
  * Hobby reads for the /hobbies pages. Every query runs with
  * `overrideAccess: false` and the visitor's own user (or none), so the
  * collection access rules decide what is visible: anonymous visitors only
- * ever get public hobbies and public references of public hobbies, and
- * practice sessions only come back for the logged-in owner.
+ * ever get public hobbies and public references of public hobbies.
  *
  * Caching: what an anonymous visitor sees is cached ("use cache", tagged by
  * collection, expired by the Payload hooks in lib/revalidate.ts). The
- * owner's view (private hobbies, practice sessions) is always read per
+ * owner's view (private hobbies) is always read per
  * request and never enters a cache.
  */
 
@@ -36,7 +30,7 @@ function tagHobbies() {
   );
 }
 
-export type { Hobby, HobbyReference, PracticeSession };
+export type { Hobby, HobbyReference };
 
 export interface HobbyCard extends Hobby {
   referenceCount: number;
@@ -111,8 +105,6 @@ export async function listHobbies(): Promise<{
 export interface HobbyPageData {
   hobby: Hobby;
   references: HobbyReference[];
-  /** Only for the owner; null for everyone else. */
-  sessions: PracticeSession[] | null;
   isOwner: boolean;
 }
 
@@ -132,35 +124,20 @@ async function loadHobbyPage(
   const hobby = docs[0];
   if (!hobby) return null;
 
-  const [{ docs: references }, sessions] = await Promise.all([
-    payload.find({
-      collection: "hobby-references",
-      where: { hobby: { equals: hobby.id } },
-      sort: ["topic", "-createdAt"],
-      depth: 0,
-      pagination: false,
-      user,
-      overrideAccess: false,
-    }),
-    user
-      ? payload
-          .find({
-            collection: "practice-sessions",
-            where: { hobby: { equals: hobby.id } },
-            sort: "-date",
-            depth: 0,
-            limit: 500,
-            user,
-            overrideAccess: false,
-          })
-          .then((r) => r.docs)
-      : Promise.resolve(null),
-  ]);
+  const { docs: references } = await payload.find({
+    collection: "hobby-references",
+    where: { hobby: { equals: hobby.id } },
+    sort: ["topic", "-createdAt"],
+    depth: 0,
+    pagination: false,
+    user,
+    overrideAccess: false,
+  });
 
-  return { hobby, references, sessions, isOwner: Boolean(user) };
+  return { hobby, references, isOwner: Boolean(user) };
 }
 
-/** A hobby page as an anonymous visitor sees it (no sessions). Cached. */
+/** A hobby page as an anonymous visitor sees it. Cached. */
 export async function publicHobbyPage(
   slug: string,
 ): Promise<HobbyPageData | null> {

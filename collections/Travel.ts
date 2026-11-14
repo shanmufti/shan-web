@@ -15,7 +15,7 @@ export const Travel: CollectionConfig = {
   admin: {
     useAsTitle: "title",
     defaultColumns: ["title", "startDate", "visibility", "draft"],
-    group: "Journeys and stories",
+    group: "Journeys",
   },
   access: visibilityReadAccess,
   fields: [
@@ -110,13 +110,6 @@ export const Travel: CollectionConfig = {
       type: "relationship",
       relationTo: "diving",
       hasMany: true,
-    },
-    {
-      name: "stories",
-      type: "join",
-      collection: "blog",
-      on: "journey",
-      admin: { description: "Stories that belong to this journey." },
     },
   ],
 };

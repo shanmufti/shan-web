@@ -56,21 +56,6 @@ export const locationField: Field = {
   ],
 };
 
-/** Same shape as locationField, but optional (stand-alone stories). */
-export const optionalLocationField: Field = {
-  name: "location",
-  type: "group",
-  admin: {
-    description:
-      "Optional. Puts a stand-alone story on the homepage globe. Stories in a journey use the journey's stops.",
-  },
-  fields: [
-    { name: "name", type: "text" },
-    { name: "lat", type: "number", min: -90, max: 90 },
-    { name: "lng", type: "number", min: -180, max: 180 },
-  ],
-};
-
 /**
  * Public vs passcode-protected. Private items show as locked cards in
  * listings unless `hideWhenLocked` is set. See lib/private-access.ts.

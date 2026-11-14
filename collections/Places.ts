@@ -17,7 +17,7 @@ export const Places: CollectionConfig = {
   admin: {
     useAsTitle: "name",
     defaultColumns: ["name", "category", "destination", "visibility"],
-    group: "Journeys and stories",
+    group: "Journeys",
     listSearchableFields: ["name", "sourceList", "address"],
   },
   access: {

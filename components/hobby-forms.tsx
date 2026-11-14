@@ -8,11 +8,7 @@ import {
   useRef,
 } from "react";
 
-import {
-  addHobbyReference,
-  addPracticeSession,
-  type HobbyFormState,
-} from "@/lib/actions/hobbies";
+import { addHobbyReference, type HobbyFormState } from "@/lib/actions/hobbies";
 import {
   REFERENCE_KINDS,
   REFERENCE_STATUSES,
@@ -206,123 +202,6 @@ export function AddReferenceForm({
         </label>
         <button type="submit" disabled={pending} className={buttonClass}>
           {pending ? "Saving…" : "Save link"}
-        </button>
-        <Status state={state} id={`${id}-status`} />
-      </div>
-    </form>
-  );
-}
-
-export function AddSessionForm({
-  hobbyId,
-  today,
-  references,
-}: Readonly<{
-  hobbyId: number;
-  today: string;
-  references: { id: number; title: string }[];
-}>) {
-  const [state, action, pending] = useActionState(addPracticeSession, {});
-  const { ref: formRef, onSubmit } = useResetOnSave(state, action);
-  const id = useId();
-
-  return (
-    <form
-      ref={formRef}
-      onSubmit={onSubmit}
-      className="grid grid-cols-2 gap-4 sm:grid-cols-4"
-      aria-describedby={`${id}-status`}
-    >
-      <input type="hidden" name="hobbyId" value={hobbyId} />
-      <Field label="Date" htmlFor={`${id}-date`}>
-        <input
-          id={`${id}-date`}
-          name="date"
-          type="date"
-          required
-          defaultValue={today}
-          className={inputClass}
-        />
-      </Field>
-      <Field label="Minutes" htmlFor={`${id}-duration`}>
-        <input
-          id={`${id}-duration`}
-          name="durationMinutes"
-          type="number"
-          min={0}
-          max={1440}
-          inputMode="numeric"
-          className={inputClass}
-        />
-      </Field>
-      <Field label="Location" htmlFor={`${id}-location`} className="col-span-2">
-        <input
-          id={`${id}-location`}
-          name="location"
-          maxLength={120}
-          className={inputClass}
-        />
-      </Field>
-      <Field
-        label="What I worked on"
-        htmlFor={`${id}-focus`}
-        className="col-span-2 sm:col-span-3"
-      >
-        <input
-          id={`${id}-focus`}
-          name="focus"
-          required
-          maxLength={200}
-          className={inputClass}
-        />
-      </Field>
-      <Field label="How it felt" htmlFor={`${id}-feeling`}>
-        <select id={`${id}-feeling`} name="feeling" className={inputClass}>
-          <option value="">Not set</option>
-          {[5, 4, 3, 2, 1].map((n) => (
-            <option key={n} value={n}>
-              {n} / 5
-            </option>
-          ))}
-        </select>
-      </Field>
-      {references.length > 0 ? (
-        <fieldset className="col-span-2 sm:col-span-4">
-          <legend className={labelClass}>References used</legend>
-          <div className="mt-2 flex max-h-40 flex-col gap-1.5 overflow-y-auto">
-            {references.map((ref) => (
-              <label
-                key={ref.id}
-                className="inline-flex items-start gap-2 text-sm"
-              >
-                <input
-                  type="checkbox"
-                  name="references"
-                  value={ref.id}
-                  className="accent-primary mt-0.5 size-4 shrink-0"
-                />
-                <span className="min-w-0">{ref.title}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-      ) : null}
-      <Field
-        label="Notes"
-        htmlFor={`${id}-notes`}
-        className="col-span-2 sm:col-span-4"
-      >
-        <textarea
-          id={`${id}-notes`}
-          name="notes"
-          rows={2}
-          maxLength={2000}
-          className={`${inputClass} h-auto py-2`}
-        />
-      </Field>
-      <div className="col-span-2 flex flex-wrap items-center gap-x-6 gap-y-3 sm:col-span-4">
-        <button type="submit" disabled={pending} className={buttonClass}>
-          {pending ? "Saving…" : "Log session"}
         </button>
         <Status state={state} id={`${id}-status`} />
       </div>

@@ -21,8 +21,7 @@ export const Hobbies: CollectionConfig = {
     useAsTitle: "name",
     defaultColumns: ["name", "public", "order"],
     group: "Hobbies",
-    description:
-      "One entry per hobby. Reference links and practice sessions hang off these.",
+    description: "One entry per hobby. Reference links hang off these.",
   },
   defaultSort: "order",
   access: {

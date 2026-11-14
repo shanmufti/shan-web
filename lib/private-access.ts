@@ -11,7 +11,7 @@ import type { Payload } from "payload";
 import { requireEnv } from "@/lib/env";
 
 /**
- * Passcode gate for private journeys, stories (and later, private photos).
+ * Passcode gate for private journeys (and later, private photos).
  *
  * - The owner sets the passcode in /admin → Site settings. Only a scrypt hash
  *   is stored (`salt:hash`).
