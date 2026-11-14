@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { Footer } from "@/components/footer";
 import { Nav } from "@/components/nav";
+import { WaterLight } from "@/components/water-light";
 import { siteUrl } from "@/lib/site-url";
 import { themeInitScript } from "@/lib/theme";
 
@@ -55,10 +56,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="flex min-h-full flex-col">
+      <body className="relative isolate flex min-h-full flex-col">
+        <WaterLight />
         <a
           href="#main"
-          className="bg-primary text-primary-foreground sr-only z-50 rounded-md px-4 py-2 text-sm focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+          className="bg-primary text-primary-foreground sr-only z-50 rounded-lg px-4 py-2 text-sm shadow-md focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
         >
           Skip to content
         </a>

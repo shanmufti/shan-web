@@ -219,7 +219,7 @@ export default async function JourneyPage({ params }: Props) {
         {stops.length > 0 ? (
           <aside
             aria-label="Route"
-            className="lg:sticky lg:top-20 lg:self-start"
+            className="lg:sticky lg:top-[calc(var(--header-offset)+1rem)] lg:self-start lg:transition-[top] lg:duration-300"
           >
             <div className="border-border aspect-[4/3] overflow-hidden rounded-md border">
               <RouteMapLoader stops={stops} track={track} />

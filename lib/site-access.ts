@@ -46,3 +46,38 @@ export async function navLinks(): Promise<{ href: string; label: string }[]> {
     .filter((s) => s.inNav)
     .map((s) => ({ href: s.href, label: s.label }));
 }
+
+export interface NavSection {
+  href: string;
+  label: string;
+  /** Section is behind the shared passcode. */
+  gated: boolean;
+  /** This visitor still needs the passcode to open it. */
+  locked: boolean;
+}
+
+/**
+ * Header and footer sections, including passcode sections this visitor
+ * hasn't unlocked yet (shown with a lock; the proxy sends them to /unlock).
+ * Hidden sections stay out unless the owner is logged in.
+ */
+export const navSections = cache(async (): Promise<NavSection[]> => {
+  const payload = await getPayload({ config });
+  const [modes, viewer] = await Promise.all([
+    getSectionModes(payload),
+    currentViewer(),
+  ]);
+  return SITE_SECTIONS.filter((s) => s.inNav).flatMap((s) => {
+    const mode = modes[s.key];
+    const open = canView(mode, viewer);
+    if (!open && mode !== "passcode") return [];
+    return [
+      {
+        href: s.href,
+        label: s.label,
+        gated: mode === "passcode",
+        locked: !open,
+      },
+    ];
+  });
+});

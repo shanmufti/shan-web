@@ -79,7 +79,7 @@ export function JourneysYearNav({ years }: Readonly<{ years: YearLink[] }>) {
     <>
       <nav
         aria-label="Years"
-        className="bg-background/85 border-border sticky top-14 z-30 -mx-6 mb-8 border-b px-6 backdrop-blur-md lg:-mx-10 lg:px-10"
+        className="bg-background/85 border-border sticky top-(--header-offset) z-30 -mx-6 mb-8 border-b px-6 backdrop-blur-md transition-[top] duration-300 ease-(--ease-out-soft) lg:-mx-10 lg:px-10"
       >
         <ol
           ref={barRef}

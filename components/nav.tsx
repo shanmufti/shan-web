@@ -1,5 +1,5 @@
 import { getCurrentUser } from "@/lib/content";
-import { navLinks } from "@/lib/site-access";
+import { navSections } from "@/lib/site-access";
 
 import { SiteNav } from "./site-nav";
 
@@ -11,7 +11,7 @@ function emailFromUser(user: unknown): string | null {
 
 /** Server wrapper: reads the session, then hands plain props to the client nav. */
 export async function Nav() {
-  const [user, links] = await Promise.all([getCurrentUser(), navLinks()]);
+  const [user, links] = await Promise.all([getCurrentUser(), navSections()]);
   const email = emailFromUser(user);
 
   return (
