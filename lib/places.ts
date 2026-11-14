@@ -189,7 +189,11 @@ const GROUP_LABELS: Record<string, string> = {
   other: "Other places",
 };
 
-/** Places by category, in the importer's category order, A to Z inside. */
+/**
+ * Places by category, in the importer's category order. Inside a category,
+ * places with a note (my recommendations) come first, then A to Z, so they
+ * stay above the "Show all" fold and links to them from the write-up land.
+ */
 export function groupPlaces(places: PlaceView[]): PlaceGroup[] {
   const known = new Set<string>(PLACE_CATEGORIES.map((c) => c.value));
   return PLACE_CATEGORIES.map((c) => ({
@@ -201,6 +205,10 @@ export function groupPlaces(places: PlaceView[]): PlaceGroup[] {
           ? p.category === "other" || !known.has(p.category)
           : p.category === c.value,
       )
-      .sort((a, b) => a.name.localeCompare(b.name)),
+      .sort(
+        (a, b) =>
+          Number(b.note !== null) - Number(a.note !== null) ||
+          a.name.localeCompare(b.name),
+      ),
   })).filter((g) => g.places.length > 0);
 }
