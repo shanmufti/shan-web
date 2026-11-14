@@ -9,6 +9,7 @@ import {
   JourneyRouteView,
   JourneyStopList,
 } from "@/components/journey-route-view";
+import { JourneyPhotos } from "@/components/journey-photos";
 import { JourneyPlaces } from "@/components/journey-places";
 import { LockedPage } from "@/components/locked-page";
 import { PageTransition, SharedCover } from "@/components/page-transition";
@@ -267,6 +268,7 @@ function JourneyArticle({ journey, docs, places }: ArticleProps) {
           <ArticleBody data={journey.body} />
         </div>
         <JourneyStopList />
+        <JourneyPhotos photos={journey.photos} />
 
         {/* Private stories differ per visitor: the shell has the anonymous view. */}
         <Suspense

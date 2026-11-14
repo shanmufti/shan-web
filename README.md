@@ -39,6 +39,15 @@ Neon stores article text + a pointer to each file. The bytes live in R2.
 3. Payload saves metadata in Postgres (`filename`, `alt`, `url`, sizes, etc.).
 4. The site renders using `url`, which `generateFileURL` builds as `R2_PUBLIC_URL/filename`.
 
+Photos (`media`), see `collections/Media.ts` and `lib/media-upload.ts`:
+
+- On upload, sharp caps the stored original at 2560px and re-encodes it, which removes all EXIF (GPS included), and writes WebP sizes `thumb` (480), `card` (960) and `large` (2048). Pages render them as a `srcset` (`components/picture.tsx`), so phones download ~50–150KB per photo, not the original.
+- Every upload gets a unique name (`img-1234-3f9c2a71.jpg`), so two `IMG_1234.JPG` from different trips can't overwrite each other in R2.
+- Admin uploads go browser → R2, then Payload replaces that raw file with the processed one under the same key, so no camera original (with GPS) stays public.
+- JPEG, PNG, WebP or AVIF only: sharp can't read HEIC, so export JPEG from Photos.
+- Journeys have a `photos` gallery (image + optional stop name). Bulk-add with `NODE_ENV=production npx payload run scripts/upload-journey-photos.ts <manifest.json> [apply]` (format in the script header).
+- Cost: R2's free tier is 10GB storage with free egress; each photo takes about 0.3–1MB in total, so thousands of photos fit. No Vercel image optimisation is used (`images.unoptimized`), so Vercel's image limits don't apply.
+
 Two different Cloudflare URLs (easy to mix up):
 
 - **`R2_ENDPOINT`** — private S3 API for upload/delete. Not for `<img src>`.
