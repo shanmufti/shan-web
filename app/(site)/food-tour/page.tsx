@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 
 import { FoodPhotosSection } from "@/components/food-photos-section";
 import { FoodRatingForm } from "@/components/food-rating-form";
@@ -47,7 +48,13 @@ function fixed(value: number): string {
   return value.toFixed(1).replace(/\.0$/, "");
 }
 
+// Live: rubric submissions and photos must show immediately, so this
+// page renders on every request (it calls connection()).
+export const instant = false;
+
 export default async function FoodTourPage() {
+  // Never cached or prerendered: always the latest tour, rubrics and photos.
+  await connection();
   const tour = await getFoodTour();
   const revealed = isRevealed(tour);
   const title = tour.title ?? "Food tour";

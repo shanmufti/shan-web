@@ -1,14 +1,9 @@
 import config from "@payload-config";
-import { cookies } from "next/headers";
+import { cacheLife, cacheTag } from "next/cache";
 import { getPayload, type DataFromCollectionSlug } from "payload";
-import { cache } from "react";
 
-import { getCurrentUser } from "@/lib/content";
+import { collectionTag, CONTENT_CACHE_LIFE } from "@/lib/cache-tags";
 import { countryName } from "@/lib/country-names";
-import {
-  isValidAccessToken,
-  PRIVATE_ACCESS_COOKIE,
-} from "@/lib/private-access";
 
 export type JourneyDoc = DataFromCollectionSlug<"travel">;
 export type StoryDoc = DataFromCollectionSlug<"blog">;
@@ -19,36 +14,20 @@ export type StoryDoc = DataFromCollectionSlug<"blog">;
  * - drafts never leave the server (except to the logged-in owner, via /admin)
  * - private items: full doc only when unlocked; otherwise a locked teaser
  *   with title + date only, or nothing when `hideWhenLocked` is set.
+ *
+ * Caching: the raw reads below are `"use cache"` and include private docs,
+ * but they are only ever handed to server code. Whether a visitor is
+ * unlocked is decided per request (lib/site-access.ts → hasPrivateAccess),
+ * always inside a <Suspense> boundary, and the filtering happens after the
+ * cache. Pages render private content only behind that check, so it never
+ * reaches a static shell.
  */
 
-/** Owner, or a visitor holding a valid passcode cookie. Cached per request. */
-export const hasPrivateAccess = cache(async (): Promise<boolean> => {
-  const user = await getCurrentUser();
-  if (user) return true;
-  const jar = await cookies();
-  const token = jar.get(PRIVATE_ACCESS_COOKIE)?.value;
-  const payload = await getPayload({ config });
-  return isValidAccessToken(payload, token);
-});
-
-function isPrivate(doc: { visibility?: string | null }) {
+export function isPrivate(doc: { visibility?: string | null }) {
   return doc.visibility === "private";
 }
 
-export function mediaUrl(value: unknown): string | undefined {
-  if (!value || typeof value !== "object") return undefined;
-  const media = value as {
-    url?: string | null;
-    sizes?: Record<string, { url?: string | null } | undefined> | null;
-  };
-  return media.sizes?.["card"]?.url ?? media.url ?? undefined;
-}
-
-export function mediaAlt(value: unknown): string | undefined {
-  if (!value || typeof value !== "object") return undefined;
-  const alt = (value as { alt?: string | null }).alt;
-  return alt ?? undefined;
-}
+export { mediaAlt, mediaImage, mediaUrl } from "@/lib/media";
 
 export function journeyCountries(journey: JourneyDoc): string[] {
   const codes = new Set<string>();
@@ -68,6 +47,100 @@ export function journeyDays(journey: JourneyDoc): number | null {
   const ms =
     new Date(journey.endDate).getTime() - new Date(journey.startDate).getTime();
   return Math.max(1, Math.round(ms / 86_400_000) + 1);
+}
+
+// ---------------------------------------------------------------------------
+// Cached reads (published docs, private ones included; filter before use)
+
+/** Journeys populate covers, dive logs and (via join) stories. */
+function tagJourneys() {
+  cacheLife(CONTENT_CACHE_LIFE);
+  cacheTag(
+    collectionTag("travel"),
+    collectionTag("blog"),
+    collectionTag("diving"),
+    collectionTag("media"),
+  );
+}
+
+/** Stories populate their cover and parent journey. */
+function tagStories() {
+  cacheLife(CONTENT_CACHE_LIFE);
+  cacheTag(
+    collectionTag("blog"),
+    collectionTag("travel"),
+    collectionTag("media"),
+  );
+}
+
+/** Every published journey, newest first. Includes private ones. */
+export async function journeyDocs(): Promise<JourneyDoc[]> {
+  "use cache";
+  tagJourneys();
+  const payload = await getPayload({ config });
+  const { docs } = await payload.find({
+    collection: "travel",
+    where: { draft: { equals: false } },
+    sort: "-startDate",
+    limit: 500,
+    depth: 1,
+    joins: { stories: { limit: 100, where: { draft: { equals: false } } } },
+    overrideAccess: true,
+  });
+  return docs;
+}
+
+/** Every published story, newest first. Includes private ones. */
+export async function storyDocs(): Promise<StoryDoc[]> {
+  "use cache";
+  tagStories();
+  const payload = await getPayload({ config });
+  const { docs } = await payload.find({
+    collection: "blog",
+    where: { draft: { equals: false } },
+    sort: "-date",
+    limit: 500,
+    depth: 1,
+    overrideAccess: true,
+  });
+  return docs;
+}
+
+/** One published journey by slug, or null. May be private. */
+export async function journeyDoc(slug: string): Promise<JourneyDoc | null> {
+  "use cache";
+  tagJourneys();
+  const payload = await getPayload({ config });
+  const { docs } = await payload.find({
+    collection: "travel",
+    where: { and: [{ slug: { equals: slug } }, { draft: { equals: false } }] },
+    limit: 1,
+    depth: 2,
+    joins: {
+      stories: {
+        limit: 100,
+        sort: "date",
+        where: { draft: { equals: false } },
+      },
+    },
+    overrideAccess: true,
+  });
+  return docs[0] ?? null;
+}
+
+/** One published story by slug, or null. May be private. */
+export async function storyDoc(slug: string): Promise<StoryDoc | null> {
+  "use cache";
+  tagStories();
+  const payload = await getPayload({ config });
+  const { docs } = await payload.find({
+    collection: "blog",
+    where: { and: [{ slug: { equals: slug } }, { draft: { equals: false } }] },
+    limit: 1,
+    depth: 1,
+    overrideAccess: true,
+  });
+  return docs[0] ?? null;
 }
 
 // ---------------------------------------------------------------------------
@@ -114,43 +187,26 @@ function toListed<
   return out;
 }
 
-export async function listJourneys(): Promise<Listed<JourneyDoc>[]> {
-  const [payload, unlocked] = await Promise.all([
-    getPayload({ config }),
-    hasPrivateAccess(),
-  ]);
-  const { docs } = await payload.find({
-    collection: "travel",
-    where: { draft: { equals: false } },
-    sort: "-startDate",
-    limit: 500,
-    depth: 1,
-    joins: { stories: { limit: 100, where: { draft: { equals: false } } } },
-    overrideAccess: true,
-  });
+/** Journeys as this visitor sees them (`unlocked`: has private access). */
+export function listJourneys(
+  docs: JourneyDoc[],
+  unlocked: boolean,
+): Listed<JourneyDoc>[] {
   return toListed(docs, unlocked, (doc) => ({
     date: doc.startDate,
     endDate: doc.endDate,
   }));
 }
 
-export async function listStories(): Promise<Listed<StoryDoc>[]> {
-  const [payload, unlocked] = await Promise.all([
-    getPayload({ config }),
-    hasPrivateAccess(),
-  ]);
-  const { docs } = await payload.find({
-    collection: "blog",
-    where: { draft: { equals: false } },
-    sort: "-date",
-    limit: 500,
-    depth: 1,
-    overrideAccess: true,
-  });
+/** Stories as this visitor sees them (`unlocked`: has private access). */
+export function listStories(
+  docs: StoryDoc[],
+  unlocked: boolean,
+): Listed<StoryDoc>[] {
   return toListed(docs, unlocked, (doc) => ({ date: doc.date }));
 }
 
-/** Story's parent journey, if populated and visible to this visitor. */
+/** Story's parent journey, if populated. */
 export function storyJourney(
   story: StoryDoc,
 ): { slug: string; title: string } | null {
@@ -159,68 +215,19 @@ export function storyJourney(
   return { slug: journey.slug, title: journey.title };
 }
 
-// ---------------------------------------------------------------------------
-// Single pages
-
-export type PageResult<T> =
-  | { status: "ok"; doc: T }
-  | { status: "locked"; title: string }
-  | { status: "missing" };
-
-export async function getJourney(
-  slug: string,
-): Promise<PageResult<JourneyDoc>> {
-  const payload = await getPayload({ config });
-  const { docs } = await payload.find({
-    collection: "travel",
-    where: { and: [{ slug: { equals: slug } }, { draft: { equals: false } }] },
-    limit: 1,
-    depth: 2,
-    joins: {
-      stories: {
-        limit: 100,
-        sort: "date",
-        where: { draft: { equals: false } },
-      },
-    },
-    overrideAccess: true,
-  });
-  const doc = docs[0];
-  if (!doc) return { status: "missing" };
-  if (isPrivate(doc) && !(await hasPrivateAccess())) {
-    return { status: "locked", title: doc.title };
-  }
-  return { status: "ok", doc };
-}
-
-export async function getStory(slug: string): Promise<PageResult<StoryDoc>> {
-  const payload = await getPayload({ config });
-  const { docs } = await payload.find({
-    collection: "blog",
-    where: { and: [{ slug: { equals: slug } }, { draft: { equals: false } }] },
-    limit: 1,
-    depth: 1,
-    overrideAccess: true,
-  });
-  const doc = docs[0];
-  if (!doc) return { status: "missing" };
-  if (isPrivate(doc) && !(await hasPrivateAccess())) {
-    return { status: "locked", title: doc.title };
-  }
-  return { status: "ok", doc };
-}
-
-/** Journeys before/after this one, by start date (visible to this visitor). */
-export async function adjacentJourneys(current: JourneyDoc) {
-  const all = (await listJourneys()).filter(
-    (item): item is { locked: false; doc: JourneyDoc } => !item.locked,
-  );
-  const index = all.findIndex((item) => item.doc.id === current.id);
+/** Journeys before/after this one, by start date, among `docs`. */
+export function adjacentJourneys(docs: JourneyDoc[], current: JourneyDoc) {
+  const index = docs.findIndex((doc) => doc.id === current.id);
   // List is newest first: "newer" is index - 1, "older" is index + 1.
   return {
-    newer: index > 0 ? all[index - 1]?.doc : undefined,
-    older: index >= 0 ? all[index + 1]?.doc : undefined,
+    newer: index > 0 ? docs[index - 1] : undefined,
+    older: index >= 0 ? docs[index + 1] : undefined,
   };
+}
+
+/** Journeys a visitor without private access may see. */
+export function publicJourneys(docs: JourneyDoc[]): JourneyDoc[] {
+  return docs.filter((doc) => !isPrivate(doc));
 }
 
 // ---------------------------------------------------------------------------

@@ -9,6 +9,7 @@ import {
   Moon,
   Search,
   Waves,
+  Wrench,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -37,6 +38,7 @@ const GROUP_ORDER: EntryGroup[] = [
   "Stories",
   "Dives",
   "Tech notes",
+  "Tools",
   "Actions",
 ];
 
@@ -46,6 +48,7 @@ const GROUP_ICON: Record<EntryGroup, typeof ArrowRight> = {
   Stories: BookOpen,
   Dives: Waves,
   "Tech notes": Code,
+  Tools: Wrench,
   Actions: Moon,
 };
 

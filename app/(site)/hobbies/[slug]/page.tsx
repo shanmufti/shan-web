@@ -33,6 +33,11 @@ type Props = Readonly<{
 
 const NO_TOPIC = "General";
 
+// Filters (searchParams) and the owner's practice log are per request.
+// Anonymous visitors get the cached public read (lib/hobbies.ts); the
+// owner's private data is never cached.
+export const instant = false;
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const data = await getHobbyPage(slug);

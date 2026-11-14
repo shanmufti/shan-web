@@ -11,6 +11,9 @@ import { diveToFormValues } from "@/lib/dive-form-initial";
 
 export const metadata: Metadata = { title: "Edit dive" };
 
+// Owner-only form, rendered per request.
+export const instant = false;
+
 export default async function EditDiveLogPage({
   params,
 }: Readonly<{

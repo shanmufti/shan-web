@@ -1,14 +1,29 @@
 import { Lock } from "lucide-react";
+import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { Suspense } from "react";
 
-import { navSections } from "@/lib/site-access";
+import {
+  navSections,
+  publicNavSections,
+  type NavSection,
+} from "@/lib/site-access";
 
 const linkClass =
   "text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 rounded-sm transition-colors";
 
-export async function Footer() {
-  const sections = await navSections();
-  const year = new Date().getFullYear();
+/** Cached so the static shell can include it; refreshed daily. */
+// eslint-disable-next-line @typescript-eslint/require-await -- "use cache" functions must be async
+async function copyrightYear(): Promise<number> {
+  "use cache";
+  cacheLife("days");
+  return new Date().getFullYear();
+}
+
+function FooterView({
+  sections,
+  year,
+}: Readonly<{ sections: NavSection[]; year: number }>) {
   const showMap = sections.some((s) => s.href === "/travel" && !s.locked);
 
   return (
@@ -63,5 +78,27 @@ export async function Footer() {
         </p>
       </div>
     </footer>
+  );
+}
+
+async function ViewerFooter() {
+  const [sections, year] = await Promise.all([navSections(), copyrightYear()]);
+  return <FooterView sections={sections} year={year} />;
+}
+
+async function PublicFooter() {
+  const [sections, year] = await Promise.all([
+    publicNavSections(),
+    copyrightYear(),
+  ]);
+  return <FooterView sections={sections} year={year} />;
+}
+
+/** Prerendered with the public sections; this visitor's sections stream in. */
+export function Footer() {
+  return (
+    <Suspense fallback={<PublicFooter />}>
+      <ViewerFooter />
+    </Suspense>
   );
 }

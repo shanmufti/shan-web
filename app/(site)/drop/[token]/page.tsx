@@ -1,6 +1,7 @@
 import { Download } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 
 import { buttonVariants } from "@/components/ui/button";
 import { findOpenDrop } from "@/lib/file-drops";
@@ -13,6 +14,9 @@ export const metadata: Metadata = {
   referrer: "no-referrer",
 };
 
+// Token links are checked against the database on every request.
+export const instant = false;
+
 function formatExpiry(iso: string): string {
   return new Date(iso).toLocaleString("en-US", {
     dateStyle: "medium",
@@ -24,6 +28,7 @@ function formatExpiry(iso: string): string {
 export default async function DropPage({
   params,
 }: Readonly<{ params: Promise<{ token: string }> }>) {
+  await connection();
   const { token } = await params;
   const drop = await findOpenDrop(token);
   if (!drop) notFound();

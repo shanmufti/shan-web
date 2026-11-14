@@ -1,4 +1,5 @@
 import config from "@payload-config";
+import { connection } from "next/server";
 import { getPayload } from "payload";
 
 import { buildVaultCalendar } from "@/lib/ical";
@@ -23,6 +24,8 @@ function notFound(): Response {
  * query string is checked here; a missing or wrong token is a plain 404.
  */
 export async function GET(request: Request) {
+  // Per request, never prerendered: the token is checked on every fetch.
+  await connection();
   const token = new URL(request.url).searchParams.get("token") ?? "";
   if (!looksLikeToken(token)) return notFound();
 

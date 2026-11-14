@@ -1,10 +1,11 @@
 import { Lock } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { HobbyIcon } from "@/components/hobby-icon";
 import { PageHeader } from "@/components/page-header";
-import { listHobbies } from "@/lib/hobbies";
+import { listHobbies, publicHobbyCards, type HobbyCard } from "@/lib/hobbies";
 import { hobbyDescription } from "@/lib/hobby-options";
 
 export const metadata: Metadata = { title: "Hobbies" };
@@ -14,9 +15,32 @@ function countLabel(count: number) {
   return count === 1 ? "1 reference" : `${String(count)} references`;
 }
 
-export default async function HobbiesPage() {
+/** This visitor's hobbies: adds private ones and admin links for the owner. */
+async function ViewerHobbies() {
   const { hobbies, isOwner } = await listHobbies();
+  return <HobbiesView hobbies={hobbies} isOwner={isOwner} />;
+}
 
+async function PublicHobbies() {
+  return <HobbiesView hobbies={await publicHobbyCards()} isOwner={false} />;
+}
+
+/**
+ * The static shell is the public list (cached); the owner's view streams in
+ * per request, so private hobbies never enter the shell.
+ */
+export default function HobbiesPage() {
+  return (
+    <Suspense fallback={<PublicHobbies />}>
+      <ViewerHobbies />
+    </Suspense>
+  );
+}
+
+function HobbiesView({
+  hobbies,
+  isOwner,
+}: Readonly<{ hobbies: HobbyCard[]; isOwner: boolean }>) {
   return (
     <div className="mx-auto max-w-5xl px-4 pb-16 sm:px-6 lg:px-10">
       <PageHeader

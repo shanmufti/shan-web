@@ -1,11 +1,21 @@
 import config from "@payload-config";
+import { cacheLife, cacheTag } from "next/cache";
 import { getPayload } from "payload";
+
+import { collectionTag, CONTENT_CACHE_LIFE } from "@/lib/cache-tags";
 
 /**
  * Anonymous reads for feeds and the sitemap. overrideAccess: false applies the
  * collection access rules, so drafts and private items never appear.
  */
 export async function listPublicForFeeds() {
+  "use cache";
+  cacheLife(CONTENT_CACHE_LIFE);
+  cacheTag(
+    collectionTag("travel"),
+    collectionTag("blog"),
+    collectionTag("diving"),
+  );
   const payload = await getPayload({ config });
   const [journeys, stories, dives] = await Promise.all([
     payload.find({

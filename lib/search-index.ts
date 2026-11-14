@@ -1,14 +1,15 @@
-import config from "@payload-config";
-import { getPayload, type Where } from "payload";
-
 import { listPublished } from "@/lib/content";
-import { hasPrivateAccess } from "@/lib/journeys";
-import { currentViewer, visibleSections } from "@/lib/site-access";
+import { isPrivate, journeyDocs, storyDocs } from "@/lib/journeys";
+import {
+  currentViewer,
+  visibleSections,
+  visibleTools,
+} from "@/lib/site-access";
 import type { Viewer } from "@/lib/site-access-rules";
 import type { SectionKey, SiteSection } from "@/lib/site-sections";
 
 export type SearchGroup =
-  "Pages" | "Journeys" | "Stories" | "Dives" | "Tech notes";
+  "Pages" | "Journeys" | "Stories" | "Dives" | "Tech notes" | "Tools";
 
 export interface SearchItem {
   group: SearchGroup;
@@ -73,60 +74,59 @@ function pageItems(sections: SiteSection[], viewer: Viewer): SearchItem[] {
  * visitor can't open them. Drafts never appear.
  */
 export async function buildSearchIndex(): Promise<SearchItem[]> {
-  const [sections, viewer, unlocked, payload] = await Promise.all([
+  const [sections, viewer, tools] = await Promise.all([
     visibleSections(),
     currentViewer(),
-    hasPrivateAccess(),
-    getPayload({ config }),
+    visibleTools(),
   ]);
   const open = new Set<string>(sections.map((s) => s.key));
-
-  // Same rules as lib/journeys.ts listings.
-  const visibility: Where = unlocked
-    ? {}
-    : { visibility: { not_equals: "private" } };
-  const where: Where = { and: [{ draft: { equals: false } }, visibility] };
+  const unlocked = viewer !== "anonymous";
+  // Same rules as lib/journeys.ts listings. The readers are cached and
+  // include private docs, so filter here, per visitor.
+  const showDoc = (doc: { visibility?: string | null }) =>
+    unlocked || !isPrivate(doc);
 
   const [journeys, stories, dives, tech] = await Promise.all([
-    open.has("journeys")
-      ? payload.find({
-          collection: "travel",
-          where,
-          sort: "-startDate",
-          limit: 500,
-          depth: 0,
-          select: { title: true, slug: true, startDate: true },
-          overrideAccess: true,
-        })
-      : null,
-    open.has("stories")
-      ? payload.find({
-          collection: "blog",
-          where,
-          sort: "-date",
-          limit: 500,
-          depth: 0,
-          select: { title: true, slug: true, date: true },
-          overrideAccess: true,
-        })
-      : null,
-    open.has("diving") ? listPublished("diving", { limit: 500 }) : null,
-    open.has("tech") ? listPublished("tech", { limit: 200 }) : null,
+    open.has("journeys") ? journeyDocs() : [],
+    open.has("stories") ? storyDocs() : [],
+    open.has("diving") ? listPublished("diving", { limit: 500 }) : [],
+    open.has("tech") ? listPublished("tech", { limit: 200 }) : [],
   ]);
 
+  const pages = pageItems(sections, viewer);
+  const pageHrefs = new Set(pages.map((item) => item.href));
+
   return [
-    ...pageItems(sections, viewer),
-    ...(journeys?.docs ?? []).map((doc) =>
-      contentItem("Journeys", doc.title, `/travel/${doc.slug}`, doc.startDate),
-    ),
-    ...(stories?.docs ?? []).map((doc) =>
-      contentItem("Stories", doc.title, `/blog/${doc.slug}`, doc.date),
-    ),
-    ...(dives ?? []).map((doc) =>
+    ...pages,
+    ...journeys
+      .filter(showDoc)
+      .map((doc) =>
+        contentItem(
+          "Journeys",
+          doc.title,
+          `/travel/${doc.slug}`,
+          doc.startDate,
+        ),
+      ),
+    ...stories
+      .filter(showDoc)
+      .map((doc) =>
+        contentItem("Stories", doc.title, `/blog/${doc.slug}`, doc.date),
+      ),
+    ...dives.map((doc) =>
       contentItem("Dives", doc.title, `/diving/logs/${doc.slug}`, doc.date),
     ),
-    ...(tech ?? []).map((doc) =>
+    ...tech.map((doc) =>
       contentItem("Tech notes", doc.title, `/tech/${doc.slug}`, doc.date),
     ),
+    // Tools from lib/tools-registry.ts, skipping ones already listed as pages.
+    ...tools
+      .filter((tool) => !pageHrefs.has(tool.href))
+      .map((tool) => ({
+        group: "Tools" as const,
+        title: tool.title,
+        href: tool.href,
+        hint: "Tools",
+      })),
   ];
 }

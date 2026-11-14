@@ -1,3 +1,5 @@
+import { connection } from "next/server";
+
 import { buildSearchIndex } from "@/lib/search-index";
 
 /**
@@ -6,6 +8,7 @@ import { buildSearchIndex } from "@/lib/search-index";
  * Never cached: the answer depends on the visitor's cookies.
  */
 export async function GET() {
+  await connection();
   const items = await buildSearchIndex();
   return Response.json(
     { items },

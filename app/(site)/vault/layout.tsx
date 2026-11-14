@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// Owner-only and per request: nothing under /vault is prerendered or cached.
+export const instant = false;
+
 /**
  * Owner only. The proxy already 404s everyone else; this and the owner
  * check in lib/vault-data.ts are backups. (/vault/calendar.ics is a route

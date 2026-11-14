@@ -1,56 +1,99 @@
 import config from "@payload-config";
+import { cacheLife, cacheTag } from "next/cache";
 import { cookies, headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { getPayload } from "payload";
 import { cache } from "react";
 
 import {
-  isValidAccessToken,
+  CONTENT_CACHE_LIFE,
+  SITE_ACCESS_TAG,
+  SITE_SETTINGS_TAG,
+} from "@/lib/cache-tags";
+import {
+  getPasscodeHash,
+  mayHaveSession,
   PRIVATE_ACCESS_COOKIE,
+  tokenMatchesHash,
 } from "@/lib/private-access";
-import { getSectionModes } from "@/lib/section-modes";
+import { loadSectionModes } from "@/lib/section-modes";
 import { canView, type Viewer } from "@/lib/site-access-rules";
 import {
   SITE_SECTIONS,
   type AccessMode,
+  type SectionModes,
   type SiteSection,
 } from "@/lib/site-sections";
 import { TOOLS, type ToolEntry } from "@/lib/tools-registry";
 
-/** Who is looking, for server components. Cached per request. */
+/**
+ * Section modes for rendering. Same for every visitor, so cached. Throws on
+ * a DB error rather than caching a fallback: a failed regeneration keeps the
+ * last good page. Access itself is enforced in proxy.ts, which fails closed.
+ */
+export async function getSectionModes(): Promise<SectionModes> {
+  "use cache";
+  cacheLife(CONTENT_CACHE_LIFE);
+  cacheTag(SITE_ACCESS_TAG);
+  return loadSectionModes();
+}
+
+async function cachedPasscodeHash(): Promise<string | null> {
+  "use cache";
+  cacheLife(CONTENT_CACHE_LIFE);
+  cacheTag(SITE_SETTINGS_TAG);
+  return getPasscodeHash(await getPayload({ config }));
+}
+
+/**
+ * Who is looking. Reads cookies, so call it only inside a <Suspense>
+ * boundary (or a route that renders per request). Cached per request.
+ *
+ * Anonymous visitors without a session or passcode cookie are answered
+ * without starting Payload or touching the database.
+ */
 export const currentViewer = cache(async (): Promise<Viewer> => {
-  const payload = await getPayload({ config });
-  const { user } = await payload.auth({ headers: await headers() });
-  if (user) return "owner";
-  const token = (await cookies()).get(PRIVATE_ACCESS_COOKIE)?.value;
-  return (await isValidAccessToken(payload, token)) ? "passcode" : "anonymous";
+  const [jar, headerList] = await Promise.all([cookies(), headers()]);
+  if (
+    mayHaveSession((name) => jar.has(name), headerList.get("authorization"))
+  ) {
+    const payload = await getPayload({ config });
+    const { user } = await payload.auth({ headers: headerList });
+    if (user) return "owner";
+  }
+  const token = jar.get(PRIVATE_ACCESS_COOKIE)?.value;
+  if (!token) return "anonymous";
+  return tokenMatchesHash(token, await cachedPasscodeHash())
+    ? "passcode"
+    : "anonymous";
 });
 
-/** Sections this visitor can open, in display order. */
-export const visibleSections = cache(async (): Promise<SiteSection[]> => {
-  const payload = await getPayload({ config });
+/** Owner, or a visitor holding a valid passcode cookie. Per request. */
+export async function hasPrivateAccess(): Promise<boolean> {
+  return (await currentViewer()) !== "anonymous";
+}
+
+function sectionsFor(modes: SectionModes, viewer: Viewer): SiteSection[] {
+  return SITE_SECTIONS.filter((s) => canView(modes[s.key], viewer));
+}
+
+/** Sections this visitor can open, in display order. Per request. */
+export async function visibleSections(): Promise<SiteSection[]> {
   const [modes, viewer] = await Promise.all([
-    getSectionModes(payload),
+    getSectionModes(),
     currentViewer(),
   ]);
-  return SITE_SECTIONS.filter((s) => canView(modes[s.key], viewer));
-});
+  return sectionsFor(modes, viewer);
+}
+
+/** Sections anyone can open. Cached: safe for static shells. */
+export async function publicSections(): Promise<SiteSection[]> {
+  return sectionsFor(await getSectionModes(), "anonymous");
+}
 
 /** Sections open to anyone (for the sitemap and feeds). */
 export async function publicSectionKeys(): Promise<Set<string>> {
-  const payload = await getPayload({ config });
-  const modes = await getSectionModes(payload);
-  return new Set(
-    SITE_SECTIONS.filter((s) => modes[s.key] === "public").map((s) => s.key),
-  );
-}
-
-/** Header and footer links: sections this visitor is allowed to open. */
-export async function navLinks(): Promise<{ href: string; label: string }[]> {
-  const sections = await visibleSections();
-  return sections
-    .filter((s) => s.inNav)
-    .map((s) => ({ href: s.href, label: s.label }));
+  return new Set((await publicSections()).map((s) => s.key));
 }
 
 export interface NavSection {
@@ -63,16 +106,11 @@ export interface NavSection {
 }
 
 /**
- * Header and footer sections, including passcode sections this visitor
+ * Header and footer sections, including passcode sections this viewer
  * hasn't unlocked yet (shown with a lock; the proxy sends them to /unlock).
  * Hidden sections stay out unless the owner is logged in.
  */
-export const navSections = cache(async (): Promise<NavSection[]> => {
-  const payload = await getPayload({ config });
-  const [modes, viewer] = await Promise.all([
-    getSectionModes(payload),
-    currentViewer(),
-  ]);
+function navSectionsFor(modes: SectionModes, viewer: Viewer): NavSection[] {
   return SITE_SECTIONS.filter((s) => s.inNav).flatMap((s) => {
     const mode = modes[s.key];
     const open = canView(mode, viewer);
@@ -86,15 +124,23 @@ export const navSections = cache(async (): Promise<NavSection[]> => {
       },
     ];
   });
-});
+}
 
-/** Tools from lib/tools-registry.ts that this visitor can open. */
-export async function visibleTools(): Promise<ToolEntry[]> {
-  const payload = await getPayload({ config });
+/** Header and footer sections for this visitor. Per request. */
+export async function navSections(): Promise<NavSection[]> {
   const [modes, viewer] = await Promise.all([
-    getSectionModes(payload),
+    getSectionModes(),
     currentViewer(),
   ]);
+  return navSectionsFor(modes, viewer);
+}
+
+/** Header and footer sections as an anonymous visitor sees them. Cached. */
+export async function publicNavSections(): Promise<NavSection[]> {
+  return navSectionsFor(await getSectionModes(), "anonymous");
+}
+
+function toolsFor(modes: SectionModes, viewer: Viewer): ToolEntry[] {
   return TOOLS.filter((tool) => {
     if (!tool.sectionKey) return true;
     const mode = (modes as Record<string, AccessMode | undefined>)[
@@ -103,6 +149,20 @@ export async function visibleTools(): Promise<ToolEntry[]> {
     // Unknown key: only the owner sees it, rather than leaking a link.
     return canView(mode ?? "owner", viewer);
   });
+}
+
+/** Tools from lib/tools-registry.ts that this visitor can open. Per request. */
+export async function visibleTools(): Promise<ToolEntry[]> {
+  const [modes, viewer] = await Promise.all([
+    getSectionModes(),
+    currentViewer(),
+  ]);
+  return toolsFor(modes, viewer);
+}
+
+/** Tools anyone can open. Cached: safe for static shells. */
+export async function publicTools(): Promise<ToolEntry[]> {
+  return toolsFor(await getSectionModes(), "anonymous");
 }
 
 /** For owner-only pages: 404 for everyone else, even if the proxy let them in. */

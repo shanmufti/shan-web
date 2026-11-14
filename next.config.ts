@@ -25,6 +25,14 @@ function withExtensionAliases(config: WebpackConfigLike): WebpackConfigLike {
 }
 
 const nextConfig: NextConfig = {
+  // Public pages prerender to static shells with cached CMS data; per-viewer
+  // parts (account link, private content) stream in at request time.
+  cacheComponents: true,
+  images: {
+    // Media is served straight from R2; no Vercel image optimisation
+    // (not on the free plan). See components/picture.tsx.
+    unoptimized: true,
+  },
   webpack: (config) => withExtensionAliases(config as WebpackConfigLike),
   turbopack: {
     root: path.resolve(dirname),

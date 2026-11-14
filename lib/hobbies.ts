@@ -1,6 +1,8 @@
 import config from "@payload-config";
+import { cacheLife, cacheTag } from "next/cache";
 import { getPayload } from "payload";
 
+import { collectionTag, CONTENT_CACHE_LIFE } from "@/lib/cache-tags";
 import { getCurrentUser } from "@/lib/content";
 import type {
   Hobby,
@@ -15,7 +17,24 @@ import type {
  * collection access rules decide what is visible: anonymous visitors only
  * ever get public hobbies and public references of public hobbies, and
  * practice sessions only come back for the logged-in owner.
+ *
+ * Caching: what an anonymous visitor sees is cached ("use cache", tagged by
+ * collection, expired by the Payload hooks in lib/revalidate.ts). The
+ * owner's view (private hobbies, practice sessions) is always read per
+ * request and never enters a cache.
  */
+
+type Payload = Awaited<ReturnType<typeof getPayload>>;
+type User = Awaited<ReturnType<typeof getCurrentUser>>;
+
+function tagHobbies() {
+  cacheLife(CONTENT_CACHE_LIFE);
+  cacheTag(
+    collectionTag("hobbies"),
+    collectionTag("hobby-references"),
+    collectionTag("media"),
+  );
+}
 
 export type { Hobby, HobbyReference, PracticeSession };
 
@@ -30,14 +49,10 @@ function coverOf(hobby: Hobby): HobbyCard["coverImage"] {
   return { url: cover.url, alt: cover.alt ?? "" };
 }
 
-export async function listHobbies(): Promise<{
-  hobbies: HobbyCard[];
-  isOwner: boolean;
-}> {
-  const [payload, user] = await Promise.all([
-    getPayload({ config }),
-    getCurrentUser(),
-  ]);
+async function loadHobbyCards(
+  payload: Payload,
+  user: User,
+): Promise<HobbyCard[]> {
   const [{ docs: hobbies }, { docs: refs }] = await Promise.all([
     payload.find({
       collection: "hobbies",
@@ -63,13 +78,33 @@ export async function listHobbies(): Promise<{
     counts.set(id, (counts.get(id) ?? 0) + 1);
   }
 
+  return hobbies.map((hobby) => ({
+    ...hobby,
+    referenceCount: counts.get(hobby.id) ?? 0,
+    coverImage: coverOf(hobby),
+  }));
+}
+
+/** Hobby cards as an anonymous visitor sees them. Cached. */
+export async function publicHobbyCards(): Promise<HobbyCard[]> {
+  "use cache";
+  tagHobbies();
+  return loadHobbyCards(await getPayload({ config }), null);
+}
+
+/**
+ * Hobby cards for this visitor. Reads the session, so call it inside a
+ * <Suspense> boundary or a per-request route.
+ */
+export async function listHobbies(): Promise<{
+  hobbies: HobbyCard[];
+  isOwner: boolean;
+}> {
+  const user = await getCurrentUser();
+  if (!user) return { hobbies: await publicHobbyCards(), isOwner: false };
   return {
-    isOwner: Boolean(user),
-    hobbies: hobbies.map((hobby) => ({
-      ...hobby,
-      referenceCount: counts.get(hobby.id) ?? 0,
-      coverImage: coverOf(hobby),
-    })),
+    hobbies: await loadHobbyCards(await getPayload({ config }), user),
+    isOwner: true,
   };
 }
 
@@ -81,13 +116,11 @@ export interface HobbyPageData {
   isOwner: boolean;
 }
 
-export async function getHobbyPage(
+async function loadHobbyPage(
+  payload: Payload,
+  user: User,
   slug: string,
 ): Promise<HobbyPageData | null> {
-  const [payload, user] = await Promise.all([
-    getPayload({ config }),
-    getCurrentUser(),
-  ]);
   const { docs } = await payload.find({
     collection: "hobbies",
     where: { slug: { equals: slug } },
@@ -127,8 +160,32 @@ export async function getHobbyPage(
   return { hobby, references, sessions, isOwner: Boolean(user) };
 }
 
+/** A hobby page as an anonymous visitor sees it (no sessions). Cached. */
+export async function publicHobbyPage(
+  slug: string,
+): Promise<HobbyPageData | null> {
+  "use cache";
+  tagHobbies();
+  return loadHobbyPage(await getPayload({ config }), null, slug);
+}
+
+/**
+ * A hobby page for this visitor. Reads the session, so call it inside a
+ * <Suspense> boundary or a per-request route.
+ */
+export async function getHobbyPage(
+  slug: string,
+): Promise<HobbyPageData | null> {
+  const user = await getCurrentUser();
+  if (!user) return publicHobbyPage(slug);
+  return loadHobbyPage(await getPayload({ config }), user, slug);
+}
+
 /** Public hobby slugs, for the sitemap. */
 export async function listPublicHobbySlugs() {
+  "use cache";
+  cacheLife(CONTENT_CACHE_LIFE);
+  cacheTag(collectionTag("hobbies"));
   const payload = await getPayload({ config });
   const { docs } = await payload.find({
     collection: "hobbies",

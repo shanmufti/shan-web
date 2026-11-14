@@ -37,6 +37,9 @@ function ServiceBadge({ item }: Readonly<{ item: DiveGearDoc }>) {
   return <Badge variant="success">Service up to date</Badge>;
 }
 
+// Owner-only data, read per request.
+export const instant = false;
+
 export default async function DiveGearPage({
   searchParams,
 }: Readonly<{

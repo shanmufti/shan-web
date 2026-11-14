@@ -1,9 +1,11 @@
 import config from "@payload-config";
+import { cacheLife, cacheTag } from "next/cache";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { getPayload, type DataFromCollectionSlug, type Payload } from "payload";
 import { cache } from "react";
 
+import { collectionTag, CONTENT_CACHE_LIFE } from "@/lib/cache-tags";
 import { newToken } from "@/lib/tokens";
 
 /**
@@ -97,8 +99,14 @@ export async function listSnippets(): Promise<Snippet[]> {
   return docs;
 }
 
-/** Public snippets for /tools/snippets. Selects only display fields. */
+/**
+ * Public snippets for /tools/snippets. Selects only display fields. Same for
+ * every visitor, so cached (expired by the snippets hook).
+ */
 export async function listPublicSnippets() {
+  "use cache";
+  cacheLife(CONTENT_CACHE_LIFE);
+  cacheTag(collectionTag("snippets"));
   const payload = await getPayload({ config });
   const { docs } = await payload.find({
     collection: "snippets",

@@ -13,6 +13,10 @@ import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Tools" };
 
+// The category filter and this visitor's tools are per request. Anonymous
+// visitors cost no database work (cached section modes, no session).
+export const instant = false;
+
 function categoryLabel(key: ToolCategory): string {
   return TOOL_CATEGORIES.find((c) => c.key === key)?.label ?? key;
 }

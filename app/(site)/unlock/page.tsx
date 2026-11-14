@@ -13,6 +13,9 @@ function safeNext(value: string | string[] | undefined): string {
   return value.startsWith("/") && !value.startsWith("//") ? value : "/";
 }
 
+// Reads ?next= per request.
+export const instant = false;
+
 export default async function UnlockPage({
   searchParams,
 }: Readonly<{
