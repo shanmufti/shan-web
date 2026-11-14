@@ -9,14 +9,17 @@
  *     "file": "exports/mx/IMG_1234.jpg",      // relative to the manifest
  *     "alt": "Pink jacaranda over Roma Norte", // optional, file name if blank
  *     "caption": "…",                          // optional
- *     "takenAt": "2024-03-02",                 // optional
+ *     "takenAt": "2024-03-02",                 // optional, else from EXIF
+ *     "lat": 19.4194, "lng": -99.1617,         // optional, else from EXIF GPS
+ *     "place": "Roma Norte",                   // optional
  *     "stop": "Mexico City",                   // optional, a stops[].name
  *     "cover": true                            // optional, sets journey cover
  *   }
  *
- * Export JPEG (not HEIC) from Photos. Any size is fine: Payload stores the
- * original at most 2560px with all EXIF (GPS) removed, plus WebP sizes
- * (collections/Media.ts).
+ * Export JPEG (not HEIC) from Photos, keeping its metadata. Any size is
+ * fine: Payload copies GPS and capture time into private fields
+ * (lib/photo-exif.ts), then stores the original at most 2560px with all
+ * EXIF removed, plus WebP sizes (collections/Media.ts).
  *
  * Dry run unless you add `apply` (`payload run` drops "--" flags). Options:
  *   apply      Upload and write to the database in DATABASE_URL.
@@ -39,6 +42,9 @@ interface Entry {
   alt?: string;
   caption?: string;
   takenAt?: string;
+  lat?: number;
+  lng?: number;
+  place?: string;
   stop?: string;
   cover?: boolean;
 }
@@ -59,6 +65,18 @@ function readEntries(text: string): Entry[] {
     }
     return e as Entry;
   });
+}
+
+/** Private location fields; GPS in the file's EXIF fills any gaps. */
+function locationOf(e: Entry) {
+  const hasCoords = typeof e.lat === "number" && typeof e.lng === "number";
+  if (!hasCoords && !e.place) return {};
+  return {
+    location: {
+      ...(hasCoords ? { lat: e.lat, lng: e.lng } : {}),
+      ...(e.place ? { place: e.place } : {}),
+    },
+  };
 }
 
 async function connect(): Promise<Payload> {
@@ -122,6 +140,7 @@ async function uploadOnce(payload: Payload, e: Entry, opts: Options) {
       alt: e.alt ?? "",
       ...(e.caption ? { caption: e.caption } : {}),
       ...(e.takenAt ? { takenAt: e.takenAt } : {}),
+      ...locationOf(e),
     },
     overrideAccess: true,
   });

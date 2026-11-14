@@ -231,9 +231,20 @@ export interface Media {
   alt?: string | null;
   caption?: string | null;
   /**
-   * When the photo was taken (date only shown).
+   * When the photo was taken. Filled from the photo's EXIF on upload.
    */
   takenAt?: string | null;
+  /**
+   * Private: where the photo was taken. Filled from GPS on upload (the public file has no GPS). Only you can see this.
+   */
+  location?: {
+    lat?: number | null;
+    lng?: number | null;
+    /**
+     * Optional name, e.g. Roma Norte, Mexico City.
+     */
+    place?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1697,6 +1708,13 @@ export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
   takenAt?: T;
+  location?:
+    | T
+    | {
+        lat?: T;
+        lng?: T;
+        place?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   url?: T;
