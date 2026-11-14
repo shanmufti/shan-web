@@ -1,6 +1,5 @@
 import type { Field, GlobalConfig } from "payload";
 
-import { clearAccessCache } from "@/lib/section-modes";
 import {
   ACCESS_MODE_LABELS,
   ACCESS_MODES,
@@ -39,13 +38,6 @@ export const SiteAccess: GlobalConfig = {
   access: {
     read: authenticated,
     update: authenticated,
-  },
-  hooks: {
-    afterChange: [
-      () => {
-        clearAccessCache();
-      },
-    ],
   },
   fields: [
     {

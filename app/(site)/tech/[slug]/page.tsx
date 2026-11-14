@@ -3,8 +3,20 @@ import { notFound } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { getPublishedBySlug } from "@/lib/content";
+import {
+  getPublishedBySlug,
+  listPublished,
+  staticSlugParams,
+} from "@/lib/content";
 import { cn } from "@/lib/utils";
+
+/** Published posts prerender at build; new ones render on first visit. */
+export async function generateStaticParams() {
+  return staticSlugParams(await listPublished("tech", { limit: 1000 }));
+}
+
+// A slug that isn't prerendered renders (and 404s) at request time.
+export const instant = false;
 
 export async function generateMetadata({
   params,

@@ -1,18 +1,24 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import { JourneysTimeline } from "@/components/journeys-timeline";
 import { PageHeader } from "@/components/page-header";
 import { TravelSubnav } from "@/components/section-subnav";
-import { toRows, totalDays } from "@/lib/journey-timeline";
-import { listJourneys } from "@/lib/journeys";
+import { toRows, totalDays, type JourneyRow } from "@/lib/journey-timeline";
+import {
+  isPrivate,
+  journeyDocs,
+  listJourneys,
+  type JourneyDoc,
+} from "@/lib/journeys";
+import { hasPrivateAccess } from "@/lib/site-access";
 
 export const metadata: Metadata = {
   title: "Journeys",
   description: "Trips, routes, and the places worth going back to.",
 };
 
-export default async function JourneysIndex() {
-  const rows = toRows(await listJourneys());
+function JourneysView({ rows }: Readonly<{ rows: JourneyRow[] }>) {
   const countries = new Set(rows.flatMap((r) => r.countries)).size;
   const days = totalDays(rows.filter((r) => !r.locked));
 
@@ -23,7 +29,7 @@ export default async function JourneysIndex() {
   ].filter(Boolean);
 
   return (
-    <div className="mx-auto max-w-4xl px-6 pb-16 lg:px-10">
+    <>
       <PageHeader
         eyebrow={stats.join(" · ")}
         title="Journeys"
@@ -36,6 +42,25 @@ export default async function JourneysIndex() {
       ) : (
         <JourneysTimeline rows={rows} />
       )}
+    </>
+  );
+}
+
+/** Reads the passcode cookie only when there are private journeys. */
+async function ViewerJourneys({ docs }: Readonly<{ docs: JourneyDoc[] }>) {
+  const unlocked = docs.some(isPrivate) ? await hasPrivateAccess() : false;
+  return <JourneysView rows={toRows(listJourneys(docs, unlocked))} />;
+}
+
+export default async function JourneysIndex() {
+  const docs = await journeyDocs();
+  return (
+    <div className="mx-auto max-w-4xl px-6 pb-16 lg:px-10">
+      <Suspense
+        fallback={<JourneysView rows={toRows(listJourneys(docs, false))} />}
+      >
+        <ViewerJourneys docs={docs} />
+      </Suspense>
     </div>
   );
 }

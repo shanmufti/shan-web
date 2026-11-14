@@ -1,19 +1,57 @@
 import config from "@payload-config";
-import { headers as getHeaders } from "next/headers";
+import { cacheLife, cacheTag } from "next/cache";
+import { cookies, headers as getHeaders } from "next/headers";
 import { getPayload, type DataFromCollectionSlug } from "payload";
+import { cache } from "react";
+
+import { collectionTag, CONTENT_CACHE_LIFE } from "@/lib/cache-tags";
+import { mayHaveSession } from "@/lib/private-access";
 
 export type ContentCollection = "blog" | "diving" | "travel" | "tech";
 
 /**
- * Fetch one published doc by slug.
- * Always uses overrideAccess: false so collection access (drafts hidden
- * from anonymous readers) applies even through the Local API.
+ * Collections each content collection's docs can pull in through
+ * relationships (depth > 0), so cached reads expire when those change too.
+ */
+const RELATED: Record<ContentCollection, string[]> = {
+  blog: ["travel", "media"],
+  diving: ["media", "dive-skills", "gear-configs", "dive-gear"],
+  travel: ["blog", "diving", "media"],
+  tech: ["media"],
+};
+
+/** Tag a `"use cache"` scope with a collection and what it populates. */
+function tagContent(collection: ContentCollection) {
+  cacheLife(CONTENT_CACHE_LIFE);
+  cacheTag(
+    collectionTag(collection),
+    ...RELATED[collection].map(collectionTag),
+  );
+}
+
+/**
+ * generateStaticParams helper: slugs to prerender at build time. Cache
+ * Components needs at least one, so an empty collection yields a
+ * placeholder slug that simply renders as a 404.
+ */
+export function staticSlugParams(docs: { slug: string }[]): { slug: string }[] {
+  const params = docs.map((doc) => ({ slug: doc.slug }));
+  return params.length > 0 ? params : [{ slug: "__none__" }];
+}
+
+/**
+ * Fetch one published doc by slug. Cached (same for every visitor).
+ * Always uses overrideAccess: false so collection access (drafts and
+ * private items hidden from anonymous readers) applies even through the
+ * Local API.
  */
 export async function getPublishedBySlug<T extends ContentCollection>(
   collection: T,
   slug: string,
   options?: { depth?: number },
 ): Promise<DataFromCollectionSlug<T> | null> {
+  "use cache";
+  tagContent(collection);
   const payload = await getPayload({ config });
   const { docs } = await payload.find({
     collection,
@@ -27,11 +65,13 @@ export async function getPublishedBySlug<T extends ContentCollection>(
   return docs[0] ?? null;
 }
 
-/** List published docs for an index page. */
+/** List published docs for an index page. Cached (same for every visitor). */
 export async function listPublished<T extends ContentCollection>(
   collection: T,
   options?: { sort?: string; limit?: number; depth?: number },
 ): Promise<DataFromCollectionSlug<T>[]> {
+  "use cache";
+  tagContent(collection);
   const payload = await getPayload({ config });
   const { docs } = await payload.find({
     collection,
@@ -44,12 +84,20 @@ export async function listPublished<T extends ContentCollection>(
   return docs;
 }
 
-export async function getCurrentUser() {
-  const headers = await getHeaders();
+/**
+ * The logged-in Payload user, or null. Reads cookies, so call it only inside
+ * a <Suspense> boundary or a per-request route. Visitors without a session
+ * cookie are answered without starting Payload. Cached per request.
+ */
+export const getCurrentUser = cache(async () => {
+  const [jar, headers] = await Promise.all([cookies(), getHeaders()]);
+  if (!mayHaveSession((name) => jar.has(name), headers.get("authorization"))) {
+    return null;
+  }
   const payload = await getPayload({ config });
   const { user } = await payload.auth({ headers });
   return user;
-}
+});
 
 export type DiveDoc = DataFromCollectionSlug<"diving">;
 
@@ -69,6 +117,9 @@ export function diveVisibility(dive: DiveDoc): number | null {
 }
 
 export async function listDiveSkills() {
+  "use cache";
+  cacheLife(CONTENT_CACHE_LIFE);
+  cacheTag(collectionTag("dive-skills"));
   const payload = await getPayload({ config });
   const { docs } = await payload.find({
     collection: "dive-skills",
@@ -80,6 +131,9 @@ export async function listDiveSkills() {
 }
 
 export async function listDiveResources() {
+  "use cache";
+  cacheLife(CONTENT_CACHE_LIFE);
+  cacheTag(collectionTag("dive-resources"));
   const payload = await getPayload({ config });
   const { docs } = await payload.find({
     collection: "dive-resources",
@@ -92,6 +146,9 @@ export async function listDiveResources() {
 }
 
 export async function listVisitedCountries() {
+  "use cache";
+  cacheLife(CONTENT_CACHE_LIFE);
+  cacheTag(collectionTag("visited-countries"));
   const payload = await getPayload({ config });
   const { docs } = await payload.find({
     collection: "visited-countries",

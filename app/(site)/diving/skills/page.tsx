@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { DivingSubnav } from "@/components/section-subnav";
 import { getCurrentUser, listDiveSkills, listPublished } from "@/lib/content";
@@ -20,11 +21,25 @@ const levelLabels: Record<string, string> = {
   solid: "Solid",
 };
 
+/** Owner-only link; streams in per request. */
+async function AdminLink() {
+  if (!(await getCurrentUser())) return null;
+  return (
+    <p className="mt-6 text-sm">
+      <Link
+        href="/admin/collections/dive-skills"
+        className="font-medium underline-offset-4 hover:underline"
+      >
+        Update checklist in admin
+      </Link>
+    </p>
+  );
+}
+
 export default async function DiveSkillsPage() {
-  const [skills, dives, user] = await Promise.all([
+  const [skills, dives] = await Promise.all([
     listDiveSkills(),
     listPublished("diving", { depth: 1 }),
-    getCurrentUser(),
   ]);
 
   const practiceCounts = new Map<number, number>();
@@ -56,16 +71,9 @@ export default async function DiveSkillsPage() {
         <DivingSubnav current="/diving/skills" />
       </header>
 
-      {user ? (
-        <p className="mt-6 text-sm">
-          <Link
-            href="/admin/collections/dive-skills"
-            className="font-medium underline-offset-4 hover:underline"
-          >
-            Update checklist in admin
-          </Link>
-        </p>
-      ) : null}
+      <Suspense fallback={null}>
+        <AdminLink />
+      </Suspense>
 
       <div className="mt-10 space-y-10">
         {[...byCategory.entries()].map(([category, items]) => (

@@ -70,15 +70,28 @@ export async function getPasscodeHash(
   return settings.privatePasscodeHash ?? null;
 }
 
-/** True when `token` matches the cookie value for the current passcode. */
-export async function isValidAccessToken(
-  payload: Payload,
+/** True when `token` is the cookie value for the passcode with this hash. */
+export function tokenMatchesHash(
   token: string | undefined,
-): Promise<boolean> {
-  if (!token) return false;
-  const hash = await getPasscodeHash(payload);
-  if (!hash) return false;
+  hash: string | null,
+): boolean {
+  if (!token || !hash) return false;
   return safeEqualHex(token, accessTokenFor(hash));
+}
+
+/** Payload's session cookie (`${cookiePrefix}-token`, prefix "payload"). */
+export const PAYLOAD_TOKEN_COOKIE = "payload-token";
+
+/**
+ * Could this request carry a Payload login? Without the session cookie or an
+ * Authorization header, payload.auth() can only answer "no user", so callers
+ * skip it (and the DB/Payload start-up it needs) for anonymous visitors.
+ */
+export function mayHaveSession(
+  hasCookie: (name: string) => boolean,
+  authorizationHeader: string | null,
+): boolean {
+  return hasCookie(PAYLOAD_TOKEN_COOKIE) || Boolean(authorizationHeader);
 }
 
 export function readCookie(

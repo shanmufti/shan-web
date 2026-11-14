@@ -1,33 +1,25 @@
-import type { Payload } from "payload";
+import config from "@payload-config";
+import { getPayload } from "payload";
 
 import { resolveModes, type SectionModes } from "@/lib/site-sections";
 
 /**
- * Reads section access modes from the `site-access` global. Kept free of
- * @payload-config imports so the global's own hook can clear the cache.
+ * Reads section access modes from the `site-access` global, uncached.
+ * Throws on a DB error so callers never cache a failure; see
+ * getSectionModes (pages) and lib/proxy-cache.ts (proxy) for cached reads
+ * that fail closed.
  */
-
-// Short in-memory cache: the proxy reads modes on every page request.
-const TTL_MS = 10_000;
-let cached: { modes: SectionModes; at: number } | null = null;
-
-export function clearAccessCache() {
-  cached = null;
+export async function loadSectionModes(): Promise<SectionModes> {
+  const payload = await getPayload({ config });
+  const doc = await payload.findGlobal({
+    slug: "site-access",
+    overrideAccess: true,
+    depth: 0,
+  });
+  return resolveModes(doc.sections);
 }
 
-export async function getSectionModes(payload: Payload): Promise<SectionModes> {
-  if (cached && Date.now() - cached.at < TTL_MS) return cached.modes;
-  try {
-    const doc = await payload.findGlobal({
-      slug: "site-access",
-      overrideAccess: true,
-      depth: 0,
-    });
-    const modes = resolveModes(doc.sections);
-    cached = { modes, at: Date.now() };
-    return modes;
-  } catch {
-    // Table missing or DB hiccup: fail closed with the defaults.
-    return resolveModes(null);
-  }
+/** Fail closed: each section's default mode (Hidden for most). */
+export function fallbackModes(): SectionModes {
+  return resolveModes(null);
 }

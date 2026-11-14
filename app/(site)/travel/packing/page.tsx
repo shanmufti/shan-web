@@ -7,6 +7,9 @@ import { listPackingListTemplatesForUser } from "@/lib/content";
 
 export const metadata: Metadata = { title: "Packing lists" };
 
+// Owner-only data, read per request.
+export const instant = false;
+
 export default async function PackingListsPage() {
   const templates = await listPackingListTemplatesForUser();
 

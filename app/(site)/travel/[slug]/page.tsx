@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 import { LockedPage } from "@/components/locked-page";
+import { Picture } from "@/components/picture";
 import { PostCard } from "@/components/post-card";
 import { ArticleBody } from "@/components/rich-text";
 import { RouteMapLoader } from "@/components/route-map-loader";
@@ -14,28 +16,41 @@ import {
 } from "@/lib/format-date";
 import {
   adjacentJourneys,
-  getJourney,
+  isPrivate,
   journeyCountryNames,
   journeyDays,
+  journeyDoc,
+  journeyDocs,
   journeyStops,
   journeyTrack,
-  mediaAlt,
+  mediaImage,
   mediaUrl,
   readingMinutes,
+  publicJourneys,
   type JourneyDoc,
   type StoryDoc,
 } from "@/lib/journeys";
+import { staticSlugParams } from "@/lib/content";
+import { hasPrivateAccess } from "@/lib/site-access";
 
 type Props = Readonly<{ params: Promise<{ slug: string }> }>;
 
+/** Published journeys prerender at build; new ones render on first visit. */
+export async function generateStaticParams() {
+  return staticSlugParams(await journeyDocs());
+}
+
+// A slug that isn't prerendered renders (and 404s) at request time.
+export const instant = false;
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const result = await getJourney(slug);
-  if (result.status === "missing") return {};
-  if (result.status === "locked") {
-    return { title: result.title, robots: { index: false, follow: false } };
+  const journey = await journeyDoc(slug);
+  if (!journey) return {};
+  // Private: the title shows on the locked page anyway; nothing else leaks.
+  if (isPrivate(journey)) {
+    return { title: journey.title, robots: { index: false, follow: false } };
   }
-  const journey = result.doc;
   const image = mediaUrl(journey.cover);
   return {
     title: journey.title,
@@ -47,9 +62,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: journey.summary,
       images: [image ?? "/opengraph-image"],
     },
-    ...(journey.visibility === "private"
-      ? { robots: { index: false, follow: false } }
-      : {}),
   };
 }
 
@@ -148,23 +160,20 @@ function JourneyPager({
   );
 }
 
-export default async function JourneyPage({ params }: Props) {
-  const { slug } = await params;
-  const result = await getJourney(slug);
-  if (result.status === "missing") notFound();
-  if (result.status === "locked") {
-    return (
-      <LockedPage
-        kind="Journey"
-        title={result.title}
-        next={`/travel/${slug}`}
-      />
-    );
-  }
+/** Earlier/later links among the journeys this visitor can see. */
+async function ViewerPager({ journey }: Readonly<{ journey: JourneyDoc }>) {
+  const docs = await journeyDocs();
+  // Only private journeys make this differ per visitor.
+  const unlocked = docs.some(isPrivate) ? await hasPrivateAccess() : false;
+  const { newer, older } = adjacentJourneys(
+    unlocked ? docs : publicJourneys(docs),
+    journey,
+  );
+  return <JourneyPager older={older} newer={newer} />;
+}
 
-  const journey = result.doc;
-  const { newer, older } = await adjacentJourneys(journey);
-  const cover = mediaUrl(journey.cover);
+function JourneyArticle({ journey }: Readonly<{ journey: JourneyDoc }>) {
+  const cover = mediaImage(journey.cover);
   const countries = journeyCountryNames(journey);
   const stops = journeyStops(journey);
   const track = journeyTrack(journey);
@@ -197,10 +206,10 @@ export default async function JourneyPage({ params }: Props) {
       </header>
 
       {cover ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={mediaUrl(journey.cover)}
-          alt={mediaAlt(journey.cover) ?? ""}
+        <Picture
+          image={cover}
+          sizes="(min-width: 1280px) 1200px, 100vw"
+          priority
           className="mt-12 aspect-[21/9] w-full rounded-md object-cover"
         />
       ) : null}
@@ -259,7 +268,7 @@ export default async function JourneyPage({ params }: Props) {
                 title={story.title}
                 summary={story.summary}
                 meta={`Story · ${formatDate(story.date)} · ${String(readingMinutes(story.body))} min${story.visibility === "private" ? " · Private" : ""}`}
-                image={mediaUrl(story.cover)}
+                image={mediaImage(story.cover, "card")}
                 aspect="portrait"
               />
             ))}
@@ -297,7 +306,38 @@ export default async function JourneyPage({ params }: Props) {
         </section>
       ) : null}
 
-      <JourneyPager older={older} newer={newer} />
+      {/* Static unless private journeys exist; then it streams per visitor. */}
+      <Suspense fallback={null}>
+        <ViewerPager journey={journey} />
+      </Suspense>
     </article>
   );
+}
+
+/** Private journey: checked per request, never part of the static shell. */
+async function PrivateJourney({ journey }: Readonly<{ journey: JourneyDoc }>) {
+  if (!(await hasPrivateAccess())) {
+    return (
+      <LockedPage
+        kind="Journey"
+        title={journey.title}
+        next={`/travel/${journey.slug}`}
+      />
+    );
+  }
+  return <JourneyArticle journey={journey} />;
+}
+
+export default async function JourneyPage({ params }: Props) {
+  const { slug } = await params;
+  const journey = await journeyDoc(slug);
+  if (!journey) notFound();
+  if (isPrivate(journey)) {
+    return (
+      <Suspense fallback={<div className="min-h-[60svh]" />}>
+        <PrivateJourney journey={journey} />
+      </Suspense>
+    );
+  }
+  return <JourneyArticle journey={journey} />;
 }

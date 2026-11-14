@@ -1,5 +1,7 @@
+import { Suspense } from "react";
+
 import { getCurrentUser } from "@/lib/content";
-import { navLinks } from "@/lib/site-access";
+import { navLinks, publicNavLinks } from "@/lib/site-access";
 
 import { SiteNav } from "./site-nav";
 
@@ -9,8 +11,8 @@ function emailFromUser(user: unknown): string | null {
   return user.email;
 }
 
-/** Server wrapper: reads the session, then hands plain props to the client nav. */
-export async function Nav() {
+/** Reads the session, then hands plain props to the client nav. */
+async function ViewerNav() {
   const [user, links] = await Promise.all([getCurrentUser(), navLinks()]);
   const email = emailFromUser(user);
 
@@ -27,5 +29,22 @@ export async function Nav() {
           : null
       }
     />
+  );
+}
+
+/**
+ * Prerendered as an anonymous visitor sees it (public links, "Log in"); the
+ * visitor's own links and account stream in, so anonymous visitors see no
+ * change and the owner sees their extra links a moment later.
+ */
+async function PublicNav() {
+  return <SiteNav links={await publicNavLinks()} account={null} />;
+}
+
+export function Nav() {
+  return (
+    <Suspense fallback={<PublicNav />}>
+      <ViewerNav />
+    </Suspense>
   );
 }

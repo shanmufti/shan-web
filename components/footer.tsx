@@ -1,9 +1,21 @@
+import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { Suspense } from "react";
 
-import { navLinks } from "@/lib/site-access";
+import { navLinks, publicNavLinks, type NavLink } from "@/lib/site-access";
 
-export async function Footer() {
-  const links = await navLinks();
+/** Cached so the static shell can include it; refreshed daily. */
+// eslint-disable-next-line @typescript-eslint/require-await -- "use cache" functions must be async
+async function copyrightYear(): Promise<number> {
+  "use cache";
+  cacheLife("days");
+  return new Date().getFullYear();
+}
+
+function FooterView({
+  links,
+  year,
+}: Readonly<{ links: NavLink[]; year: number }>) {
   const showMap = links.some((link) => link.href === "/travel");
 
   // Nothing open to this visitor: keep the footer to one quiet line.
@@ -11,7 +23,7 @@ export async function Footer() {
     return (
       <footer className="border-border mt-16 border-t">
         <p className="meta-label text-muted-foreground mx-auto max-w-7xl px-6 py-5 lg:px-10">
-          © {new Date().getFullYear()} Shan Mufti
+          © {year} Shan Mufti
         </p>
       </footer>
     );
@@ -55,9 +67,28 @@ export async function Footer() {
       </div>
       <div className="border-border border-t">
         <p className="meta-label text-muted-foreground mx-auto max-w-7xl px-6 py-5 lg:px-10">
-          © {new Date().getFullYear()} Shan Mufti
+          © {year} Shan Mufti
         </p>
       </div>
     </footer>
+  );
+}
+
+async function ViewerFooter() {
+  const [links, year] = await Promise.all([navLinks(), copyrightYear()]);
+  return <FooterView links={links} year={year} />;
+}
+
+async function PublicFooter() {
+  const [links, year] = await Promise.all([publicNavLinks(), copyrightYear()]);
+  return <FooterView links={links} year={year} />;
+}
+
+/** Prerendered with the public links; this visitor's links stream in. */
+export function Footer() {
+  return (
+    <Suspense fallback={<PublicFooter />}>
+      <ViewerFooter />
+    </Suspense>
   );
 }

@@ -7,6 +7,9 @@ import { getPackingListByShareSlug } from "@/lib/content";
 
 export const metadata: Metadata = { title: "Packing list" };
 
+// Share links are read per request (the slug is the capability).
+export const instant = false;
+
 export default async function PackingListSharePage({
   params,
 }: Readonly<{ params: Promise<{ shareSlug: string }> }>) {

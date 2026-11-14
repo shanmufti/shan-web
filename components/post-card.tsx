@@ -1,8 +1,11 @@
 import { Lock } from "lucide-react";
 import Link from "next/link";
 
+import type { MediaImage } from "@/lib/media";
 import { unlockHref } from "@/lib/site-links";
 import { cn } from "@/lib/utils";
+
+import { Picture } from "./picture";
 
 interface PostCardProps {
   href: string;
@@ -11,12 +14,13 @@ interface PostCardProps {
   /** Mono catalog line, e.g. "Journey · 2025 · Palau". */
   meta: string;
   tags?: string[] | undefined;
-  image?: string | undefined;
-  imageAlt?: string | undefined;
+  image?: MediaImage | undefined;
   /** 3/2 for journeys, 4/5 for stories. */
   aspect?: "landscape" | "portrait";
   /** Shown large in the image slot when there is no cover yet. */
   placeholder?: string | undefined;
+  /** Load the image eagerly (cards in the first row). */
+  priority?: boolean | undefined;
 }
 
 const aspectClass = {
@@ -32,9 +36,9 @@ export function PostCard({
   meta,
   tags,
   image,
-  imageAlt,
   aspect = "landscape",
   placeholder,
+  priority = false,
 }: Readonly<PostCardProps>) {
   return (
     <Link href={href} className="group block outline-none">
@@ -45,12 +49,10 @@ export function PostCard({
         )}
       >
         {image ? (
-          // Plain <img>: covers come from R2 at fixed sizes (site plan §4).
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={image}
-            alt={imageAlt ?? ""}
-            loading="lazy"
+          <Picture
+            image={image}
+            sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw"
+            priority={priority}
             className="size-full object-cover transition-transform duration-[600ms] ease-[cubic-bezier(.2,.7,.2,1)] group-hover:scale-[1.03]"
           />
         ) : (

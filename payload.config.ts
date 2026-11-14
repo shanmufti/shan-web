@@ -27,6 +27,10 @@ import { UnlockAttempts } from "./collections/UnlockAttempts";
 import { Users } from "./collections/Users";
 import { VisitedCountries } from "./collections/VisitedCountries";
 import { env, envOr, requireEnv } from "./lib/env";
+import {
+  withCollectionRevalidation,
+  withGlobalRevalidation,
+} from "./lib/revalidate";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -58,25 +62,33 @@ export default buildConfig({
       beforeNavLinks: ["/components/admin/ViewSiteLink#ViewSiteLink"],
     },
   },
+  // Content collections and globals expire their cache tag on every change
+  // (lib/revalidate.ts), so /admin edits show without a redeploy. Users,
+  // unlock attempts and the food tour are never cached, so they're left out.
   collections: [
     Users,
-    Media,
-    Blog,
-    Diving,
-    DiveGear,
-    GearConfigs,
-    DiveSkills,
-    DiveResources,
-    Travel,
-    Tech,
-    VisitedCountries,
-    PackingListTemplates,
-    PackingLists,
+    ...[
+      Media,
+      Blog,
+      Diving,
+      DiveGear,
+      GearConfigs,
+      DiveSkills,
+      DiveResources,
+      Travel,
+      Tech,
+      VisitedCountries,
+      PackingListTemplates,
+      PackingLists,
+    ].map(withCollectionRevalidation),
     UnlockAttempts,
     FoodRatings,
     FoodTourPhotos,
   ],
-  globals: [SiteAccess, LandingPage, SiteSettings, FoodTour],
+  globals: [
+    ...[SiteAccess, LandingPage, SiteSettings].map(withGlobalRevalidation),
+    FoodTour,
+  ],
   editor: lexicalEditor(),
   secret: payloadSecret,
   // Site uses the Local API; no need to expose GraphQL publicly.

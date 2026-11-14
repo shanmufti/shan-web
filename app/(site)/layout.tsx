@@ -40,10 +40,6 @@ export const metadata: Metadata = {
   },
 };
 
-// CMS content lives in Neon — apply to all (site) routes so admin edits
-// show immediately instead of freezing HTML at build time.
-export const dynamic = "force-dynamic";
-
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html

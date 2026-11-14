@@ -1,8 +1,8 @@
 import { RichText } from "@payloadcms/richtext-lexical/react";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 import {
   DiveEnvironmentSection,
@@ -12,10 +12,17 @@ import {
   DiveVitalsGrid,
 } from "@/components/dive-log";
 import { DiveProfileChart } from "@/components/dive-profile-chart";
+import { Picture } from "@/components/picture";
 import { DivingSubnav } from "@/components/section-subnav";
-import { getCurrentUser, getPublishedBySlug } from "@/lib/content";
+import {
+  getCurrentUser,
+  getPublishedBySlug,
+  listPublished,
+  staticSlugParams,
+} from "@/lib/content";
 import { parseProfileSamples } from "@/lib/dive-profile";
 import { formatDate } from "@/lib/format-date";
+import { mediaImage } from "@/lib/media";
 import type { Media } from "@/payload-types";
 
 function isMedia(value: number | Media): value is Media {
@@ -32,16 +39,35 @@ export async function generateMetadata({
   return dive ? { title: dive.title, description: dive.summary } : {};
 }
 
+/** Owner-only edit link; streams in per request. */
+async function EditLink({ slug }: Readonly<{ slug: string }>) {
+  const user = await getCurrentUser();
+  if (!user) return null;
+  return (
+    <Link
+      href={`/diving/logs/${slug}/edit`}
+      className="text-muted-foreground text-sm underline-offset-4 hover:underline"
+    >
+      Edit
+    </Link>
+  );
+}
+
+/** Published logs prerender at build; new ones render on first visit. */
+export async function generateStaticParams() {
+  return staticSlugParams(await listPublished("diving", { limit: 1000 }));
+}
+
+// A slug that isn't prerendered renders (and 404s) at request time.
+export const instant = false;
+
 export default async function DiveLogDetailPage({
   params,
 }: Readonly<{
   params: Promise<{ slug: string }>;
 }>) {
   const { slug } = await params;
-  const [dive, user] = await Promise.all([
-    getPublishedBySlug("diving", slug, { depth: 1 }),
-    getCurrentUser(),
-  ]);
+  const dive = await getPublishedBySlug("diving", slug, { depth: 1 });
   if (!dive) notFound();
 
   const site = dive.siteName ?? dive.location.name;
@@ -57,14 +83,9 @@ export default async function DiveLogDetailPage({
       <header className="mt-8">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <h1 className="font-heading text-4xl sm:text-5xl">{dive.title}</h1>
-          {user ? (
-            <Link
-              href={`/diving/logs/${dive.slug}/edit`}
-              className="text-muted-foreground text-sm underline-offset-4 hover:underline"
-            >
-              Edit
-            </Link>
-          ) : null}
+          <Suspense fallback={null}>
+            <EditLink slug={dive.slug} />
+          </Suspense>
         </div>
         <p className="text-muted-foreground mt-2 text-sm">
           {formatDate(dive.date)}
@@ -81,20 +102,21 @@ export default async function DiveLogDetailPage({
 
       {photos.length > 0 ? (
         <div className="mt-10 flex gap-3 overflow-x-auto pb-2">
-          {photos.map((photo) => (
-            <div
-              key={photo.id}
-              className="relative h-40 w-56 shrink-0 overflow-hidden"
-            >
-              <Image
-                src={photo.url ?? ""}
-                alt={photo.alt ?? dive.title}
-                fill
-                className="object-cover"
-                sizes="224px"
-              />
-            </div>
-          ))}
+          {photos.map((photo) => {
+            const image = mediaImage(photo, "card");
+            return image ? (
+              <div
+                key={photo.id}
+                className="h-40 w-56 shrink-0 overflow-hidden"
+              >
+                <Picture
+                  image={{ ...image, alt: image.alt || dive.title }}
+                  sizes="224px"
+                  className="size-full object-cover"
+                />
+              </div>
+            ) : null;
+          })}
         </div>
       ) : null}
 

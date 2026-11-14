@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { connection } from "next/server";
 
 import { DivingSubnav } from "@/components/section-subnav";
 import { LogDiveForm } from "@/components/log-dive-form";
 
 export const metadata: Metadata = { title: "Log a dive" };
 
-export default function LogDivePage() {
+// The form defaults to today's date, so render it per request.
+export const instant = false;
+
+export default async function LogDivePage() {
+  await connection();
   return (
     <div className="mx-auto max-w-4xl px-6 pt-16 pb-8 sm:pt-24 lg:px-10">
       <header>
