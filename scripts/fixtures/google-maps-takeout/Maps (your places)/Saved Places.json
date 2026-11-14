@@ -1,0 +1,45 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "geometry": { "coordinates": [-96.7262, 17.0612], "type": "Point" },
+      "properties": {
+        "date": "2024-03-02T18:21:44Z",
+        "google_maps_url": "http://maps.google.com/?cid=1885667171979194497",
+        "location": {
+          "address": "Calle Ejemplo 12, Centro, Oaxaca, Mexico",
+          "country_code": "MX",
+          "name": "Mercado Ejemplo"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": { "coordinates": [-9.1427, 38.7107], "type": "Point" },
+      "properties": {
+        "date": "2023-09-10T09:00:00Z",
+        "google_maps_url": "http://maps.google.com/?cid=9999000011112222",
+        "location": {
+          "address": "Rua Exemplo 5, Lisboa, Portugal",
+          "country_code": "PT",
+          "name": "Livraria Exemplo"
+        },
+        "Comment": "Old bookshop, small cafe upstairs"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": { "coordinates": [0, 0], "type": "Point" },
+      "properties": {
+        "Google Maps URL": "http://maps.google.com/?cid=3333444455556666",
+        "Location": {
+          "Address": "Somewhere, Earth",
+          "Business Name": "Old-format place",
+          "Geo Coordinates": { "Latitude": "0", "Longitude": "0" }
+        },
+        "Title": "Old-format place"
+      },
+      "type": "Feature"
+    }
+  ]
+}
