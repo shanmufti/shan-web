@@ -155,6 +155,32 @@ export const TOOLS: ToolEntry[] = [
     category: "engineering",
     href: "/tools/hash",
   },
+  // Family tools (phase-8).
+  {
+    slug: "one-time-secret",
+    title: "One-time secret",
+    description:
+      "Send a note through a link that opens once; it's encrypted in the browser.",
+    category: "everyday",
+    href: "/tools/secret",
+  },
+  {
+    slug: "shared-lists",
+    title: "Shared lists",
+    description: "Checklists that anyone with the link can tick and add to.",
+    category: "everyday",
+    href: "/lists",
+    sectionKey: "lists",
+  },
+  {
+    slug: "call-times",
+    title: "Call times",
+    description:
+      "Local times for family and friends, and the hours when everyone is awake.",
+    category: "everyday",
+    href: "/tools/call-times",
+    sectionKey: "callTimes",
+  },
 ];
 
 export function isToolCategory(value: unknown): value is ToolCategory {

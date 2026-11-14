@@ -120,6 +120,7 @@ export const config = {
     "/food-tour/:path*",
     "/tools/:path*",
     "/vault/:path*",
+    "/lists/:path*",
     "/api/:path*",
     "/go/:path*",
   ],

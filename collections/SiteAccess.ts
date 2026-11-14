@@ -27,7 +27,9 @@ const sectionFields: Field[] = SITE_SECTIONS.map(
     ...(section.ownerOnly
       ? {
           admin: {
-            description: "Always hidden: only you, logged in.",
+            description: section.tokenPaths?.some((p) => p.endsWith("/*"))
+              ? "Always hidden: only you, logged in. Share links still open for anyone who has them."
+              : "Always hidden: only you, logged in.",
             readOnly: true,
           },
         }

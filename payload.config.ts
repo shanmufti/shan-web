@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import sharp from "sharp";
 
 import { Blog } from "./collections/Blog";
+import { CallPlanner } from "./collections/CallPlanner";
 import { DiveGear } from "./collections/DiveGear";
 import { DiveResources } from "./collections/DiveResources";
 import { DiveSkills } from "./collections/DiveSkills";
@@ -22,6 +23,8 @@ import { Media } from "./collections/Media";
 import { PackingListTemplates } from "./collections/PackingListTemplates";
 import { PackingLists } from "./collections/PackingLists";
 import { PracticeSessions } from "./collections/PracticeSessions";
+import { Secrets } from "./collections/Secrets";
+import { SharedLists } from "./collections/SharedLists";
 import { SiteAccess } from "./collections/SiteAccess";
 import { ShortLinks } from "./collections/ShortLinks";
 import { SiteSettings } from "./collections/SiteSettings";
@@ -103,9 +106,11 @@ export default buildConfig({
     FoodRatings,
     FoodTourPhotos,
     ShortLinks,
+    SharedLists,
+    Secrets,
   ],
   globals: [
-    ...[SiteAccess, LandingPage, SiteSettings, VaultSettings].map(
+    ...[SiteAccess, LandingPage, SiteSettings, VaultSettings, CallPlanner].map(
       withGlobalRevalidation,
     ),
     FoodTour,
