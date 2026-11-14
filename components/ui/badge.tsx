@@ -23,6 +23,13 @@ const badgeVariants = cva(
         ghost:
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
         link: "text-primary underline-offset-4 hover:underline",
+        // Mono tags from the Workshop tiles: VIDEO, GUIDE, LOG.
+        coral:
+          "rounded-sm bg-coral-ink font-mono text-[0.65rem] tracking-[0.06em] text-white uppercase dark:bg-coral dark:text-coral-foreground",
+        ocean:
+          "rounded-sm bg-primary font-mono text-[0.65rem] tracking-[0.06em] text-primary-foreground uppercase",
+        ink: "rounded-sm bg-foreground font-mono text-[0.65rem] tracking-[0.06em] text-background uppercase",
+        tint: "bg-tint-water text-foreground border-border",
       },
     },
     defaultVariants: {
