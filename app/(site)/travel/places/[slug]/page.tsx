@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 
 import { LockedPage } from "@/components/locked-page";
-import { PageTransition } from "@/components/page-transition";
+import { HUB_DETAIL, PageTransition } from "@/components/page-transition";
 import { PlacesMapLoader } from "@/components/places-map-loader";
 import { ArticleBody } from "@/components/rich-text";
 import { Badge } from "@/components/ui/badge";
@@ -236,6 +236,7 @@ function Pager({
       className="border-border mt-24 grid gap-6 border-t pt-8 sm:grid-cols-3"
     >
       <Link
+        transitionTypes={HUB_DETAIL}
         href="/travel/places"
         className="meta-label text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 self-start"
       >
@@ -243,7 +244,11 @@ function Pager({
         All places
       </Link>
       {previous ? (
-        <Link href={`/travel/places/${previous.slug}`} className="group">
+        <Link
+          transitionTypes={HUB_DETAIL}
+          href={`/travel/places/${previous.slug}`}
+          className="group"
+        >
           <span className="meta-label text-muted-foreground">Previous</span>
           <span className="mt-1 block font-medium underline-offset-4 group-hover:underline">
             {previous.title}
@@ -254,6 +259,7 @@ function Pager({
       )}
       {next ? (
         <Link
+          transitionTypes={HUB_DETAIL}
           href={`/travel/places/${next.slug}`}
           className="group sm:text-right"
         >
@@ -281,6 +287,7 @@ function JourneyLinks({
         <span key={j.slug}>
           {i > 0 ? ", " : ""}
           <Link
+            transitionTypes={HUB_DETAIL}
             href={`/travel/${j.slug}`}
             className="text-foreground underline underline-offset-4"
           >
@@ -330,6 +337,7 @@ export default async function DestinationPage({ params }: Props) {
       <article className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-10">
         <header className="pt-12 sm:pt-20">
           <Link
+            transitionTypes={HUB_DETAIL}
             href="/travel/places"
             className="meta-label text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5"
           >

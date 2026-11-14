@@ -1,6 +1,8 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
+import { HUB_DETAIL } from "./page-transition";
+
 interface ProjectCardProps {
   href: string;
   title: string;
@@ -50,6 +52,7 @@ export function ProjectCard({
       {meta ? <p className="meta-label text-muted-foreground">{meta}</p> : null}
       <h3 className="text-lg leading-snug font-medium tracking-[-0.015em]">
         <Link
+          transitionTypes={HUB_DETAIL}
           href={href}
           data-card-link
           className="underline-offset-4 outline-none group-hover:underline after:absolute after:inset-0 after:rounded-[inherit] after:content-['']"

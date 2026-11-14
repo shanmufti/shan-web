@@ -5,7 +5,7 @@ import type { MediaImage } from "@/lib/media";
 import { unlockHref } from "@/lib/site-links";
 import { cn } from "@/lib/utils";
 
-import { SharedCover } from "./page-transition";
+import { HUB_DETAIL, SharedCover } from "./page-transition";
 import { Picture } from "./picture";
 
 interface PostCardProps {
@@ -55,7 +55,11 @@ export function PostCard({
   isPrivate,
 }: Readonly<PostCardProps>) {
   return (
-    <Link href={href} className="group block outline-none">
+    <Link
+      transitionTypes={HUB_DETAIL}
+      href={href}
+      className="group block outline-none"
+    >
       <SharedCover href={href}>
         <div
           className={cn(
@@ -150,6 +154,7 @@ export function FeaturedCard({
 >) {
   return (
     <Link
+      transitionTypes={HUB_DETAIL}
       href={href}
       className="group bg-card border-border lift rounded-tile grid overflow-hidden border outline-none focus-visible:outline-2 focus-visible:outline-offset-2 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
     >

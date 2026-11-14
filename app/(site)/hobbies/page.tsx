@@ -5,7 +5,7 @@ import { Suspense } from "react";
 
 import { HobbyIcon } from "@/components/hobby-icon";
 import { PageHeader } from "@/components/page-header";
-import { PageTransition } from "@/components/page-transition";
+import { HUB_DETAIL, PageTransition } from "@/components/page-transition";
 import { listHobbies, publicHobbyCards, type HobbyCard } from "@/lib/hobbies";
 import { hobbyDescription } from "@/lib/hobby-options";
 
@@ -74,6 +74,7 @@ function HobbiesView({
               return (
                 <li key={hobby.id}>
                   <Link
+                    transitionTypes={HUB_DETAIL}
                     href={`/hobbies/${hobby.slug}`}
                     className="group bg-card ring-foreground/10 hover:ring-foreground/25 focus-visible:ring-ring flex h-full flex-col overflow-hidden rounded-xl ring-1 transition-shadow outline-none focus-visible:ring-2 motion-reduce:transition-none"
                   >

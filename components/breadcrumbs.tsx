@@ -2,6 +2,7 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
+import { HUB_DETAIL } from "./page-transition";
 
 export interface Crumb {
   label: string;
@@ -28,6 +29,7 @@ export function Breadcrumbs({
             >
               {item.href && !last ? (
                 <Link
+                  transitionTypes={HUB_DETAIL}
                   href={item.href}
                   className="hover:text-foreground underline-offset-4 hover:underline"
                 >

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { PageHeader } from "@/components/page-header";
-import { PageTransition } from "@/components/page-transition";
+import { HUB_DETAIL, PageTransition } from "@/components/page-transition";
 import { visibleTools } from "@/lib/site-access";
 import {
   isToolCategory,
@@ -81,6 +81,7 @@ export default async function ToolsPage({
             {shown.map((tool) => (
               <li key={tool.slug}>
                 <Link
+                  transitionTypes={HUB_DETAIL}
                   href={tool.href}
                   className="group border-border bg-card hover:border-foreground/30 focus-visible:ring-ring/50 flex h-full flex-col rounded-lg border p-5 transition-colors outline-none focus-visible:ring-3"
                 >

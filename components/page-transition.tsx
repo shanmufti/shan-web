@@ -1,22 +1,36 @@
 import { ViewTransition, type ReactNode } from "react";
 
 /*
- * View transitions between hubs and detail pages (React <ViewTransition>,
- * which Next's App Router runs on every client navigation). Animations are
- * in globals.css and switched off under prefers-reduced-motion. Browsers
- * without the View Transitions API simply swap the page.
+ * View transitions between hubs and detail pages (React <ViewTransition>).
+ * They run only for navigations through links tagged with
+ * `transitionTypes={HUB_DETAIL}` (cards, breadcrumbs, pagers, back links):
+ * nothing animates on first load, Suspense reveals, refreshes, form
+ * submissions or browser back/forward. Animations are in globals.css and
+ * switched off under prefers-reduced-motion. Browsers without the View
+ * Transitions API simply swap the page.
  */
+
+/** Transition type for `<Link transitionTypes>` between hubs and details. */
+export const HUB_DETAIL = ["hub-detail"];
+
+/** Animation class for hub/detail navigations, "none" for anything else. */
+function onHubDetail(className: string) {
+  return { "hub-detail": className, default: "none" };
+}
 
 /**
  * Wraps a hub or detail page: it fades out as you leave and fades in as you
- * arrive. `default="none"` keeps it still for everything else (Suspense
- * reveals, refreshes, form transitions).
+ * arrive.
  */
 export function PageTransition({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
-    <ViewTransition enter="page-enter" exit="page-exit" default="none">
+    <ViewTransition
+      enter={onHubDetail("page-enter")}
+      exit={onHubDetail("page-exit")}
+      default="none"
+    >
       {children}
     </ViewTransition>
   );
@@ -38,7 +52,7 @@ export function SharedCover({
   return (
     <ViewTransition
       name={coverTransitionName(href)}
-      share="cover-morph"
+      share={onHubDetail("cover-morph")}
       default="none"
     >
       {children}

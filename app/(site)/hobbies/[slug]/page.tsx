@@ -8,7 +8,7 @@ import { HobbyFilters, type FilterField } from "@/components/hobby-filters";
 import { AddReferenceForm, AddSessionForm } from "@/components/hobby-forms";
 import { HobbyIcon } from "@/components/hobby-icon";
 import { HobbyReferenceCard } from "@/components/hobby-reference-card";
-import { PageTransition } from "@/components/page-transition";
+import { HUB_DETAIL, PageTransition } from "@/components/page-transition";
 import { formatDate } from "@/lib/format-date";
 import { getHobbyPage, type HobbyReference } from "@/lib/hobbies";
 import {
@@ -176,6 +176,7 @@ export default async function HobbyPage({ params, searchParams }: Props) {
       <div className="mx-auto max-w-5xl px-4 pb-16 sm:px-6 lg:px-10">
         <header className="pt-10 pb-8 sm:pt-16">
           <Link
+            transitionTypes={HUB_DETAIL}
             href="/hobbies"
             className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm"
           >

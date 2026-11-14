@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowRight, Lock } from "lucide-react";
 import Link from "next/link";
+import { HUB_DETAIL } from "./page-transition";
 
 export interface PagerItem {
   href: string;
@@ -18,6 +19,7 @@ function PagerLink({
   const next = side === "next";
   return (
     <Link
+      transitionTypes={HUB_DETAIL}
       href={item.href}
       rel={next ? "next" : "prev"}
       className={`group bg-card border-border lift block rounded-2xl border p-5 ${
