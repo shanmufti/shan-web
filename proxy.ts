@@ -8,7 +8,11 @@ import {
 } from "@/lib/private-access";
 import { getSectionModes } from "@/lib/section-modes";
 import { canView, type Viewer } from "@/lib/site-access-rules";
-import { sectionForApiPath, sectionForPath } from "@/lib/site-sections";
+import {
+  isTokenPath,
+  sectionForApiPath,
+  sectionForPath,
+} from "@/lib/site-sections";
 import { unlockHref } from "@/lib/site-links";
 
 /**
@@ -23,6 +27,8 @@ export async function proxy(request: NextRequest) {
     ? sectionForApiPath(pathname)
     : sectionForPath(pathname);
   if (!section) return NextResponse.next();
+  // e.g. /vault/calendar.ics: the route checks its own token and 404s.
+  if (!isApi && isTokenPath(section, pathname)) return NextResponse.next();
 
   const payload = await getPayload({ config: payloadConfig });
   const modes = await getSectionModes(payload);
@@ -63,6 +69,8 @@ export const config = {
     "/diving/:path*",
     "/tech/:path*",
     "/food-tour/:path*",
+    "/tools/:path*",
+    "/vault/:path*",
     "/api/:path*",
   ],
 };

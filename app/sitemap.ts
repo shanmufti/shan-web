@@ -50,5 +50,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ]
       : []),
     ...(open.has("tech") ? [url("/tech")] : []),
+    ...(open.has("tools") ? [url("/tools"), url("/tools/snippets")] : []),
   ];
 }

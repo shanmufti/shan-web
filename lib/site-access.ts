@@ -1,5 +1,6 @@
 import config from "@payload-config";
 import { cookies, headers } from "next/headers";
+import { notFound } from "next/navigation";
 import { getPayload } from "payload";
 import { cache } from "react";
 
@@ -9,7 +10,12 @@ import {
 } from "@/lib/private-access";
 import { getSectionModes } from "@/lib/section-modes";
 import { canView, type Viewer } from "@/lib/site-access-rules";
-import { SITE_SECTIONS, type SiteSection } from "@/lib/site-sections";
+import {
+  SITE_SECTIONS,
+  type AccessMode,
+  type SiteSection,
+} from "@/lib/site-sections";
+import { TOOLS, type ToolEntry } from "@/lib/tools-registry";
 
 /** Who is looking, for server components. Cached per request. */
 export const currentViewer = cache(async (): Promise<Viewer> => {
@@ -45,4 +51,26 @@ export async function navLinks(): Promise<{ href: string; label: string }[]> {
   return sections
     .filter((s) => s.inNav)
     .map((s) => ({ href: s.href, label: s.label }));
+}
+
+/** Tools from lib/tools-registry.ts that this visitor can open. */
+export async function visibleTools(): Promise<ToolEntry[]> {
+  const payload = await getPayload({ config });
+  const [modes, viewer] = await Promise.all([
+    getSectionModes(payload),
+    currentViewer(),
+  ]);
+  return TOOLS.filter((tool) => {
+    if (!tool.sectionKey) return true;
+    const mode = (modes as Record<string, AccessMode | undefined>)[
+      tool.sectionKey
+    ];
+    // Unknown key: only the owner sees it, rather than leaking a link.
+    return canView(mode ?? "owner", viewer);
+  });
+}
+
+/** For owner-only pages: 404 for everyone else, even if the proxy let them in. */
+export async function requireOwner(): Promise<void> {
+  if ((await currentViewer()) !== "owner") notFound();
 }
