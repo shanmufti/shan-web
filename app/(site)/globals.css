@@ -585,6 +585,12 @@
   opacity: 0.5;
 }
 
+/* Keyless OpenStreetMap tiles (lib/map-tiles.ts), muted towards a light,
+   low-colour base map so routes and pins stand out. */
+.map-tiles-muted {
+  filter: grayscale(0.85) saturate(0.6) brightness(1.04) contrast(0.92);
+}
+
 /* Journey route map (components/route-map.tsx). */
 .route-pin {
   display: grid;
