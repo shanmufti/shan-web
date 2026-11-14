@@ -6,8 +6,10 @@ import {
   Code,
   CornerDownLeft,
   Map as MapIcon,
+  MapPin,
   Moon,
   Search,
+  Sparkles,
   Waves,
   Wrench,
 } from "lucide-react";
@@ -36,8 +38,10 @@ const GROUP_ORDER: EntryGroup[] = [
   "Pages",
   "Journeys",
   "Stories",
+  "Places",
   "Dives",
   "Tech notes",
+  "Hobbies",
   "Tools",
   "Actions",
 ];
@@ -46,8 +50,10 @@ const GROUP_ICON: Record<EntryGroup, typeof ArrowRight> = {
   Pages: ArrowRight,
   Journeys: MapIcon,
   Stories: BookOpen,
+  Places: MapPin,
   Dives: Waves,
   "Tech notes": Code,
+  Hobbies: Sparkles,
   Tools: Wrench,
   Actions: Moon,
 };
@@ -58,7 +64,8 @@ function score(entry: Entry, query: string): number {
   if (title.startsWith(query)) return 0;
   if (title.split(/[\s\-–—:]+/).some((w) => w.startsWith(query))) return 1;
   if (title.includes(query)) return 2;
-  const extra = `${entry.group} ${entry.hint ?? ""}`.toLowerCase();
+  const keywords = "keywords" in entry ? (entry.keywords ?? "") : "";
+  const extra = `${entry.group} ${entry.hint ?? ""} ${keywords}`.toLowerCase();
   return extra.includes(query) ? 3 : -1;
 }
 
