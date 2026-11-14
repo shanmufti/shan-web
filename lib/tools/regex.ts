@@ -19,7 +19,7 @@ export type RegexResult =
 export const MAX_MATCHES = 1000;
 const VALID_FLAGS = /^[dgimsuvy]*$/;
 
-export function buildRegex(
+function buildRegex(
   pattern: string,
   flags: string,
 ): { ok: true; regex: RegExp } | { ok: false; error: string } {

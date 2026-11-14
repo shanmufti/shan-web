@@ -36,7 +36,7 @@ const HEX_NAME = /^([0-9a-f]{32})(\.[a-z0-9]{1,10})?$/;
 const MAX_ORIGINAL_LENGTH = 200;
 
 /** "Passport Scan.PDF" → "3f9c…e1.pdf" */
-export function randomStoredName(original: string): string {
+function randomStoredName(original: string): string {
   const ext = path.extname(original).toLowerCase();
   const safeExt = /^\.[a-z0-9]{1,10}$/.test(ext) ? ext : "";
   return `${randomBytes(16).toString("hex")}${safeExt}`;

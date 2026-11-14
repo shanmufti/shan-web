@@ -1,6 +1,6 @@
 // Generated from public/geo/world-countries.geojson (ISO_A3 → NAME).
 // Regenerate if the dataset changes.
-export const countryNames: Readonly<Record<string, string>> = {
+const countryNames: Readonly<Record<string, string>> = {
   AFG: "Afghanistan",
   AGO: "Angola",
   ALB: "Albania",

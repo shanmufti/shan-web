@@ -67,7 +67,7 @@ export function tallyDates(
 export type VoteMode = "single" | "ranked";
 
 /** Points for 1st, 2nd and 3rd place in a ranked vote. */
-export const RANK_POINTS = [3, 2, 1] as const;
+const RANK_POINTS = [3, 2, 1] as const;
 
 export interface OptionTally {
   optionId: string;

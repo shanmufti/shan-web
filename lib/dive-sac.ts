@@ -8,7 +8,7 @@ function ataFromDepthMeters(depthMeters: number): number {
  * Ambient exposure in "ATA·minutes" via trapezoidal integration of the
  * depth profile. Prefer this over avg-depth × duration when samples exist.
  */
-export function integrateAtaMinutes(samples: ProfileSample[]): number | null {
+function integrateAtaMinutes(samples: ProfileSample[]): number | null {
   if (samples.length < 2) return null;
 
   const sorted = [...samples].sort((a, b) => a.t - b.t);

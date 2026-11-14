@@ -76,7 +76,7 @@ export function parseTimestamp(value: string | null): number | undefined {
 }
 
 /** Start time written into a video URL, if any. */
-export function startSecondsFromUrl(value: string): number | undefined {
+function startSecondsFromUrl(value: string): number | undefined {
   const url = parseHttpUrl(value);
   if (!url) return undefined;
   const fromQuery = parseTimestamp(
@@ -92,7 +92,7 @@ export function startSecondsFromUrl(value: string): number | undefined {
  * probe its own network. (Hostnames that resolve to private IPs aren't
  * caught; only the logged-in owner can trigger a fetch.)
  */
-export function isPublicHost(hostname: string): boolean {
+function isPublicHost(hostname: string): boolean {
   const host = hostname.toLowerCase().replace(/^\[|\]$/g, "");
   if (
     host === "localhost" ||
@@ -175,7 +175,7 @@ const NAMED_ENTITIES: Record<string, string> = {
   hellip: "…",
 };
 
-export function decodeEntities(value: string): string {
+function decodeEntities(value: string): string {
   return value.replaceAll(
     /&(#x[\da-f]+|#\d+|[a-z]+);/gi,
     (whole, code: string) => {
@@ -199,7 +199,7 @@ function attr(tag: string, name: string): string | undefined {
 }
 
 /** Open Graph / Twitter / <title> values from an HTML document. */
-export function parseOpenGraph(html: string, pageUrl: URL) {
+function parseOpenGraph(html: string, pageUrl: URL) {
   const head = html.slice(0, MAX_HTML_BYTES);
   const meta = new Map<string, string>();
   for (const [tag] of head.matchAll(/<meta\b[^>]*>/gi)) {
@@ -231,7 +231,7 @@ export function parseOpenGraph(html: string, pageUrl: URL) {
   };
 }
 
-export function providerFromHost(url: URL): string {
+function providerFromHost(url: URL): string {
   return url.hostname.replace(/^www\./, "");
 }
 

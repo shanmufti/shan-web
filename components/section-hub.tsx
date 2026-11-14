@@ -108,24 +108,6 @@ export function HubHeading({
   );
 }
 
-/** Placeholder grid shown while per-visitor data streams in. */
-export function HubGridSkeleton({ count = 6 }: Readonly<{ count?: number }>) {
-  return (
-    <div
-      aria-hidden="true"
-      className="mt-14 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3"
-    >
-      {Array.from({ length: count }, (_, i) => (
-        <div key={i}>
-          <div className="bg-muted aspect-[3/2] animate-pulse rounded-2xl" />
-          <div className="bg-muted mt-4 h-3 w-1/3 rounded" />
-          <div className="bg-muted mt-3 h-5 w-2/3 rounded" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
 /** Message for an empty (or filtered-to-empty) list. */
 export function HubEmpty({ children }: Readonly<{ children: ReactNode }>) {
   return (

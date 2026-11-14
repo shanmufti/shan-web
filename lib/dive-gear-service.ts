@@ -17,7 +17,7 @@ function addMonths(date: Date, months: number): Date {
  * back to the legacy manually-entered nextServiceDue field so gear added
  * before serviceLog existed keeps working without a data migration.
  */
-export function nextServiceDueDate(item: DiveGearDoc): Date | null {
+function nextServiceDueDate(item: DiveGearDoc): Date | null {
   const log = item.serviceLog ?? [];
   const interval = item.serviceIntervalMonths;
 

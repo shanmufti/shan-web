@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { HobbyIcon } from "@/components/hobby-icon";
 import { BentoGrid, BentoTile } from "@/components/ui/bento";
-import { formatDate } from "@/lib/format-date";
+import { formatDate, formatShortDate } from "@/lib/format-date";
 import { ITEM_LABEL, type HomeItem, type HomeView } from "@/lib/home";
 import { hobbyDescription } from "@/lib/hobby-options";
 import type { LandingPage } from "@/payload-types";
@@ -15,15 +15,6 @@ type Cols = 1 | 2 | 3 | 4;
 
 function isExternal(href: string) {
   return /^(https?:|mailto:)/.test(href);
-}
-
-function shortDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  });
 }
 
 function PrivateMark({ className }: Readonly<{ className?: string }>) {
@@ -107,7 +98,8 @@ function NowTile({
       </p>
       {text && now?.updated ? (
         <p className="meta-label text-muted-foreground mt-3">
-          Updated <time dateTime={now.updated}>{shortDate(now.updated)}</time>
+          Updated{" "}
+          <time dateTime={now.updated}>{formatShortDate(now.updated)}</time>
         </p>
       ) : null}
     </BentoTile>
@@ -159,7 +151,7 @@ function RecentTile({
             </Link>
             <p className="meta-label text-muted-foreground mt-1">
               {ITEM_LABEL[item.kind]} ·{" "}
-              <time dateTime={item.date}>{shortDate(item.date)}</time>
+              <time dateTime={item.date}>{formatShortDate(item.date)}</time>
               {item.isPrivate ? (
                 <>
                   {" · "}

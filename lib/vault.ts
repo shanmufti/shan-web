@@ -104,7 +104,7 @@ function parseDay(key: string): Date {
   return new Date(`${key}T00:00:00.000Z`);
 }
 
-export function daysBetween(from: string, to: string): number {
+function daysBetween(from: string, to: string): number {
   return Math.round(
     (parseDay(to).getTime() - parseDay(from).getTime()) / DAY_MS,
   );
@@ -117,7 +117,7 @@ export function addDays(key: string, days: number): string {
 }
 
 /** Adds months, clamping to the end of shorter months (Jan 31 → Feb 28). */
-export function addMonths(key: string, months: number): string {
+function addMonths(key: string, months: number): string {
   const date = parseDay(key);
   const day = date.getUTCDate();
   const target = new Date(

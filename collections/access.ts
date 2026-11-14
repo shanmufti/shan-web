@@ -14,7 +14,7 @@ export const authenticated: Access = ({ req: { user } }) => Boolean(user);
  * Access callbacks intentionally return `true` or a Where clause (Payload contract).
  */
 // eslint-disable-next-line sonarjs/function-return-type -- Payload Access: boolean | Where
-export const publishedOrAuthenticated: Access = ({ req: { user } }) => {
+const publishedOrAuthenticated: Access = ({ req: { user } }) => {
   if (user) return true;
   return { draft: { equals: false } };
 };
@@ -25,7 +25,7 @@ export const publishedOrAuthenticated: Access = ({ req: { user } }) => {
  * cookie itself (Local API calls don't carry request cookies).
  */
 // eslint-disable-next-line sonarjs/function-return-type -- Payload Access: boolean | Where
-export const publishedPublicOrAuthenticated: Access = ({ req: { user } }) => {
+const publishedPublicOrAuthenticated: Access = ({ req: { user } }) => {
   if (user) return true;
   return {
     and: [

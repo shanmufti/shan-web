@@ -19,7 +19,7 @@ import { clearMemo } from "@/lib/memo-cache";
  * clear and revalidateTag throws; that's safe to ignore because the cache has
  * a daily safety-net revalidation (next.config.ts → cacheLife.content).
  */
-export function expireTags(tags: string[]) {
+function expireTags(tags: string[]) {
   for (const tag of tags) {
     clearMemo(tag);
     try {
@@ -31,7 +31,7 @@ export function expireTags(tags: string[]) {
 }
 
 /** afterChange + afterDelete hooks that expire `collection:<slug>`. */
-export function revalidateCollectionHooks(
+function revalidateCollectionHooks(
   slug: string,
 ): NonNullable<CollectionConfig["hooks"]> {
   const afterChange: CollectionAfterChangeHook = ({ doc }) => {
@@ -46,7 +46,7 @@ export function revalidateCollectionHooks(
 }
 
 /** afterChange hook that expires `global:<slug>`. */
-export function revalidateGlobalHook(slug: string): GlobalAfterChangeHook {
+function revalidateGlobalHook(slug: string): GlobalAfterChangeHook {
   return ({ doc }) => {
     expireTags([globalTag(slug)]);
     return doc as unknown;
