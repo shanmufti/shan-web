@@ -6,7 +6,12 @@ import {
   replaceClientUpload,
 } from "@/lib/media-upload";
 
+import { captureExifDetails } from "@/lib/photo-exif";
+
 import { publicReadAccess } from "./access";
+
+/** Location is private: hidden from the public REST API and anonymous reads. */
+const ownerOnly = ({ req }: { req: { user?: unknown } }) => Boolean(req.user);
 
 /**
  * Public images: post and journey covers, journey photos. Stored in R2 and
@@ -20,6 +25,10 @@ import { publicReadAccess } from "./access";
  * HEIC isn't accepted (sharp can't decode it): export JPEG from Photos.
  * Names are made unique and the browser upload is replaced by the processed
  * file: see lib/media-upload.ts.
+ *
+ * Where and when the photo was taken are copied from its EXIF into
+ * `location` and `takenAt` first (lib/photo-exif.ts). `location` is
+ * owner-only: the public site and API never see it.
  */
 const webp = { format: "webp" as const, options: { quality: 78 } };
 
@@ -28,7 +37,8 @@ export const Media: CollectionConfig = {
   admin: { group: "Photos" },
   access: publicReadAccess,
   hooks: {
-    beforeOperation: [renameMediaUpload],
+    // EXIF is read before anything else touches the file.
+    beforeOperation: [captureExifDetails, renameMediaUpload],
     beforeChange: [replaceClientUpload, defaultAltFromFilename],
   },
   fields: [
@@ -44,7 +54,35 @@ export const Media: CollectionConfig = {
     {
       name: "takenAt",
       type: "date",
-      admin: { description: "When the photo was taken (date only shown)." },
+      admin: {
+        description:
+          "When the photo was taken. Filled from the photo's EXIF on upload.",
+      },
+    },
+    {
+      name: "location",
+      type: "group",
+      access: { read: ownerOnly, create: ownerOnly, update: ownerOnly },
+      admin: {
+        description:
+          "Private: where the photo was taken. Filled from GPS on upload (the public file has no GPS). Only you can see this.",
+      },
+      fields: [
+        {
+          type: "row",
+          fields: [
+            { name: "lat", type: "number", min: -90, max: 90 },
+            { name: "lng", type: "number", min: -180, max: 180 },
+          ],
+        },
+        {
+          name: "place",
+          type: "text",
+          admin: {
+            description: "Optional name, e.g. Roma Norte, Mexico City.",
+          },
+        },
+      ],
     },
   ],
   upload: {
