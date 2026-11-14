@@ -1,8 +1,8 @@
 # shan-web
 
-Personal site for Shan Mufti — blog, diving, travel, and tech, built with Next.js and Tailwind CSS. Live at [smufti.com](https://smufti.com).
+Personal site for Shan Mufti — journeys, diving, tech, hobbies, small shared tools and a private vault, built with Next.js, Tailwind CSS and Payload CMS. Live at [smufti.com](https://smufti.com).
 
-Articles are authored through a [Payload CMS](https://payloadcms.com) admin panel at `/admin`, not as files in this repo. Article text/metadata live in a Postgres database (Neon); images live in Cloudflare R2. Nothing content-related is stored in git.
+Content is authored through a [Payload CMS](https://payloadcms.com) admin panel at `/admin`, not as files in this repo. Article text/metadata live in a Postgres database (Neon); images live in Cloudflare R2. Nothing content-related is stored in git.
 
 ## Development
 
@@ -11,7 +11,7 @@ npm install
 npm run dev
 ```
 
-Opens at [http://localhost:3000](http://localhost:3000) with Fast Refresh. Visit [http://localhost:3000/admin](http://localhost:3000/admin) to log in and create/edit content for blog, diving, travel, and tech.
+Opens at [http://localhost:3000](http://localhost:3000) with Fast Refresh. Visit [http://localhost:3000/admin](http://localhost:3000/admin) to log in and edit content.
 
 Diving routes: `/diving` (hub), `/diving/logs`, `/diving/logs/[slug]`, `/diving/skills`, `/diving/gear` (private), `/diving/resources`. When logged in, **Log a dive** links to `/diving/logs/new` (also available publicly).
 
@@ -89,9 +89,25 @@ Who sees a place: anyone who can open the journey sees its **Public** places; **
 
 Run `next dev` once first (or migrate) so the tables exist; `NODE_ENV=production` stops the scripts pushing the dev schema. Tests for the parsers, against fake exports in `scripts/fixtures/`: `npx tsx --test scripts/*.test.ts`.
 
+### Code layout
+
+| Path                               | What lives there                                                                                                                                       |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `app/(site)/`                      | Public site routes (one folder per section). `app/(payload)/` is Payload's generated admin/API, don't edit by hand.                                    |
+| `collections/`                     | Payload collections and globals, plus shared `access.ts` presets and `fields.ts`. Registered in `payload.config.ts`.                                   |
+| `components/<feature>/`            | Components used by one feature: `diving`, `food-tour`, `journeys`, `hobbies`, `vault`, `packing`, `lists`, `plans`, `split`, `tools`, `home`, `admin`. |
+| `components/layout/`               | Site chrome: nav, footer, command palette, theme toggle.                                                                                               |
+| `components/` (top level)          | Shared building blocks used by several sections (page header, section hub/subnav, cards, picture, rich text…). `components/ui/` holds primitives.      |
+| `lib/`                             | Data access and pure helpers, named by feature (`dive-*`, `food-*`, `journeys`, `vault*`, `split*`…). Server actions are in `lib/actions/`.            |
+| `lib/site-sections.ts`, `proxy.ts` | Section list and the access check that runs before every request. New top-level routes go in both.                                                     |
+| `lib/admin-layout.ts`              | Sidebar group, label and order for every collection in `/admin`.                                                                                       |
+| `scripts/`                         | One-off import/upload scripts (`payload run`) and the tests (`npm test`).                                                                              |
+
+Shared helpers to reuse rather than re-write: `lib/format-date.ts` (dates), `lib/cache-tags.ts` + `lib/revalidate.ts` (caching), `lib/slug.ts`, `lib/media.ts` (image URLs), `collections/access.ts` (permissions).
+
 ### Code quality / commit safeguards
 
-No CI or PR flow — protection is local Husky hooks (can still be skipped with `--no-verify`; don’t).
+Changes go through pull requests; Vercel builds a preview for each one and deploys `main` to production. Locally, Husky hooks guard commits and pushes (can still be skipped with `--no-verify`; don’t).
 
 ```bash
 npm run check        # typecheck + eslint + prettier --check
@@ -113,7 +129,7 @@ TypeScript is strict (`exactOptionalPropertyTypes`, `verbatimModuleSyntax`, `noU
 
 ## Build & deploy
 
-Deploys are automatic: [Vercel](https://vercel.com) is connected to this repo (`shanmufti/shan-web`) and runs `next build` on every push to `main`. Framework Preset should be **Next.js** (`vercel.json`). When you add versioned Payload migrations, switch the build command to `npm run ci` so deploys run `payload migrate` (unpooled URL) before the build.
+Deploys are automatic: [Vercel](https://vercel.com) is connected to this repo (`shanmufti/shan-web`) and runs `npm run ci` (`vercel.json`: import map, `payload migrate`, then `next build`) on every push to `main`. There are no versioned migrations yet, so schema changes are applied by hand on Neon (back up first).
 
 After changing env vars in Vercel, trigger a redeploy so the new values are picked up.
 
