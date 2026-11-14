@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 
-import { HobbyIcon } from "@/components/hobby-icon";
+import { HobbyIcon } from "@/components/hobbies/hobby-icon";
 import { PageHeader } from "@/components/page-header";
 import { HUB_DETAIL, PageTransition } from "@/components/page-transition";
 import { listHobbies, publicHobbyCards, type HobbyCard } from "@/lib/hobbies";

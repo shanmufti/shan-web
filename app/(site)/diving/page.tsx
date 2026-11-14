@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { DiveLogRow } from "@/components/dive-log";
-import { DiveLogbook } from "@/components/dive-logbook";
-import { LogDiveButton } from "@/components/log-dive-button";
+import { DiveLogRow } from "@/components/diving/dive-log";
+import { DiveLogbook } from "@/components/diving/dive-logbook";
+import { LogDiveButton } from "@/components/diving/log-dive-button";
 import {
   HubEmpty,
   HubHeading,

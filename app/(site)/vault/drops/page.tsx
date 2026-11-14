@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { CopyButton } from "@/components/copy-button";
-import { FileDropForm } from "@/components/file-drop-form";
+import { FileDropForm } from "@/components/vault/file-drop-form";
 import { PageHeader } from "@/components/page-header";
-import { adminLinkClass, VaultSubnav } from "@/components/vault-subnav";
+import { adminLinkClass, VaultSubnav } from "@/components/vault/vault-subnav";
 import { expireFileDrop } from "@/lib/actions/file-drops";
 import { isDropOpen } from "@/lib/file-drops";
 import { siteUrl } from "@/lib/site-url";

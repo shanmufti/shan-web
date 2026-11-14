@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-import { Footer } from "@/components/footer";
-import { Nav } from "@/components/nav";
-import { WaterLight } from "@/components/water-light";
+import { Footer } from "@/components/layout/footer";
+import { Nav } from "@/components/layout/nav";
+import { WaterLight } from "@/components/layout/water-light";
 import { siteUrl } from "@/lib/site-url";
 import { themeInitScript } from "@/lib/theme";
 

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
 
-import { SharedListChecklist } from "@/components/shared-list-checklist";
+import { SharedListChecklist } from "@/components/lists/shared-list-checklist";
 import { getSharedList } from "@/lib/shared-lists";
 import { shareSlugExists } from "@/lib/share-links";
 import { looksLikeToken } from "@/lib/tokens";

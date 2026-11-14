@@ -6,7 +6,7 @@ import { Suspense } from "react";
 
 import { CopyButton } from "@/components/copy-button";
 import { PageHeader } from "@/components/page-header";
-import { SharedListCreateForm } from "@/components/shared-list-create-form";
+import { SharedListCreateForm } from "@/components/lists/shared-list-create-form";
 import { requireOwner } from "@/lib/site-access";
 import { siteUrl } from "@/lib/site-url";
 

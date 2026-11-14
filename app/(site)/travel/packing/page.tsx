@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { ClonePackingListForm } from "@/components/clone-packing-list-form";
+import { ClonePackingListForm } from "@/components/packing/clone-packing-list-form";
 import { TravelSubnav } from "@/components/section-subnav";
 import { listPackingListTemplatesForUser } from "@/lib/content";
 

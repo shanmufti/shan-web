@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { HobbyFilters } from "@/components/hobby-filters";
-import { JourneysTimeline } from "@/components/journeys-timeline";
+import { JourneysTimeline } from "@/components/journeys/journeys-timeline";
 import { FeaturedCard, LockedCard, PostCard } from "@/components/post-card";
 import {
   HubEmpty,

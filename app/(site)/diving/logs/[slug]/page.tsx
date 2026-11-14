@@ -12,8 +12,8 @@ import {
   DiveNotesSections,
   DiveProblemsSection,
   DiveVitalsGrid,
-} from "@/components/dive-log";
-import { DiveProfileLoader } from "@/components/dive-profile-loader";
+} from "@/components/diving/dive-log";
+import { DiveProfileLoader } from "@/components/diving/dive-profile-loader";
 import { Picture } from "@/components/picture";
 import {
   diveBottomTime,
