@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { PageHeader } from "@/components/page-header";
 import { SnippetList } from "@/components/snippet-list";
-import { adminLinkClass, VaultSubnav } from "@/components/vault-subnav";
+import { adminLinkClass, VaultSubnav } from "@/components/vault/vault-subnav";
 import { listSnippets } from "@/lib/vault-data";
 
 export const metadata: Metadata = { title: "Snippets" };

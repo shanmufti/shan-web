@@ -5,7 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { getPayload } from "payload";
 
 import { DivingSubnav } from "@/components/section-subnav";
-import { LogDiveForm } from "@/components/log-dive-form";
+import { LogDiveForm } from "@/components/diving/log-dive-form";
 import { getCurrentUser } from "@/lib/content";
 import { diveToFormValues } from "@/lib/dive-form-initial";
 

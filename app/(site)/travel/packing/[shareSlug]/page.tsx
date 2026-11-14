@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { PackingListChecklist } from "@/components/packing-list-checklist";
+import { PackingListChecklist } from "@/components/packing/packing-list-checklist";
 import { formatDate } from "@/lib/format-date";
 import { getPackingListByShareSlug } from "@/lib/content";
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { PageHeader } from "@/components/page-header";
-import { adminLinkClass, VaultSubnav } from "@/components/vault-subnav";
+import { adminLinkClass, VaultSubnav } from "@/components/vault/vault-subnav";
 import { formatBytes } from "@/lib/format-bytes";
 import { formatDate } from "@/lib/format-date";
 import { vaultFileHref, vaultFileLabel, vaultFileName } from "@/lib/vault";

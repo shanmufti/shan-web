@@ -1,5 +1,5 @@
-import { FoodPhotoUpload } from "@/components/food-photo-upload";
-import { FoodPhotoWall } from "@/components/food-photo-wall";
+import { FoodPhotoUpload } from "./food-photo-upload";
+import { FoodPhotoWall } from "./food-photo-wall";
 import type { FoodPhoto, TourRestaurant } from "@/lib/food-tour";
 
 export function FoodPhotosSection({

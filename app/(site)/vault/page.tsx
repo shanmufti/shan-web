@@ -3,8 +3,8 @@ import Link from "next/link";
 
 import { CopyButton } from "@/components/copy-button";
 import { PageHeader } from "@/components/page-header";
-import { VaultEventList } from "@/components/vault-event-list";
-import { adminLinkClass, VaultSubnav } from "@/components/vault-subnav";
+import { VaultEventList } from "@/components/vault/vault-event-list";
+import { adminLinkClass, VaultSubnav } from "@/components/vault/vault-subnav";
 import { siteUrl } from "@/lib/site-url";
 import { cn } from "@/lib/utils";
 import {

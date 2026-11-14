@@ -3,7 +3,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 
 import { DivingSubnav } from "@/components/section-subnav";
-import { LogDiveForm } from "@/components/log-dive-form";
+import { LogDiveForm } from "@/components/diving/log-dive-form";
 
 export const metadata: Metadata = { title: "Log a dive" };
 

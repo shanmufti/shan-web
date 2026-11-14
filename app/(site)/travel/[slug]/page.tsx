@@ -8,9 +8,9 @@ import { DetailPager } from "@/components/detail-pager";
 import {
   JourneyRouteView,
   JourneyStopList,
-} from "@/components/journey-route-view";
-import { JourneyPhotos } from "@/components/journey-photos";
-import { JourneyPlaces } from "@/components/journey-places";
+} from "@/components/journeys/journey-route-view";
+import { JourneyPhotos } from "@/components/journeys/journey-photos";
+import { JourneyPlaces } from "@/components/journeys/journey-places";
 import { LockedPage } from "@/components/locked-page";
 import { PageTransition, SharedCover } from "@/components/page-transition";
 import { Picture } from "@/components/picture";

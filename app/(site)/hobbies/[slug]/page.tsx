@@ -5,9 +5,9 @@ import { notFound } from "next/navigation";
 
 import { Disclosure } from "@/components/disclosure";
 import { HobbyFilters, type FilterField } from "@/components/hobby-filters";
-import { AddReferenceForm } from "@/components/hobby-forms";
-import { HobbyIcon } from "@/components/hobby-icon";
-import { HobbyReferenceCard } from "@/components/hobby-reference-card";
+import { AddReferenceForm } from "@/components/hobbies/hobby-forms";
+import { HobbyIcon } from "@/components/hobbies/hobby-icon";
+import { HobbyReferenceCard } from "@/components/hobbies/hobby-reference-card";
 import { HUB_DETAIL, PageTransition } from "@/components/page-transition";
 import { getHobbyPage, type HobbyReference } from "@/lib/hobbies";
 import {

@@ -1,7 +1,7 @@
 import { ArrowUpRight, Lock, Plus } from "lucide-react";
 import Link from "next/link";
 
-import { HobbyIcon } from "@/components/hobby-icon";
+import { HobbyIcon } from "@/components/hobbies/hobby-icon";
 import { BentoGrid, BentoTile } from "@/components/ui/bento";
 import { formatDate, formatShortDate } from "@/lib/format-date";
 import { ITEM_LABEL, type HomeItem, type HomeView } from "@/lib/home";
@@ -32,7 +32,7 @@ function Hero({
 }: Readonly<{ landing: LandingPage; isOwner: boolean }>) {
   const intro = landing.intro?.trim();
   return (
-    // Sits on the layout's water light (components/water-light.tsx).
+    // Sits on the layout's water light (components/layout/water-light.tsx).
     <header className="flex min-h-[18rem] flex-col justify-end gap-4 pt-16 pb-10 sm:min-h-[22rem] sm:pb-14">
       {landing.eyebrow ? (
         <p className="eyebrow text-primary">{landing.eyebrow}</p>

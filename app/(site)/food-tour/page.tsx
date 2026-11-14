@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
 
-import { FoodPhotosSection } from "@/components/food-photos-section";
-import { FoodRatingForm } from "@/components/food-rating-form";
-import { FoodRubricTable } from "@/components/food-rubric-table";
-import { FoodTourBackdrop, RubricSticker } from "@/components/food-tour-fun";
+import { FoodPhotosSection } from "@/components/food-tour/food-photos-section";
+import { FoodRatingForm } from "@/components/food-tour/food-rating-form";
+import { FoodRubricTable } from "@/components/food-tour/food-rubric-table";
+import {
+  FoodTourBackdrop,
+  RubricSticker,
+} from "@/components/food-tour/food-tour-fun";
 import { PageHeader } from "@/components/page-header";
 import { RUBRIC_CATEGORIES, RUBRIC_MAX_TOTAL } from "@/lib/food-rubric";
 import {

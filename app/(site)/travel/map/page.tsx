@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { CountriesMapLoader } from "@/components/countries-map-loader";
+import { CountriesMapLoader } from "@/components/journeys/countries-map-loader";
 import { TravelSubnav } from "@/components/section-subnav";
 import { listVisitedCountries } from "@/lib/content";
 

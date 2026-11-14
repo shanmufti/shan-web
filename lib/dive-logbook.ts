@@ -1,7 +1,7 @@
 import type {
   DiveDepthPoint,
   DivesPerYear,
-} from "@/components/dive-logbook-charts";
+} from "@/components/diving/dive-logbook-charts";
 import { diveBottomTime, diveMaxDepth, type DiveDoc } from "@/lib/content";
 import { formatMonthYear } from "@/lib/format-date";
 import { plural, yearOf } from "@/lib/hub-filters";

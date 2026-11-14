@@ -1,4 +1,4 @@
-import type { DiveFormValues } from "@/components/log-dive-form";
+import type { DiveFormValues } from "@/components/diving/log-dive-form";
 import type { DiveDoc } from "@/lib/content";
 import { parseProfileSamples } from "@/lib/dive-profile";
 

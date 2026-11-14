@@ -10,7 +10,7 @@ import {
 import { unlockHref } from "@/lib/site-links";
 
 import { JourneysYearNav } from "./journeys-year-nav";
-import { HUB_DETAIL } from "./page-transition";
+import { HUB_DETAIL } from "@/components/page-transition";
 
 function rowHref(row: JourneyRow) {
   return row.locked ? unlockHref(`/travel/${row.slug}`) : `/travel/${row.slug}`;

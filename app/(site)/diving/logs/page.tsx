@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 
-import { DiveLogRow } from "@/components/dive-log";
+import { DiveLogRow } from "@/components/diving/dive-log";
 import { HobbyFilters } from "@/components/hobby-filters";
-import { LogDiveButton } from "@/components/log-dive-button";
+import { LogDiveButton } from "@/components/diving/log-dive-button";
 import {
   HubEmpty,
   HubHeading,

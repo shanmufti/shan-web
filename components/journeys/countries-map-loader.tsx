@@ -2,10 +2,10 @@
 
 import dynamic from "next/dynamic";
 
-import type { VisitedCountry } from "@/components/countries-map";
+import type { VisitedCountry } from "./countries-map";
 
 const CountriesMap = dynamic(
-  () => import("@/components/countries-map").then((mod) => mod.CountriesMap),
+  () => import("./countries-map").then((mod) => mod.CountriesMap),
   { ssr: false },
 );
 
