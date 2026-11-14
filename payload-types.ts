@@ -67,21 +67,20 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    users: User;
+    travel: Travel;
+    destinations: Destination;
+    places: Place;
+    'visited-countries': VisitedCountry;
     media: Media;
     blog: Blog;
     diving: Diving;
     'dive-gear': DiveGear;
     'gear-configs': GearConfig;
-    'dive-skills': DiveSkill;
-    'dive-resources': DiveResource;
-    travel: Travel;
-    destinations: Destination;
-    places: Place;
-    tech: Tech;
-    'visited-countries': VisitedCountry;
-    'packing-list-templates': PackingListTemplate;
-    'packing-lists': PackingList;
+    'food-tour-photos': FoodTourPhoto;
+    users: User;
+    'unlock-attempts': UnlockAttempt;
+    'food-ratings': FoodRating;
+    'plan-responses': PlanResponse;
     hobbies: Hobby;
     'hobby-references': HobbyReference;
     'practice-sessions': PracticeSession;
@@ -92,11 +91,12 @@ export interface Config {
     'shared-lists': SharedList;
     plans: Plan;
     'split-groups': SplitGroup;
-    'unlock-attempts': UnlockAttempt;
-    'food-ratings': FoodRating;
-    'food-tour-photos': FoodTourPhoto;
+    'packing-list-templates': PackingListTemplate;
+    'packing-lists': PackingList;
     'short-links': ShortLink;
-    'plan-responses': PlanResponse;
+    tech: Tech;
+    'dive-skills': DiveSkill;
+    'dive-resources': DiveResource;
     'split-expenses': SplitExpense;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -112,21 +112,20 @@ export interface Config {
     };
   };
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
+    travel: TravelSelect<false> | TravelSelect<true>;
+    destinations: DestinationsSelect<false> | DestinationsSelect<true>;
+    places: PlacesSelect<false> | PlacesSelect<true>;
+    'visited-countries': VisitedCountriesSelect<false> | VisitedCountriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     blog: BlogSelect<false> | BlogSelect<true>;
     diving: DivingSelect<false> | DivingSelect<true>;
     'dive-gear': DiveGearSelect<false> | DiveGearSelect<true>;
     'gear-configs': GearConfigsSelect<false> | GearConfigsSelect<true>;
-    'dive-skills': DiveSkillsSelect<false> | DiveSkillsSelect<true>;
-    'dive-resources': DiveResourcesSelect<false> | DiveResourcesSelect<true>;
-    travel: TravelSelect<false> | TravelSelect<true>;
-    destinations: DestinationsSelect<false> | DestinationsSelect<true>;
-    places: PlacesSelect<false> | PlacesSelect<true>;
-    tech: TechSelect<false> | TechSelect<true>;
-    'visited-countries': VisitedCountriesSelect<false> | VisitedCountriesSelect<true>;
-    'packing-list-templates': PackingListTemplatesSelect<false> | PackingListTemplatesSelect<true>;
-    'packing-lists': PackingListsSelect<false> | PackingListsSelect<true>;
+    'food-tour-photos': FoodTourPhotosSelect<false> | FoodTourPhotosSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
+    'unlock-attempts': UnlockAttemptsSelect<false> | UnlockAttemptsSelect<true>;
+    'food-ratings': FoodRatingsSelect<false> | FoodRatingsSelect<true>;
+    'plan-responses': PlanResponsesSelect<false> | PlanResponsesSelect<true>;
     hobbies: HobbiesSelect<false> | HobbiesSelect<true>;
     'hobby-references': HobbyReferencesSelect<false> | HobbyReferencesSelect<true>;
     'practice-sessions': PracticeSessionsSelect<false> | PracticeSessionsSelect<true>;
@@ -137,11 +136,12 @@ export interface Config {
     'shared-lists': SharedListsSelect<false> | SharedListsSelect<true>;
     plans: PlansSelect<false> | PlansSelect<true>;
     'split-groups': SplitGroupsSelect<false> | SplitGroupsSelect<true>;
-    'unlock-attempts': UnlockAttemptsSelect<false> | UnlockAttemptsSelect<true>;
-    'food-ratings': FoodRatingsSelect<false> | FoodRatingsSelect<true>;
-    'food-tour-photos': FoodTourPhotosSelect<false> | FoodTourPhotosSelect<true>;
+    'packing-list-templates': PackingListTemplatesSelect<false> | PackingListTemplatesSelect<true>;
+    'packing-lists': PackingListsSelect<false> | PackingListsSelect<true>;
     'short-links': ShortLinksSelect<false> | ShortLinksSelect<true>;
-    'plan-responses': PlanResponsesSelect<false> | PlanResponsesSelect<true>;
+    tech: TechSelect<false> | TechSelect<true>;
+    'dive-skills': DiveSkillsSelect<false> | DiveSkillsSelect<true>;
+    'dive-resources': DiveResourcesSelect<false> | DiveResourcesSelect<true>;
     'split-expenses': SplitExpensesSelect<false> | SplitExpensesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -153,18 +153,18 @@ export interface Config {
   };
   fallbackLocale: null;
   globals: {
+    'food-tour': FoodTour;
     'site-access': SiteAccess;
     'landing-page': LandingPage;
     'site-settings': SiteSetting;
     'vault-settings': VaultSetting;
-    'food-tour': FoodTour;
   };
   globalsSelect: {
+    'food-tour': FoodTourSelect<false> | FoodTourSelect<true>;
     'site-access': SiteAccessSelect<false> | SiteAccessSelect<true>;
     'landing-page': LandingPageSelect<false> | LandingPageSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'vault-settings': VaultSettingsSelect<false> | VaultSettingsSelect<true>;
-    'food-tour': FoodTourSelect<false> | FoodTourSelect<true>;
   };
   locale: null;
   widgets: {
@@ -195,150 +195,8 @@ export interface UserAuthOperations {
   };
 }
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  /**
-   * Describe the photo for screen readers. Falls back to the file name if left blank (handy for bulk uploads).
-   */
-  alt?: string | null;
-  caption?: string | null;
-  /**
-   * When the photo was taken. Filled from the photo's EXIF on upload.
-   */
-  takenAt?: string | null;
-  /**
-   * Private: where the photo was taken. Filled from GPS on upload (the public file has no GPS). Only you can see this.
-   */
-  location?: {
-    lat?: number | null;
-    lng?: number | null;
-    /**
-     * Optional name, e.g. Roma Norte, Mexico City.
-     */
-    place?: string | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-  sizes?: {
-    thumb?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    card?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    large?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blog".
- */
-export interface Blog {
-  id: number;
-  title: string;
-  /**
-   * Auto-generated from the title if left blank. Only lowercase letters, numbers, and hyphens are kept.
-   */
-  slug: string;
-  date: string;
-  summary: string;
-  tags?: string[] | null;
-  cover?: (number | null) | Media;
-  draft?: boolean | null;
-  featured?: boolean | null;
-  body: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  /**
-   * Private needs the site passcode (Settings → Site settings). Use only private photos inside private posts.
-   */
-  visibility: 'public' | 'private';
-  /**
-   * Off: visitors see a locked card with title and date. On: the item is invisible until unlocked.
-   */
-  hideWhenLocked?: boolean | null;
-  /**
-   * Optional. Leave empty for a stand-alone story.
-   */
-  journey?: (number | null) | Travel;
-  /**
-   * Optional. Puts a stand-alone story on the homepage globe. Stories in a journey use the journey's stops.
-   */
-  location?: {
-    name?: string | null;
-    lat?: number | null;
-    lng?: number | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
+ * Your trips. Each journey is a page under /travel with its route map, stops, photos and saved places.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "travel".
  */
@@ -439,6 +297,74 @@ export interface Travel {
   createdAt: string;
 }
 /**
+ * Photos uploaded to the site. Add them to a journey from the journey's Photos field. Location data is stripped from what visitors see.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  /**
+   * Describe the photo for screen readers. Falls back to the file name if left blank (handy for bulk uploads).
+   */
+  alt?: string | null;
+  caption?: string | null;
+  /**
+   * When the photo was taken. Filled from the photo's EXIF on upload.
+   */
+  takenAt?: string | null;
+  /**
+   * Private: where the photo was taken. Filled from GPS on upload (the public file has no GPS). Only you can see this.
+   */
+  location?: {
+    lat?: number | null;
+    lng?: number | null;
+    /**
+     * Optional name, e.g. Roma Norte, Mexico City.
+     */
+    place?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumb?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    large?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * One entry per dive, shown under /diving/logs.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "diving".
  */
@@ -576,6 +502,8 @@ export interface Diving {
   createdAt: string;
 }
 /**
+ * Saved sets of gear you can pick when logging a dive.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "gear-configs".
  */
@@ -599,6 +527,8 @@ export interface GearConfig {
   createdAt: string;
 }
 /**
+ * Your dive gear and its service history.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "dive-gear".
  */
@@ -647,6 +577,8 @@ export interface DiveGear {
   createdAt: string;
 }
 /**
+ * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "dive-skills".
  */
@@ -661,23 +593,64 @@ export interface DiveSkill {
   createdAt: string;
 }
 /**
+ * Longer write-ups. A story can belong to a journey.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "dive-resources".
+ * via the `definition` "blog".
  */
-export interface DiveResource {
+export interface Blog {
   id: number;
   title: string;
-  type: 'youtube' | 'article' | 'other';
-  url: string;
-  summary?: string | null;
+  /**
+   * Auto-generated from the title if left blank. Only lowercase letters, numbers, and hyphens are kept.
+   */
+  slug: string;
+  date: string;
+  summary: string;
   tags?: string[] | null;
-  featured?: boolean | null;
+  cover?: (number | null) | Media;
   draft?: boolean | null;
+  featured?: boolean | null;
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Private needs the site passcode (Settings → Site settings). Use only private photos inside private posts.
+   */
+  visibility: 'public' | 'private';
+  /**
+   * Off: visitors see a locked card with title and date. On: the item is invisible until unlocked.
+   */
+  hideWhenLocked?: boolean | null;
+  /**
+   * Optional. Leave empty for a stand-alone story.
+   */
+  journey?: (number | null) | Travel;
+  /**
+   * Optional. Puts a stand-alone story on the homepage globe. Stories in a journey use the journey's stops.
+   */
+  location?: {
+    name?: string | null;
+    lat?: number | null;
+    lng?: number | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
 /**
- * Groups saved Google Maps places, usually created by the importer (see README). Link a destination to its journeys and its places show under "Places I saved" on those journey pages.
+ * Cities and areas from your Google Maps lists. Link one to a journey and its places show under "Places I saved" on that journey page.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "destinations".
@@ -766,6 +739,8 @@ export interface Destination {
   createdAt: string;
 }
 /**
+ * Individual spots saved from Google Maps (restaurants, sights, etc.). Each belongs to a destination.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "places".
  */
@@ -806,43 +781,8 @@ export interface Place {
   createdAt: string;
 }
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tech".
- */
-export interface Tech {
-  id: number;
-  title: string;
-  /**
-   * Auto-generated from the title if left blank. Only lowercase letters, numbers, and hyphens are kept.
-   */
-  slug: string;
-  date: string;
-  summary: string;
-  tags?: string[] | null;
-  cover?: (number | null) | Media;
-  draft?: boolean | null;
-  featured?: boolean | null;
-  body: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  repoUrl?: string | null;
-  demoUrl?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
+ * Countries coloured in on the travel globe and map.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "visited-countries".
  */
@@ -862,52 +802,125 @@ export interface VisitedCountry {
   createdAt: string;
 }
 /**
+ * Photos your friends upload on the food tour page.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "packing-list-templates".
+ * via the `definition` "food-tour-photos".
  */
-export interface PackingListTemplate {
+export interface FoodTourPhoto {
   id: number;
-  name: string;
-  tripType?: ('dive-trip' | 'cold-weather' | 'carry-on' | 'other') | null;
-  items?:
-    | {
-        label: string;
-        category?: string | null;
-        qty?: number | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "packing-lists".
- */
-export interface PackingList {
-  id: number;
-  name: string;
-  basedOnTemplate?: (number | null) | PackingListTemplate;
-  tripDate?: string | null;
-  relatedTravelPost?: (number | null) | Travel;
   /**
-   * Unguessable token for the public share link — the link itself is the access control, so keep it random.
+   * Row id of the restaurant in Food tour settings.
    */
-  shareSlug: string;
-  items?:
+  restaurantId: string;
+  restaurantName: string;
+  participantId?: string | null;
+  name?: string | null;
+  caption?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumb?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
     | {
-        label: string;
-        category?: string | null;
-        qty?: number | null;
-        checked?: boolean | null;
-        id?: string | null;
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
       }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "unlock-attempts".
+ */
+export interface UnlockAttempt {
+  id: number;
+  key: string;
+  count: number;
+  windowStart: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "food-ratings".
+ */
+export interface FoodRating {
+  id: number;
+  key: string;
+  participantId: string;
+  name: string;
+  restaurantId: string;
+  restaurantName: string;
+  food: number;
+  ambiance: number;
+  price: number;
+  again: number;
+  total: number;
+  comment?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "plan-responses".
+ */
+export interface PlanResponse {
+  id: number;
+  key: string;
+  planId: number;
+  blockId: string;
+  participantId: string;
+  name: string;
+  value:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
     | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
- * One entry per hobby. Reference links and practice sessions hang off these.
+ * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "hobbies".
@@ -969,7 +982,7 @@ export interface Hobby {
   createdAt: string;
 }
 /**
- * Videos, guides and articles per hobby. Leave title, thumbnail and provider blank to fill them from the link when saving.
+ * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "hobby-references".
@@ -1007,7 +1020,7 @@ export interface HobbyReference {
   createdAt: string;
 }
 /**
- * Private log. Only you, logged in, can see these.
+ * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "practice-sessions".
@@ -1026,7 +1039,7 @@ export interface PracticeSession {
   createdAt: string;
 }
 /**
- * Owner only. Never store passwords, PINs, recovery codes or other secrets here. Reference numbers and dates only.
+ * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "vault-records".
@@ -1070,7 +1083,7 @@ export interface VaultRecord {
   createdAt: string;
 }
 /**
- * Owner only. Don't upload files that contain passwords or other secrets.
+ * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "vault-files".
@@ -1099,7 +1112,7 @@ export interface VaultFile {
   focalY?: number | null;
 }
 /**
- * Share one vault file through a link that expires. Anyone with the link can download it until then.
+ * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "file-drops".
@@ -1129,7 +1142,7 @@ export interface FileDrop {
   createdAt: string;
 }
 /**
- * Public snippets show on /tools/snippets. Never put API keys, tokens or passwords in a snippet.
+ * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "snippets".
@@ -1153,7 +1166,7 @@ export interface Snippet {
   createdAt: string;
 }
 /**
- * Checklists anyone with the link can tick and add to. Also managed at /lists.
+ * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "shared-lists".
@@ -1180,7 +1193,7 @@ export interface SharedList {
   createdAt: string;
 }
 /**
- * A page friends open by link: pick their name, then answer date polls, votes and RSVPs.
+ * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "plans".
@@ -1295,7 +1308,7 @@ export interface PlanNotesBlock {
   blockType: 'notes';
 }
 /**
- * Shared expense groups. Anyone with a group's link can add expenses and people.
+ * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "split-groups".
@@ -1339,75 +1352,56 @@ export interface SplitGroup {
   createdAt: string;
 }
 /**
+ * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "unlock-attempts".
+ * via the `definition` "packing-list-templates".
  */
-export interface UnlockAttempt {
+export interface PackingListTemplate {
   id: number;
-  key: string;
-  count: number;
-  windowStart: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "food-ratings".
- */
-export interface FoodRating {
-  id: number;
-  key: string;
-  participantId: string;
   name: string;
-  restaurantId: string;
-  restaurantName: string;
-  food: number;
-  ambiance: number;
-  price: number;
-  again: number;
-  total: number;
-  comment?: string | null;
+  tripType?: ('dive-trip' | 'cold-weather' | 'carry-on' | 'other') | null;
+  items?:
+    | {
+        label: string;
+        category?: string | null;
+        qty?: number | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
+ * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "food-tour-photos".
+ * via the `definition` "packing-lists".
  */
-export interface FoodTourPhoto {
+export interface PackingList {
   id: number;
+  name: string;
+  basedOnTemplate?: (number | null) | PackingListTemplate;
+  tripDate?: string | null;
+  relatedTravelPost?: (number | null) | Travel;
   /**
-   * Row id of the restaurant in Food tour settings.
+   * Unguessable token for the public share link — the link itself is the access control, so keep it random.
    */
-  restaurantId: string;
-  restaurantName: string;
-  participantId?: string | null;
-  name?: string | null;
-  caption?: string | null;
+  shareSlug: string;
+  items?:
+    | {
+        label: string;
+        category?: string | null;
+        qty?: number | null;
+        checked?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-  sizes?: {
-    thumb?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
 }
 /**
- * Each link redirects from /go/<slug>. Inactive or unknown slugs show the 404 page.
+ * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "short-links".
@@ -1433,25 +1427,59 @@ export interface ShortLink {
   createdAt: string;
 }
 /**
+ * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "plan-responses".
+ * via the `definition` "tech".
  */
-export interface PlanResponse {
+export interface Tech {
   id: number;
-  key: string;
-  planId: number;
-  blockId: string;
-  participantId: string;
-  name: string;
-  value:
-    | {
+  title: string;
+  /**
+   * Auto-generated from the title if left blank. Only lowercase letters, numbers, and hyphens are kept.
+   */
+  slug: string;
+  date: string;
+  summary: string;
+  tags?: string[] | null;
+  cover?: (number | null) | Media;
+  draft?: boolean | null;
+  featured?: boolean | null;
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
         [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  repoUrl?: string | null;
+  demoUrl?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dive-resources".
+ */
+export interface DiveResource {
+  id: number;
+  title: string;
+  type: 'youtube' | 'article' | 'other';
+  url: string;
+  summary?: string | null;
+  tags?: string[] | null;
+  featured?: boolean | null;
+  draft?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1513,8 +1541,20 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'users';
-        value: number | User;
+        relationTo: 'travel';
+        value: number | Travel;
+      } | null)
+    | ({
+        relationTo: 'destinations';
+        value: number | Destination;
+      } | null)
+    | ({
+        relationTo: 'places';
+        value: number | Place;
+      } | null)
+    | ({
+        relationTo: 'visited-countries';
+        value: number | VisitedCountry;
       } | null)
     | ({
         relationTo: 'media';
@@ -1537,40 +1577,24 @@ export interface PayloadLockedDocument {
         value: number | GearConfig;
       } | null)
     | ({
-        relationTo: 'dive-skills';
-        value: number | DiveSkill;
+        relationTo: 'food-tour-photos';
+        value: number | FoodTourPhoto;
       } | null)
     | ({
-        relationTo: 'dive-resources';
-        value: number | DiveResource;
+        relationTo: 'users';
+        value: number | User;
       } | null)
     | ({
-        relationTo: 'travel';
-        value: number | Travel;
+        relationTo: 'unlock-attempts';
+        value: number | UnlockAttempt;
       } | null)
     | ({
-        relationTo: 'destinations';
-        value: number | Destination;
+        relationTo: 'food-ratings';
+        value: number | FoodRating;
       } | null)
     | ({
-        relationTo: 'places';
-        value: number | Place;
-      } | null)
-    | ({
-        relationTo: 'tech';
-        value: number | Tech;
-      } | null)
-    | ({
-        relationTo: 'visited-countries';
-        value: number | VisitedCountry;
-      } | null)
-    | ({
-        relationTo: 'packing-list-templates';
-        value: number | PackingListTemplate;
-      } | null)
-    | ({
-        relationTo: 'packing-lists';
-        value: number | PackingList;
+        relationTo: 'plan-responses';
+        value: number | PlanResponse;
       } | null)
     | ({
         relationTo: 'hobbies';
@@ -1613,24 +1637,28 @@ export interface PayloadLockedDocument {
         value: number | SplitGroup;
       } | null)
     | ({
-        relationTo: 'unlock-attempts';
-        value: number | UnlockAttempt;
+        relationTo: 'packing-list-templates';
+        value: number | PackingListTemplate;
       } | null)
     | ({
-        relationTo: 'food-ratings';
-        value: number | FoodRating;
-      } | null)
-    | ({
-        relationTo: 'food-tour-photos';
-        value: number | FoodTourPhoto;
+        relationTo: 'packing-lists';
+        value: number | PackingList;
       } | null)
     | ({
         relationTo: 'short-links';
         value: number | ShortLink;
       } | null)
     | ({
-        relationTo: 'plan-responses';
-        value: number | PlanResponse;
+        relationTo: 'tech';
+        value: number | Tech;
+      } | null)
+    | ({
+        relationTo: 'dive-skills';
+        value: number | DiveSkill;
+      } | null)
+    | ({
+        relationTo: 'dive-resources';
+        value: number | DiveResource;
       } | null)
     | ({
         relationTo: 'split-expenses';
@@ -1680,25 +1708,120 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
+ * via the `definition` "travel_select".
  */
-export interface UsersSelect<T extends boolean = true> {
-  updatedAt?: T;
-  createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
+export interface TravelSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  date?: T;
+  summary?: T;
+  tags?: T;
+  cover?: T;
+  draft?: T;
+  featured?: T;
+  body?: T;
+  visibility?: T;
+  hideWhenLocked?: T;
+  location?:
     | T
     | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
+        name?: T;
+        lat?: T;
+        lng?: T;
       };
+  startDate?: T;
+  endDate?: T;
+  stops?:
+    | T
+    | {
+        name?: T;
+        countryCode?: T;
+        lat?: T;
+        lng?: T;
+        arrivedOn?: T;
+        id?: T;
+      };
+  track?: T;
+  photos?:
+    | T
+    | {
+        image?: T;
+        stop?: T;
+        id?: T;
+      };
+  relatedDiveLogs?: T;
+  stories?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "destinations_select".
+ */
+export interface DestinationsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  draft?: T;
+  visibility?: T;
+  hideWhenLocked?: T;
+  country?: T;
+  coordinates?:
+    | T
+    | {
+        lat?: T;
+        lng?: T;
+      };
+  datesVisited?:
+    | T
+    | {
+        from?: T;
+        to?: T;
+        note?: T;
+        id?: T;
+      };
+  cover?: T;
+  writeUp?: T;
+  journeys?: T;
+  sourceLists?: T;
+  importedNotes?: T;
+  places?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "places_select".
+ */
+export interface PlacesSelect<T extends boolean = true> {
+  name?: T;
+  destination?: T;
+  category?: T;
+  note?: T;
+  coordinates?:
+    | T
+    | {
+        lat?: T;
+        lng?: T;
+      };
+  address?: T;
+  googleMapsUrl?: T;
+  visibility?: T;
+  sourceList?: T;
+  importKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "visited-countries_select".
+ */
+export interface VisitedCountriesSelect<T extends boolean = true> {
+  country?: T;
+  yearsVisited?: T;
+  regions?: T;
+  note?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1934,205 +2057,103 @@ export interface GearConfigsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "dive-skills_select".
+ * via the `definition` "food-tour-photos_select".
  */
-export interface DiveSkillsSelect<T extends boolean = true> {
+export interface FoodTourPhotosSelect<T extends boolean = true> {
+  restaurantId?: T;
+  restaurantName?: T;
+  participantId?: T;
   name?: T;
-  category?: T;
-  level?: T;
-  description?: T;
-  relatedCert?: T;
+  caption?: T;
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "dive-resources_select".
- */
-export interface DiveResourcesSelect<T extends boolean = true> {
-  title?: T;
-  type?: T;
   url?: T;
-  summary?: T;
-  tags?: T;
-  featured?: T;
-  draft?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumb?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users_select".
+ */
+export interface UsersSelect<T extends boolean = true> {
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "unlock-attempts_select".
+ */
+export interface UnlockAttemptsSelect<T extends boolean = true> {
+  key?: T;
+  count?: T;
+  windowStart?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "travel_select".
+ * via the `definition` "food-ratings_select".
  */
-export interface TravelSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  date?: T;
-  summary?: T;
-  tags?: T;
-  cover?: T;
-  draft?: T;
-  featured?: T;
-  body?: T;
-  visibility?: T;
-  hideWhenLocked?: T;
-  location?:
-    | T
-    | {
-        name?: T;
-        lat?: T;
-        lng?: T;
-      };
-  startDate?: T;
-  endDate?: T;
-  stops?:
-    | T
-    | {
-        name?: T;
-        countryCode?: T;
-        lat?: T;
-        lng?: T;
-        arrivedOn?: T;
-        id?: T;
-      };
-  track?: T;
-  photos?:
-    | T
-    | {
-        image?: T;
-        stop?: T;
-        id?: T;
-      };
-  relatedDiveLogs?: T;
-  stories?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "destinations_select".
- */
-export interface DestinationsSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  draft?: T;
-  visibility?: T;
-  hideWhenLocked?: T;
-  country?: T;
-  coordinates?:
-    | T
-    | {
-        lat?: T;
-        lng?: T;
-      };
-  datesVisited?:
-    | T
-    | {
-        from?: T;
-        to?: T;
-        note?: T;
-        id?: T;
-      };
-  cover?: T;
-  writeUp?: T;
-  journeys?: T;
-  sourceLists?: T;
-  importedNotes?: T;
-  places?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "places_select".
- */
-export interface PlacesSelect<T extends boolean = true> {
+export interface FoodRatingsSelect<T extends boolean = true> {
+  key?: T;
+  participantId?: T;
   name?: T;
-  destination?: T;
-  category?: T;
-  note?: T;
-  coordinates?:
-    | T
-    | {
-        lat?: T;
-        lng?: T;
-      };
-  address?: T;
-  googleMapsUrl?: T;
-  visibility?: T;
-  sourceList?: T;
-  importKey?: T;
+  restaurantId?: T;
+  restaurantName?: T;
+  food?: T;
+  ambiance?: T;
+  price?: T;
+  again?: T;
+  total?: T;
+  comment?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tech_select".
+ * via the `definition` "plan-responses_select".
  */
-export interface TechSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  date?: T;
-  summary?: T;
-  tags?: T;
-  cover?: T;
-  draft?: T;
-  featured?: T;
-  body?: T;
-  repoUrl?: T;
-  demoUrl?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "visited-countries_select".
- */
-export interface VisitedCountriesSelect<T extends boolean = true> {
-  country?: T;
-  yearsVisited?: T;
-  regions?: T;
-  note?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "packing-list-templates_select".
- */
-export interface PackingListTemplatesSelect<T extends boolean = true> {
+export interface PlanResponsesSelect<T extends boolean = true> {
+  key?: T;
+  planId?: T;
+  blockId?: T;
+  participantId?: T;
   name?: T;
-  tripType?: T;
-  items?:
-    | T
-    | {
-        label?: T;
-        category?: T;
-        qty?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "packing-lists_select".
- */
-export interface PackingListsSelect<T extends boolean = true> {
-  name?: T;
-  basedOnTemplate?: T;
-  tripDate?: T;
-  relatedTravelPost?: T;
-  shareSlug?: T;
-  items?:
-    | T
-    | {
-        label?: T;
-        category?: T;
-        qty?: T;
-        checked?: T;
-        id?: T;
-      };
+  value?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2386,69 +2407,43 @@ export interface SplitGroupsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "unlock-attempts_select".
+ * via the `definition` "packing-list-templates_select".
  */
-export interface UnlockAttemptsSelect<T extends boolean = true> {
-  key?: T;
-  count?: T;
-  windowStart?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "food-ratings_select".
- */
-export interface FoodRatingsSelect<T extends boolean = true> {
-  key?: T;
-  participantId?: T;
+export interface PackingListTemplatesSelect<T extends boolean = true> {
   name?: T;
-  restaurantId?: T;
-  restaurantName?: T;
-  food?: T;
-  ambiance?: T;
-  price?: T;
-  again?: T;
-  total?: T;
-  comment?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "food-tour-photos_select".
- */
-export interface FoodTourPhotosSelect<T extends boolean = true> {
-  restaurantId?: T;
-  restaurantName?: T;
-  participantId?: T;
-  name?: T;
-  caption?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
-  sizes?:
+  tripType?: T;
+  items?:
     | T
     | {
-        thumb?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
+        label?: T;
+        category?: T;
+        qty?: T;
+        id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "packing-lists_select".
+ */
+export interface PackingListsSelect<T extends boolean = true> {
+  name?: T;
+  basedOnTemplate?: T;
+  tripDate?: T;
+  relatedTravelPost?: T;
+  shareSlug?: T;
+  items?:
+    | T
+    | {
+        label?: T;
+        category?: T;
+        qty?: T;
+        checked?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2466,15 +2461,48 @@ export interface ShortLinksSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "plan-responses_select".
+ * via the `definition` "tech_select".
  */
-export interface PlanResponsesSelect<T extends boolean = true> {
-  key?: T;
-  planId?: T;
-  blockId?: T;
-  participantId?: T;
+export interface TechSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  date?: T;
+  summary?: T;
+  tags?: T;
+  cover?: T;
+  draft?: T;
+  featured?: T;
+  body?: T;
+  repoUrl?: T;
+  demoUrl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dive-skills_select".
+ */
+export interface DiveSkillsSelect<T extends boolean = true> {
   name?: T;
-  value?: T;
+  category?: T;
+  level?: T;
+  description?: T;
+  relatedCert?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dive-resources_select".
+ */
+export interface DiveResourcesSelect<T extends boolean = true> {
+  title?: T;
+  type?: T;
+  url?: T;
+  summary?: T;
+  tags?: T;
+  featured?: T;
+  draft?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2532,6 +2560,55 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * Restaurants, people and the reveal date for the /food-tour page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "food-tour".
+ */
+export interface FoodTour {
+  id: number;
+  title: string;
+  /**
+   * Optional note shown above the form.
+   */
+  intro?: string | null;
+  /**
+   * Results unlock for everyone (you included) at this moment. Submissions close then too. Once a rubric is in, this can only move later.
+   */
+  revealAt: string;
+  /**
+   * Untick to pause submissions before the reveal date.
+   */
+  acceptingRatings?: boolean | null;
+  /**
+   * Everyone on the tour. They pick their name from this list. Don't delete someone who has submitted — rename instead.
+   */
+  participants?:
+    | {
+        name: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Add each stop. Don't delete one that has rubrics — rename it instead.
+   */
+  restaurants?:
+    | {
+        name: string;
+        cuisine?: string | null;
+        /**
+         * Name from People above.
+         */
+        chosenBy?: string | null;
+        neighbourhood?: string | null;
+        visitedOn?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
 }
 /**
  * Choose who can see each section. Public: anyone. Passcode: visitors who enter the private passcode set in Site settings. Hidden: only you while logged in; everyone else gets a 404. The landing page is always public.
@@ -2608,6 +2685,8 @@ export interface LandingPage {
   createdAt?: string | null;
 }
 /**
+ * Site name, passcode and other site-wide settings.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings".
  */
@@ -2625,7 +2704,7 @@ export interface SiteSetting {
   createdAt?: string | null;
 }
 /**
- * The calendar feed at /vault/calendar.ics?token=… lists renewals and expiries with reminders. Anyone with the full link can read titles and dates, so keep it private.
+ * Not in use yet: nothing is saved here and the page isn't on the site. It's kept so you can start using it later.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "vault-settings".
@@ -2645,50 +2724,32 @@ export interface VaultSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "food-tour".
+ * via the `definition` "food-tour_select".
  */
-export interface FoodTour {
-  id: number;
-  title: string;
-  /**
-   * Optional note shown above the form.
-   */
-  intro?: string | null;
-  /**
-   * Results unlock for everyone (you included) at this moment. Submissions close then too. Once a rubric is in, this can only move later.
-   */
-  revealAt: string;
-  /**
-   * Untick to pause submissions before the reveal date.
-   */
-  acceptingRatings?: boolean | null;
-  /**
-   * Everyone on the tour. They pick their name from this list. Don't delete someone who has submitted — rename instead.
-   */
+export interface FoodTourSelect<T extends boolean = true> {
+  title?: T;
+  intro?: T;
+  revealAt?: T;
+  acceptingRatings?: T;
   participants?:
+    | T
     | {
-        name: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Add each stop. Don't delete one that has rubrics — rename it instead.
-   */
+        name?: T;
+        id?: T;
+      };
   restaurants?:
+    | T
     | {
-        name: string;
-        cuisine?: string | null;
-        /**
-         * Name from People above.
-         */
-        chosenBy?: string | null;
-        neighbourhood?: string | null;
-        visitedOn?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
+        name?: T;
+        cuisine?: T;
+        chosenBy?: T;
+        neighbourhood?: T;
+        visitedOn?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2758,35 +2819,6 @@ export interface SiteSettingsSelect<T extends boolean = true> {
 export interface VaultSettingsSelect<T extends boolean = true> {
   calendarToken?: T;
   regenerateCalendarToken?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "food-tour_select".
- */
-export interface FoodTourSelect<T extends boolean = true> {
-  title?: T;
-  intro?: T;
-  revealAt?: T;
-  acceptingRatings?: T;
-  participants?:
-    | T
-    | {
-        name?: T;
-        id?: T;
-      };
-  restaurants?:
-    | T
-    | {
-        name?: T;
-        cuisine?: T;
-        chosenBy?: T;
-        neighbourhood?: T;
-        visitedOn?: T;
-        id?: T;
-      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
